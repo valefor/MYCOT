@@ -28,9 +28,31 @@ class Parser
 
     void term() throws IOException
     {
+        factor();
+        while(true)
+        {
+            if( lookahead == '*') 
+            {
+                match('*');factor();System.out.write('*');
+            }
+            else if( lookahead == '/') 
+            {
+                match('/');factor();System.out.write('/');
+            }
+            else return;
+        }
+        
+    }
+
+    void factor() throws IOException
+    {
         if(Character.isDigit((char)lookahead))
         {
             System.out.write((char)lookahead);match(lookahead);
+        }
+        else if(lookahead == '(')
+        {
+            match('(');expr();match(')');
         }
         else throw new Error("Syntax error.");
     }

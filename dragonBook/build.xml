@@ -25,14 +25,11 @@
 
     <target name="run" depends="build">
         <java classname="Postfix" classpath="${jar_name}"/>
-        <!--
-        <java classname="Head_First.Decorator.InputTest" classpath="${jar_name}"/>
-        -->
     </target>
 
     <target name="clean">
         <delete dir="${dest}"/>
-        <delete dir="${jar_name}"/>
+        <delete file="${jar_name}"/>
     </target>
 
     <!--TARGET definition-->
