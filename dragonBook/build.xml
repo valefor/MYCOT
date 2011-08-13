@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project  name="DB_Compiler" default="build" basedir=".">
+    <!--PROPERTY definition-->
+    <property name="src" value="src"/>
+    <property name="dest" value="classes"/>
+    <property name="jar_name" value="Postfix.jar"/>
+
+    <!--TARGET definition-->
+    <target name="init">
+        <mkdir dir="${dest}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${dest}"/>
+    </target>
+
+    <target name="build" depends="compile">
+        <jar jarfile="${jar_name}" basedir="${dest}"/>
+    </target>
+
+    <target name="rebuild" depends="build,clean">
+        <ant target="clean"/>
+        <ant target="build"/>
+    </target>
+
+    <target name="run" depends="build">
+        <java classname="Postfix" classpath="${jar_name}"/>
+        <!--
+        <java classname="Head_First.Decorator.InputTest" classpath="${jar_name}"/>
+        -->
+    </target>
+
+    <target name="clean">
+        <delete dir="${dest}"/>
+        <delete dir="${jar_name}"/>
+    </target>
+
+    <!--TARGET definition-->
+</project>
+
