@@ -1,0 +1,223 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AND	dragonBook/src/lexer/Tag.java	/^        AND   = 256,  BASIC = 257,BREAK = 258,DO   = 259, ELSE  = 260,$/;"	f	class:Tag
+Access	dragonBook/src/inter/Access.java	/^    public Access(Id a, Expr i, Type p)$/;"	m	class:Access
+Access	dragonBook/src/inter/Access.java	/^public class Access extends Op$/;"	c
+And	dragonBook/src/inter/And.java	/^    public And(Token tok, Expr x1, Expr x2) { super(tok,x1,x2); }$/;"	m	class:And
+And	dragonBook/src/inter/And.java	/^public class And extends Logical$/;"	c
+Arith	dragonBook/src/inter/Arith.java	/^    public Arith(Token tok, Expr x1, Expr x2)$/;"	m
+Array	dragonBook/src/symbols/Array.java	/^    public Array(int sz, Type p)$/;"	m	class:Array
+Array	dragonBook/src/symbols/Array.java	/^public class Array extends Type$/;"	c
+BASIC	dragonBook/src/lexer/Tag.java	/^        AND   = 256,  BASIC = 257,BREAK = 258,DO   = 259, ELSE  = 260,$/;"	f	class:Tag
+BREAK	dragonBook/src/lexer/Tag.java	/^        AND   = 256,  BASIC = 257,BREAK = 258,DO   = 259, ELSE  = 260,$/;"	f	class:Tag
+Bool	dragonBook/src/symbols/Type.java	/^        Bool  = new Type("bool",    Tag.BASIC,  1);$/;"	f	class:Type
+Char	dragonBook/src/symbols/Type.java	/^        Char  = new Type("char",    Tag.BASIC,  1),$/;"	f	class:Type
+Constant	dragonBook/src/inter/Constant.java	/^    public Constant(Token tok,Type p){super(tok,p);}$/;"	m	class:Constant
+Constant	dragonBook/src/inter/Constant.java	/^    public Constant(int i) { super(new Num(i),Type.Int);}$/;"	m	class:Constant
+Constant	dragonBook/src/inter/Constant.java	/^public class Constant extends Expr$/;"	c
+DO	dragonBook/src/lexer/Tag.java	/^        AND   = 256,  BASIC = 257,BREAK = 258,DO   = 259, ELSE  = 260,$/;"	f	class:Tag
+Do	dragonBook/src/inter/Do.java	/^    public Do() { expr = null; stmt = null; }$/;"	m	class:Do
+Do	dragonBook/src/inter/Do.java	/^public class Do extends Stmt$/;"	c
+ELSE	dragonBook/src/lexer/Tag.java	/^        AND   = 256,  BASIC = 257,BREAK = 258,DO   = 259, ELSE  = 260,$/;"	f	class:Tag
+EQ	dragonBook/src/lexer/Tag.java	/^        EQ    = 261,  FALSE = 262,GE    = 263,ID   = 264, IF    = 265,$/;"	f	class:Tag
+Else	dragonBook/src/inter/Else.java	/^    public Else(Expr x, Stmt s1, Stmt s2)$/;"	m	class:Else
+Else	dragonBook/src/inter/Else.java	/^public class Else extends Stmt$/;"	c
+Enclosing	dragonBook/src/inter/Stmt.java	/^    public static Stmt Enclosing = Stmt.Null;$/;"	f	class:Stmt
+Env	dragonBook/src/symbols/Env.java	/^    public Env(Env n){ table = new Hashtable(); prev = n; }$/;"	m	class:Env
+Env	dragonBook/src/symbols/Env.java	/^public class Env$/;"	c
+Expr	dragonBook/src/inter/Expr.java	/^    Expr(Token tok, Type p) { op = tok; type = p; }$/;"	m	class:Expr
+Expr	dragonBook/src/inter/Expr.java	/^public class Expr extends Node$/;"	c
+FALSE	dragonBook/src/lexer/Tag.java	/^        EQ    = 261,  FALSE = 262,GE    = 263,ID   = 264, IF    = 265,$/;"	f	class:Tag
+False	dragonBook/src/inter/Constant.java	/^        False   = new Constant(Word.False,Type.Bool);$/;"	f	class:Constant
+False	dragonBook/src/lexer/Word.java	/^        False = new Word("false",Tag.False);$/;"	f	class:Word
+Float	dragonBook/src/symbols/Type.java	/^        Float = new Type("float",   Tag.BASIC,  8),$/;"	f	class:Type
+GE	dragonBook/src/lexer/Tag.java	/^        EQ    = 261,  FALSE = 262,GE    = 263,ID   = 264, IF    = 265,$/;"	f	class:Tag
+ID	dragonBook/src/lexer/Tag.java	/^        EQ    = 261,  FALSE = 262,GE    = 263,ID   = 264, IF    = 265,$/;"	f	class:Tag
+IF	dragonBook/src/lexer/Tag.java	/^        EQ    = 261,  FALSE = 262,GE    = 263,ID   = 264, IF    = 265,$/;"	f	class:Tag
+INDEX	dragonBook/src/lexer/Tag.java	/^        INDEX = 266,  LE    = 267,MINUS = 268,NE   = 269, NUM   = 270,$/;"	f	class:Tag
+Id	dragonBook/src/inter/Id.java	/^    public Id(Word id, Type p, int b) { super(id,p); offset = b; }$/;"	m
+If	dragonBook/src/inter/If.java	/^    public If(Expr x, Stmt s)$/;"	m	class:If
+If	dragonBook/src/inter/If.java	/^public class If extends Stmt$/;"	c
+Int	dragonBook/src/symbols/Type.java	/^        Int   = new Type("int",     Tag.BASIC,  4),$/;"	f	class:Type
+LE	dragonBook/src/lexer/Tag.java	/^        INDEX = 266,  LE    = 267,MINUS = 268,NE   = 269, NUM   = 270,$/;"	f	class:Tag
+Lexer	dragonBook/src/lexer/Lexer.java	/^    public Lexer()$/;"	m	class:Lexer
+Lexer	dragonBook/src/lexer/Lexer.java	/^public class Lexer$/;"	c
+Logical	dragonBook/src/inter/Logical.java	/^    Logical(Token tok,Expr x1,Expr x2)$/;"	m	class:Logical
+Logical	dragonBook/src/inter/Logical.java	/^public class Logical extends Expr$/;"	c
+MINUS	dragonBook/src/lexer/Tag.java	/^        INDEX = 266,  LE    = 267,MINUS = 268,NE   = 269, NUM   = 270,$/;"	f	class:Tag
+NE	dragonBook/src/lexer/Tag.java	/^        INDEX = 266,  LE    = 267,MINUS = 268,NE   = 269, NUM   = 270,$/;"	f	class:Tag
+NUM	dragonBook/src/lexer/Tag.java	/^        INDEX = 266,  LE    = 267,MINUS = 268,NE   = 269, NUM   = 270,$/;"	f	class:Tag
+Node	dragonBook/src/inter/Node.java	/^    Node() { lexline = Lexer.line; }$/;"	m	class:Node
+Node	dragonBook/src/inter/Node.java	/^public class Node$/;"	c
+Not	dragonBook/src/inter/Not.java	/^    public Not(Token tok,Expr x2) { super(tok,x2,x2); }$/;"	m	class:Not
+Not	dragonBook/src/inter/Not.java	/^public class Not extends Logical$/;"	c
+Null	dragonBook/src/inter/Stmt.java	/^    public static Stmt Null = new Stmt();$/;"	f	class:Stmt
+Num	dragonBook/src/lexer/Num.java	/^    public Num(int v) { super(Tag.NUM);value = v; }$/;"	m	class:Num
+Num	dragonBook/src/lexer/Num.java	/^public class Num extends Token$/;"	c
+OR	dragonBook/src/lexer/Tag.java	/^        OR    = 271,  REAL  = 272,TEMP  = 273,TRUE = 274, WHILE = 275;$/;"	f	class:Tag
+Or	dragonBook/src/inter/Or.java	/^    public Or(Token tok,Expr x1,Expr x2) {super(tok,x1,x2);}$/;"	m	class:Or
+Or	dragonBook/src/inter/Or.java	/^public class Or extends Logical$/;"	c
+Parser	dragonBook/src/Parser.java	/^    public Parser() throws IOException$/;"	m	class:Parser
+Parser	dragonBook/src/Parser.java	/^class Parser$/;"	c
+Postfix	dragonBook/src/Postfix.java	/^public class Postfix$/;"	c
+REAL	dragonBook/src/lexer/Tag.java	/^        OR    = 271,  REAL  = 272,TEMP  = 273,TRUE = 274, WHILE = 275;$/;"	f	class:Tag
+Real	dragonBook/src/lexer/Real.java	/^    public Real(float v) { super(Tag.REAL); value = v ; }$/;"	m	class:Real
+Real	dragonBook/src/lexer/Real.java	/^public class Real extends Token$/;"	c
+Rel	dragonBook/src/inter/Rel.java	/^    public Rel(Token tok,Expr x1,Expr x2){ super(tok,x1,x2); }$/;"	m	class:Rel
+Rel	dragonBook/src/inter/Rel.java	/^public class Rel extends Logical$/;"	c
+Set	dragonBook/src/inter/Set.java	/^    public Set(Id i,Expr x)$/;"	m	class:Set
+Set	dragonBook/src/inter/Set.java	/^public class Set extends Stmt$/;"	c
+SetElem	dragonBook/src/inter/SetElem.java	/^    public SetElem(Access x, Expr y)$/;"	m	class:SetElem
+SetElem	dragonBook/src/inter/SetElem.java	/^public class SetElem extends Stmt$/;"	c
+Stmt	dragonBook/src/inter/Stmt.java	/^    public Stmt() { }$/;"	m	class:Stmt
+Stmt	dragonBook/src/inter/Stmt.java	/^public class Stmt extends Node$/;"	c
+TEMP	dragonBook/src/lexer/Tag.java	/^        OR    = 271,  REAL  = 272,TEMP  = 273,TRUE = 274, WHILE = 275;$/;"	f	class:Tag
+TRUE	dragonBook/src/lexer/Tag.java	/^        OR    = 271,  REAL  = 272,TEMP  = 273,TRUE = 274, WHILE = 275;$/;"	f	class:Tag
+Tag	dragonBook/src/lexer/Tag.java	/^public class Tag$/;"	c
+Temp	dragonBook/src/inter/Temp.java	/^    public Temp(Type p) { super(Word.temp,p); number = ++ count; }$/;"	m
+Token	dragonBook/src/lexer/Token.java	/^    public Token(int t) { tag = t};$/;"	m	class:Token
+Token	dragonBook/src/lexer/Token.java	/^public class Token$/;"	c
+True	dragonBook/src/inter/Constant.java	/^        True    = new Constant(Word.True, Type.Bool),$/;"	f	class:Constant
+True	dragonBook/src/lexer/Word.java	/^        True  = new Word("true",Tag.True);$/;"	f	class:Word
+Type	dragonBook/src/symbols/Type.java	/^    public Type(String s, int tag, int w) { super(s,tag); width =w; }$/;"	m	class:Type
+Type	dragonBook/src/symbols/Type.java	/^public class Type extends Word$/;"	c
+Unary	dragonBook/src/inter/Unary.java	/^    public Unary( Token tok,Expr x)$/;"	m	class:Unary
+Unary	dragonBook/src/inter/Unary.java	/^public class Unary extends Op$/;"	c
+WHILE	dragonBook/src/lexer/Tag.java	/^        OR    = 271,  REAL  = 272,TEMP  = 273,TRUE = 274, WHILE = 275;$/;"	f	class:Tag
+While	dragonBook/src/inter/While.java	/^    public While() { expr = null; stmt = null; }$/;"	m	class:While
+While	dragonBook/src/inter/While.java	/^public class While extends Stmt$/;"	c
+Word	dragonBook/src/lexer/Word.java	/^    public Word(String s, int tag) { super(tag); lexeme = s; }$/;"	m	class:Word
+Word	dragonBook/src/lexer/Word.java	/^public class Word extends Token$/;"	c
+after	dragonBook/src/inter/Stmt.java	/^    int after = 0;$/;"	f	class:Stmt
+and	dragonBook/src/lexer/Word.java	/^        and = new Word("&&" ,Tag.AND),  or = new Word("||",Tag.OR),$/;"	f	class:Word
+array	dragonBook/src/inter/Access.java	/^    public Id array;$/;"	f	class:Access
+array	dragonBook/src/inter/SetElem.java	/^    public Id array;$/;"	f	class:SetElem
+check	dragonBook/src/inter/Logical.java	/^    public Type check(Type p1,Type p2)$/;"	m	class:Logical
+check	dragonBook/src/inter/Rel.java	/^    public Type check(Type p1,Type p2)$/;"	m	class:Rel
+check	dragonBook/src/inter/Set.java	/^    public Type check(Type p1,Type p2)$/;"	m	class:Set
+check	dragonBook/src/inter/SetElem.java	/^    public Type check(Type p1,Type p2)$/;"	m	class:SetElem
+emit	dragonBook/src/inter/Node.java	/^    public void emit(String s) { System.out.println("\\t" + s); }$/;"	m	class:Node
+emitjumps	dragonBook/src/inter/Expr.java	/^    public void emitjumps(String test,int t, int f)$/;"	m	class:Expr
+emitlabel	dragonBook/src/inter/Node.java	/^    public void emitlabel(int i) { System.out.print("L" + i + ":"); }$/;"	m	class:Node
+eq	dragonBook/src/lexer/Word.java	/^        eq  = new Word("==" ,Tag.EQ),   ne = new Word("!=",Tag.NE),$/;"	f	class:Word
+error	dragonBook/src/inter/Node.java	/^    void error(String s) { throw new Error("near line" + lexline+ ":" +s); }$/;"	m	class:Node
+expr	dragonBook/src/Parser.java	/^    void expr() throws IOException$/;"	m	class:Parser
+expr	dragonBook/src/inter/Do.java	/^    Expr expr;$/;"	f	class:Do
+expr	dragonBook/src/inter/Else.java	/^    Expr expr;$/;"	f	class:Else
+expr	dragonBook/src/inter/If.java	/^    Expr expr;$/;"	f	class:If
+expr	dragonBook/src/inter/Set.java	/^    public Id id;public Expr expr;$/;"	f	class:Set
+expr	dragonBook/src/inter/SetElem.java	/^    public Expr expr;$/;"	f	class:SetElem
+expr	dragonBook/src/inter/Unary.java	/^    public Expr expr;$/;"	f	class:Unary
+expr	dragonBook/src/inter/While.java	/^    Expr expr;$/;"	f	class:While
+expr1	dragonBook/src/inter/Logical.java	/^    public Expr expr1,expr2;$/;"	f	class:Logical
+expr2	dragonBook/src/inter/Logical.java	/^    public Expr expr1,expr2;$/;"	f	class:Logical
+factor	dragonBook/src/Parser.java	/^    void factor() throws IOException$/;"	m	class:Parser
+ge	dragonBook/src/lexer/Word.java	/^        le  = new Word("<=" ,Tag.LE),   ge = new Word(">=",Tag.GE),$/;"	f	class:Word
+gen	dragonBook/src/inter/Access.java	/^    public Expr gen() { return new Access(array,index.reduce(),type); }$/;"	m	class:Access
+gen	dragonBook/src/inter/Arith.java	/^    public Expr gen()$/;"	m
+gen	dragonBook/src/inter/Do.java	/^    public void gen(int b, int a)$/;"	m	class:Do
+gen	dragonBook/src/inter/Else.java	/^    public void gen(int b ,int a)$/;"	m	class:Else
+gen	dragonBook/src/inter/Expr.java	/^    public Expr gen() { return this; }$/;"	m	class:Expr
+gen	dragonBook/src/inter/If.java	/^    public void gen(int b,int a)$/;"	m	class:If
+gen	dragonBook/src/inter/Logical.java	/^    public Expr gen()$/;"	m	class:Logical
+gen	dragonBook/src/inter/Set.java	/^    public void gen(int b,int a)$/;"	m	class:Set
+gen	dragonBook/src/inter/SetElem.java	/^    public void gen(int b, int a)$/;"	m	class:SetElem
+gen	dragonBook/src/inter/Stmt.java	/^    public void gen(int b,int a) { }$/;"	m	class:Stmt
+gen	dragonBook/src/inter/While.java	/^    public void gen(int b, int a)$/;"	m	class:While
+get	dragonBook/src/symbols/Env.java	/^    public Id get(Token w)$/;"	m	class:Env
+id	dragonBook/src/inter/Set.java	/^    public Id id;public Expr expr;$/;"	f	class:Set
+index	dragonBook/src/inter/Access.java	/^    public Expr index;$/;"	f	class:Access
+index	dragonBook/src/inter/SetElem.java	/^    public Expr index;$/;"	f	class:SetElem
+init	dragonBook/src/inter/Do.java	/^    public void init(Stmt s, Expr x)$/;"	m	class:Do
+init	dragonBook/src/inter/While.java	/^    public void init(Expr x, Stmt s)$/;"	m	class:While
+inter	dragonBook/src/inter/Access.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/And.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Arith.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Constant.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Do.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Else.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Expr.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Id.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/If.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Logical.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Node.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Not.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Op.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Or.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Rel.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Set.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/SetElem.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Stmt.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Temp.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/Unary.java	/^package inter;$/;"	p
+inter	dragonBook/src/inter/While.java	/^package inter;$/;"	p
+jumping	dragonBook/src/inter/Access.java	/^    public void jumping(int t,int f) { emitjumps(reduce().toString(),t,f); }$/;"	m	class:Access
+jumping	dragonBook/src/inter/And.java	/^    public void jumping(int t, int f)$/;"	m	class:And
+jumping	dragonBook/src/inter/Constant.java	/^    public void jumping(int t,int f)$/;"	m	class:Constant
+jumping	dragonBook/src/inter/Expr.java	/^    public void jumping(int t, int f) { emitjumps( toString(),t,f); }$/;"	m	class:Expr
+jumping	dragonBook/src/inter/Not.java	/^    public void jumping(int t, int f) { expr2.jumping(f,t); }$/;"	m	class:Not
+jumping	dragonBook/src/inter/Or.java	/^    public void jumping(int t, int f)$/;"	m	class:Or
+jumping	dragonBook/src/inter/Rel.java	/^    public void jumping(int t,int f)$/;"	m	class:Rel
+labels	dragonBook/src/inter/Node.java	/^    static int labels = 0;$/;"	f	class:Node
+le	dragonBook/src/lexer/Word.java	/^        le  = new Word("<=" ,Tag.LE),   ge = new Word(">=",Tag.GE),$/;"	f	class:Word
+lexeme	dragonBook/src/lexer/Word.java	/^    public String lexeme = "";$/;"	f	class:Word
+lexer	dragonBook/src/lexer/Lexer.java	/^package lexer;$/;"	p
+lexer	dragonBook/src/lexer/Num.java	/^package lexer;$/;"	p
+lexer	dragonBook/src/lexer/Real.java	/^package lexer;$/;"	p
+lexer	dragonBook/src/lexer/Tag.java	/^package lexer;$/;"	p
+lexer	dragonBook/src/lexer/Token.java	/^package lexer;$/;"	p
+lexer	dragonBook/src/lexer/Word.java	/^package lexer;$/;"	p
+lexline	dragonBook/src/inter/Node.java	/^    int lexline = 0;$/;"	f	class:Node
+line	dragonBook/src/lexer/Lexer.java	/^    public static int line = 1;$/;"	f	class:Lexer
+lookahead	dragonBook/src/Parser.java	/^    static int lookahead;$/;"	f	class:Parser
+main	dragonBook/src/Postfix.java	/^    public static void main(String [] args) throws IOException$/;"	m	class:Postfix
+match	dragonBook/src/Parser.java	/^    void match(int t) throws IOException$/;"	m	class:Parser
+max	dragonBook/src/symbols/Type.java	/^    public static Type max(Type p1,Type p2)$/;"	m	class:Type
+minis	dragonBook/src/lexer/Word.java	/^        minis = new Word("minus",Tag.MINUS);$/;"	f	class:Word
+ne	dragonBook/src/lexer/Word.java	/^        eq  = new Word("==" ,Tag.EQ),   ne = new Word("!=",Tag.NE),$/;"	f	class:Word
+newlabel	dragonBook/src/inter/Node.java	/^    public int newlabel() { return ++labers; }$/;"	m	class:Node
+numeric	dragonBook/src/symbols/Type.java	/^    public static boolean numeric(Type p)$/;"	m	class:Type
+of	dragonBook/src/symbols/Array.java	/^    public Type of;$/;"	f	class:Array
+op	dragonBook/src/inter/Expr.java	/^    public Token op;$/;"	f	class:Expr
+or	dragonBook/src/lexer/Word.java	/^        and = new Word("&&" ,Tag.AND),  or = new Word("||",Tag.OR),$/;"	f	class:Word
+peek	dragonBook/src/lexer/Lexer.java	/^    char peek = '';$/;"	f	class:Lexer
+prev	dragonBook/src/symbols/Env.java	/^    protected Env prev;$/;"	f	class:Env
+put	dragonBook/src/symbols/Env.java	/^    public void put(Token w, Id i) { table.puts(w,i); }$/;"	m	class:Env
+readch	dragonBook/src/lexer/Lexer.java	/^    boolean readch(char c) throws IOException$/;"	m	class:Lexer
+readch	dragonBook/src/lexer/Lexer.java	/^    void readch() throws IOException { peek = (char)System.in.read(); }$/;"	m	class:Lexer
+reduce	dragonBook/src/inter/Expr.java	/^    public Expr reduce() { return this; }$/;"	m	class:Expr
+reserve	dragonBook/src/lexer/Lexer.java	/^    void reserve(Word w) { words.put(w.lexeme,w); }$/;"	m	class:Lexer
+scan	dragonBook/src/lexer/Lexer.java	/^public Token scan() throws IOException$/;"	m
+size	dragonBook/src/symbols/Array.java	/^    public int size = 1;$/;"	f	class:Array
+stmt	dragonBook/src/inter/Do.java	/^    Stmt stmt;$/;"	f	class:Do
+stmt	dragonBook/src/inter/If.java	/^    Stmt stmt;$/;"	f	class:If
+stmt	dragonBook/src/inter/While.java	/^    Stmt stmt;$/;"	f	class:While
+stmt1	dragonBook/src/inter/Else.java	/^    Stmt stmt1,stmt2;$/;"	f	class:Else
+stmt2	dragonBook/src/inter/Else.java	/^    Stmt stmt1,stmt2;$/;"	f	class:Else
+symbols	dragonBook/src/symbols/Array.java	/^package symbols;$/;"	p
+symbols	dragonBook/src/symbols/Env.java	/^package symbols;$/;"	p
+symbols	dragonBook/src/symbols/Type.java	/^package symbols;$/;"	p
+table	dragonBook/src/symbols/Env.java	/^    private Hashtable table;$/;"	f	class:Env	file:
+tag	dragonBook/src/lexer/Token.java	/^    public final int tag;$/;"	f	class:Token
+temp	dragonBook/src/lexer/Word.java	/^        temp  = new Word("t",Tag.TEMP);$/;"	f	class:Word
+term	dragonBook/src/Parser.java	/^    void term() throws IOException$/;"	m	class:Parser
+toString	dragonBook/src/inter/Access.java	/^    public String toString()$/;"	m	class:Access
+toString	dragonBook/src/inter/Arith.java	/^    public String toString()$/;"	m
+toString	dragonBook/src/inter/Expr.java	/^    public String toString() { return op.toString(); }$/;"	m	class:Expr
+toString	dragonBook/src/inter/Logical.java	/^    public String toString()$/;"	m	class:Logical
+toString	dragonBook/src/inter/Not.java	/^    public String toString() { return op.toString() + " " + expr2.toString(); }$/;"	m	class:Not
+toString	dragonBook/src/inter/Temp.java	/^    public String toString() { return "t" + number; }$/;"	m
+toString	dragonBook/src/lexer/Num.java	/^    public String toString() { return "" + value; }$/;"	m	class:Num
+toString	dragonBook/src/lexer/Real.java	/^    public String toString() { return "" + value; }$/;"	m	class:Real
+toString	dragonBook/src/lexer/Token.java	/^    public String toString() { return "" + (char)tag; }$/;"	m	class:Token
+toString	dragonBook/src/lexer/Word.java	/^    public String toString() {return lexeme;}$/;"	m	class:Word
+toString	dragonBook/src/symbols/Array.java	/^    public String toString() { return "[" + size + "]" + of.toString(); }$/;"	m	class:Array
+type	dragonBook/src/inter/Expr.java	/^    public Type type;$/;"	f	class:Expr
+value	dragonBook/src/lexer/Num.java	/^    public final int value;$/;"	f	class:Num
+value	dragonBook/src/lexer/Real.java	/^    public final float value;$/;"	f	class:Real
+width	dragonBook/src/symbols/Type.java	/^    public int width = 0;$/;"	f	class:Type
+words	dragonBook/src/lexer/Lexer.java	/^    Hashtable words = new Hashtable();$/;"	f	class:Lexer
