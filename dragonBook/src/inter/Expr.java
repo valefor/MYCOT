@@ -20,7 +20,7 @@ public class Expr extends Node
             emit("goto L" + f);
         }
         else if( t != 0 ) emit("if" + test + "goto L" + t);
-        else if( f != 0 ) emit("if false" + test + "goto :" + f);
+        else if( f != 0 ) emit("iffalse" + test + "goto :" + f);
     }
     public String toString() { return op.toString(); }
 }
