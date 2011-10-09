@@ -3,7 +3,7 @@
     <!--PROPERTY definition-->
     <property name="src" value="src"/>
     <property name="dest" value="classes"/>
-    <property name="jar_name" value="Postfix.jar"/>
+    <property name="jar_name" value="Compiler.jar"/>
 
     <!--TARGET definition-->
     <target name="init">
@@ -24,7 +24,7 @@
     </target>
 
     <target name="run" depends="build">
-        <java classname="Postfix" classpath="${jar_name}"/>
+        <java classname="main.Main" classpath="${jar_name}"/>
     </target>
 
     <target name="clean">

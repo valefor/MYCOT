@@ -1,7 +1,7 @@
 package inter;
 
 import lexer.*;
-import symbols.*
+import symbols.*;
 
 public class Op extends Expr
 {

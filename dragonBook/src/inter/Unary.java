@@ -8,7 +8,7 @@ public class Unary extends Op
     public Expr expr;
     public Unary( Token tok,Expr x)
     {
-        super(tok,null)
+        super(tok,null);
     }
 
 }
