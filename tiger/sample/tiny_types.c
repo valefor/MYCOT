@@ -1,5 +1,6 @@
 #include "tiny_types.h"
 #include "tiny_util.h"
+#include <string.h>
 
 A_stm A_CompoundStm(A_stm stm1,A_stm stm2)
 {
@@ -87,3 +88,87 @@ Table_ Table(string id,int value, Table_ tail)
     t->tail = tail;
     return t;
 }
+
+Table_ t_interpStm(A_stm s, Table_ t)
+{
+    return NULL;
+}
+
+/*
+ * Binary Tree
+ */
+T_tree Tree(T_tree left,string key,T_tree right)
+{
+    T_tree t = checked_malloc(sizeof(*t));
+    t->left = left;
+    t->key = key;
+    t->right = right;
+    return t;
+}
+
+T_tree tr_insert(string key, T_tree t)
+{
+    if( t == NULL ) return Tree(NULL,key,NULL);
+    else if( strcmp(key,t->key) < 0 )
+        return Tree(tr_insert(key,t->left),key,t->right);
+    else if( strcmp(key,t->key) > 0 )
+        return Tree(t->left,key,tr_insert(key,t->right));
+    else return t;
+}
+
+T_tree tr_bindInsert(string key, void * binding ,T_tree t)
+{
+    if( t == NULL ) 
+    {
+        binding = Tree(NULL,key,NULL);
+        return binding;
+    }
+    else if( strcmp(key,t->key) < 0 )
+        return Tree(tr_bindInsert(key,binding,t->left),key,t->right);
+    else if( strcmp(key,t->key) > 0 )
+        return Tree(t->left,key,tr_bindInsert(key,binding,t->right));
+    else return t;
+}
+
+int tr_isMemberOf(string key, T_tree t)
+{
+    if( t == NULL ) return TRUE;
+    else if( strcmp(key,t->key) < 0 )
+        return tr_isMemberOf(key,t->left);
+    else if( strcmp(key,t->key) > 0 )
+        return tr_isMemberOf(key,t->right);
+    else return FALSE;
+}
+
+/*
+ * Balanced Binary Tree
+ */
+B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth)
+{
+    B_tree t = checked_malloc(sizeof(*t));
+    t->lch = lch;
+    t->key = key;
+    t->rch = rch;
+    t->fth = fth;
+    return t;
+}
+
+/*
+B_tree BT_insert(string key, B_tree t)
+{
+    if( t == NULL ) return BTree(NULL,key,NULL,NULL);
+    else if( strcmp(key,t->key) < 0 )
+        return Tree(tr_insert(key,t->left),key,t->right,t);
+    else if( strcmp(key,t->key) > 0 )
+        return Tree(t->left,key,tr_insert(key,t->right),t);
+    else return t;
+}
+*/
+
+/*
+ * AVL Tree
+ */
+
+/*
+ * Splay Tree
+ */

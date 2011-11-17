@@ -30,6 +30,7 @@ int main(int argc, char ** argv)
                 A_PrintStm(A_LastExpList(A_IdExp("b")))
             )
         );
+    return 0;
 
 }
 

@@ -83,3 +83,32 @@ struct table {
 
 Table_ Table(string id,int value, Table_ tail);
 
+typedef struct tree * T_tree;
+struct tree {
+    T_tree left;
+    string key;
+    T_tree right;
+};
+
+T_tree Tree(T_tree,string,T_tree);
+
+// AVL Tree
+typedef struct atree * A_tree;
+struct atree {
+};
+
+// Balanced Binary Tree
+typedef struct btree * B_tree;
+struct btree {
+    B_tree lch; // left child
+    string key;
+    B_tree rch; // right child
+    B_tree fth; // father
+};
+
+// Splay Tree
+typedef struct stree * S_tree;
+struct stree {
+};
+
+
