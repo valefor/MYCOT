@@ -1,1 +1,20 @@
-SSH
+F*ck the messcode off in cygwin:
+
+1> edit /$HOME/.inputrc:
+uncomments the following lines:
+set meta-flag on
+set convert-meta off
+set input-meta on
+set output-meta on
+
+2> edit /$HOME/.bash_profile: adding following codes
+export LC_ALL=en_US.UTF-16
+export LC_CTYPE=en_US.UTF-16
+export LANG=en_US.UTF-16
+export XMODIFIERS="@im=Chinput"3
+stty cs8 -istrip
+stty pass8
+export LESSCHARSET=latin1
+
+3> if you want to show control chars with commands like 'ls' etcetera,this line should be added in your /$HOME/.bashrc:
+alias ls='ls --color --show-control-chars'
