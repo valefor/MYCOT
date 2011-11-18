@@ -35,7 +35,8 @@ int main(int argc, char ** argv)
     */
     string s[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n"};
     B_tree t = BTree(NULL,"z",NULL,NULL);
-    //BT_insert("b",t);
+    BT_insert("b",t);
+    BT_print(t);
     /*
     string * sptr = s;
     while( sptr )

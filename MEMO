@@ -18,3 +18,9 @@ export LESSCHARSET=latin1
 
 3> if you want to show control chars with commands like 'ls' etcetera,this line should be added in your /$HOME/.bashrc:
 alias ls='ls --color --show-control-chars'
+
+#start gdb
+140 export CYGWIN="$CYGWIN error_start=gdb -nw %1 %2"
+141 # generate core dump
+142 #export CYGWIN="$CYGWIN error_start=dumper.exe -d %1 %2"
+
