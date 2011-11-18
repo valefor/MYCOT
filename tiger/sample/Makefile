@@ -27,5 +27,8 @@ obj:
 asm:
 	$(CC) $(CFLAG) -S *.c
 
+build:
+	$(CC) -o tinyMain $(OBJS)
+
 clean:
 	rm -f *.o *.s

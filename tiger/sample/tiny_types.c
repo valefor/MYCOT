@@ -1,6 +1,8 @@
 #include "tiny_types.h"
 #include "tiny_util.h"
 #include <string.h>
+#include <stdio.h>
+#include <math.h>
 
 A_stm A_CompoundStm(A_stm stm1,A_stm stm2)
 {
@@ -106,13 +108,14 @@ T_tree Tree(T_tree left,string key,T_tree right)
     return t;
 }
 
+// The Elements are always inserted on node
 T_tree tr_insert(string key, T_tree t)
 {
     if( t == NULL ) return Tree(NULL,key,NULL);
     else if( strcmp(key,t->key) < 0 )
-        return Tree(tr_insert(key,t->left),key,t->right);
+        return Tree(tr_insert(key,t->left),t->key,t->right);
     else if( strcmp(key,t->key) > 0 )
-        return Tree(t->left,key,tr_insert(key,t->right));
+        return Tree(t->left,t->key,tr_insert(key,t->right));
     else return t;
 }
 
@@ -124,9 +127,9 @@ T_tree tr_bindInsert(string key, void * binding ,T_tree t)
         return binding;
     }
     else if( strcmp(key,t->key) < 0 )
-        return Tree(tr_bindInsert(key,binding,t->left),key,t->right);
+        return Tree(tr_bindInsert(key,binding,t->left),t->key,t->right);
     else if( strcmp(key,t->key) > 0 )
-        return Tree(t->left,key,tr_bindInsert(key,binding,t->right));
+        return Tree(t->left,t->key,tr_bindInsert(key,binding,t->right));
     else return t;
 }
 
@@ -147,23 +150,80 @@ B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth)
 {
     B_tree t = checked_malloc(sizeof(*t));
     t->lch = lch;
+    t->ldp = BT_deep(lch);
     t->key = key;
     t->rch = rch;
+    t->rdp = BT_deep(lch);
     t->fth = fth;
+    if( (t->ldp - t->rdp) > 1 ) BT_zig(t);
+    else if( (t->ldp - t->rdp) < -1 ) BT_zag(t); 
     return t;
 }
 
-/*
+int BT_deep(B_tree t)
+{
+    if( t == NULL) return 0;
+    else if ( (t->ldp) > (t->rdp) ) return t->ldp + 1;
+    else return t->rdp + 1;
+}
+
 B_tree BT_insert(string key, B_tree t)
 {
     if( t == NULL ) return BTree(NULL,key,NULL,NULL);
     else if( strcmp(key,t->key) < 0 )
-        return Tree(tr_insert(key,t->left),key,t->right,t);
+    {
+        B_tree t = BTree(BT_insert(key,t->lch),t->key,t->rch,t->fth);
+        t->lch->fth = t;
+        return t;
+    }
     else if( strcmp(key,t->key) > 0 )
-        return Tree(t->left,key,tr_insert(key,t->right),t);
+    {
+        B_tree t = BTree(t->lch,t->key,BT_insert(key,t->rch),t->fth);
+        t->rch->fth = t;
+        return t;
+    }
     else return t;
 }
-*/
+
+// rotate towards left
+void BT_zag(B_tree t)
+{
+    B_tree temp;
+    temp = t->rch;
+    t->rch = t->rch->lch;
+    t->rch->fth = t;
+    t->fth = temp;
+    temp->lch = t;
+    temp->fth = NULL;
+    // Now temp is the root node
+    t = temp;
+}
+
+// rotate towards right
+void BT_zig(B_tree t)
+{
+    B_tree temp;
+    temp = t->lch;
+    t->lch = t->lch->rch;
+    t->lch->fth = t;
+    t->fth = temp;
+    temp->rch = t;
+    temp->fth = NULL;
+    // Now temp is the root node
+    t = temp;
+}
+
+void BT_print(B_tree t)
+{
+    if( t == NULL )
+    { return ; }
+    else 
+    {
+        printf("%s",t->key);
+        BT_print(t->lch);
+        BT_print(t->rch);
+    }
+}
 
 /*
  * AVL Tree

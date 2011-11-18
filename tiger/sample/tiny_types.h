@@ -101,10 +101,20 @@ struct atree {
 typedef struct btree * B_tree;
 struct btree {
     B_tree lch; // left child
+    int ldp;    // deep of left sub tree
     string key;
     B_tree rch; // right child
+    int rdp;    // deep of right sub tree
     B_tree fth; // father
 };
+
+// Balanced Binary Tree functions
+B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth);
+int BT_deep(B_tree t);
+B_tree BT_insert(string key, B_tree t);
+void BT_zag(B_tree t);
+void BT_zig(B_tree t);
+void BT_print(B_tree t);
 
 // Splay Tree
 typedef struct stree * S_tree;
