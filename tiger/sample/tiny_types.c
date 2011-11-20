@@ -153,11 +153,74 @@ B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth)
     t->ldp = BT_deep(lch);
     t->key = key;
     t->rch = rch;
-    t->rdp = BT_deep(lch);
+    t->rdp = BT_deep(rch);
     t->fth = fth;
-    if( (t->ldp - t->rdp) > 1 ) BT_zig(t);
-    else if( (t->ldp - t->rdp) < -1 ) BT_zag(t); 
+    
+    if( (t->ldp - t->rdp) > 1 ) 
+    {
+        // LR
+        if(  (t->lch->ldp) < (t->lch->rdp) )
+        {
+            t->lch = BT_zag(t->lch);
+            t = BT_zig(t);
+        }
+        // RR
+        else
+        {
+            t = BT_zig(t);
+        }
+    }
+    else if( (t->ldp - t->rdp) < -1 ) 
+    {
+        // LL
+        if( (t->rch->ldp) < (t->rch->rdp) )
+        {
+            t = BT_zag(t);
+        }
+        // RL
+        else
+        {
+            t->rch = BT_zig(t->rch);
+            t = BT_zag(t);
+        }
+    }
+    //BT_print(t);
+    
     return t;
+}
+
+// rotate towards left
+B_tree BT_zag(B_tree t)
+{
+    if( (!t) && (!t->rch) ){return;}
+    B_tree temp;
+    temp = t->rch;
+    temp->fth = t->fth;
+    t->rch = t->rch->lch;
+    if(t->rch) t->rch->fth = t;
+    t->fth = temp;
+    t->rdp = BT_deep(t->rch);
+    temp->lch = t;
+    temp->ldp = BT_deep(t);
+    // Now temp is the root node
+    return temp;
+}
+
+// rotate towards right
+B_tree BT_zig(B_tree t)
+{
+    if( (!t) && (!t->lch) ){return;}
+    B_tree temp;
+    temp = t->lch;
+    temp->fth = t->fth;
+    t->lch = t->lch->rch;
+    if(t->lch) t->lch->fth = t;
+    t->fth = temp;
+    t->ldp = BT_deep(t->lch);
+    temp->rch = t;
+    temp->rdp = BT_deep(t);
+    // Now temp is the root node
+    return temp;
 }
 
 int BT_deep(B_tree t)
@@ -169,49 +232,39 @@ int BT_deep(B_tree t)
 
 B_tree BT_insert(string key, B_tree t)
 {
-    if( t == NULL ) return BTree(NULL,key,NULL,NULL);
-    else if( strcmp(key,t->key) < 0 )
+    if( t == NULL ) 
     {
-        B_tree t = BTree(BT_insert(key,t->lch),t->key,t->rch,t->fth);
-        t->lch->fth = t;
-        return t;
+        return BTree(NULL,key,NULL,NULL);
     }
-    else if( strcmp(key,t->key) > 0 )
+    else
     {
-        B_tree t = BTree(t->lch,t->key,BT_insert(key,t->rch),t->fth);
-        t->rch->fth = t;
+        if( strcmp(key,t->key) < 0 )
+        {
+            B_tree temp = BTree(BT_insert(key,t->lch),t->key,t->rch,t->fth);
+            temp->lch->fth = temp;
+            return temp;
+        }
+        else if( strcmp(key,t->key) > 0 )
+        {
+            B_tree temp = BTree(t->lch,t->key,BT_insert(key,t->rch),t->fth);
+            temp->rch->fth = temp;
+            return temp;
+        }
+        else return t;
+        /*
         return t;
+        */
     }
-    else return t;
 }
 
-// rotate towards left
-void BT_zag(B_tree t)
+void print_blank(int count)
 {
-    B_tree temp;
-    temp = t->rch;
-    t->rch = t->rch->lch;
-    t->rch->fth = t;
-    t->fth = temp;
-    temp->lch = t;
-    temp->fth = NULL;
-    // Now temp is the root node
-    t = temp;
+    while(count--)
+    {
+        printf("    ");
+    }
 }
 
-// rotate towards right
-void BT_zig(B_tree t)
-{
-    B_tree temp;
-    temp = t->lch;
-    t->lch = t->lch->rch;
-    t->lch->fth = t;
-    t->fth = temp;
-    temp->rch = t;
-    temp->fth = NULL;
-    // Now temp is the root node
-    t = temp;
-}
 
 void BT_print(B_tree t)
 {
@@ -219,7 +272,7 @@ void BT_print(B_tree t)
     { return ; }
     else 
     {
-        printf("%s",t->key);
+        print_blank(t->ldp);printf("%s",t->key);print_blank(t->rdp);printf("\n");
         BT_print(t->lch);
         BT_print(t->rch);
     }

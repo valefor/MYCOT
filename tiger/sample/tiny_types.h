@@ -112,8 +112,8 @@ struct btree {
 B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth);
 int BT_deep(B_tree t);
 B_tree BT_insert(string key, B_tree t);
-void BT_zag(B_tree t);
-void BT_zig(B_tree t);
+B_tree BT_zag(B_tree t);
+B_tree BT_zig(B_tree t);
 void BT_print(B_tree t);
 
 // Splay Tree

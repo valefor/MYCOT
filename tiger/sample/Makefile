@@ -30,5 +30,8 @@ asm:
 build:
 	$(CC) -o tinyMain $(OBJS)
 
+debug:
+	$(CC) -g -o tinyMain *.c
+
 clean:
 	rm -f *.o *.s

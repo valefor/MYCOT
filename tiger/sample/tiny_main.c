@@ -33,21 +33,22 @@ int main(int argc, char ** argv)
             )
         );
     */
-    string s[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n"};
+    string s[] = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","END"};
     B_tree t = BTree(NULL,"z",NULL,NULL);
-    BT_insert("b",t);
-    BT_print(t);
-    /*
+    t = BT_insert("b",t);
+    t = BT_insert("c",t);
+    t = BT_insert("d",t);
+    t = BT_insert("e",t);
+    t = BT_insert("f",t);
     string * sptr = s;
-    while( sptr )
+    while( *sptr != "END")
     {
-        BT_insert(*sptr,t);
+        t = BT_insert(*sptr,t);
         sptr ++;
     }
 
     BT_print(t);
     
     return 0;
-    */
 }
 
