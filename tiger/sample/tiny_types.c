@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <math.h>
 
+string String(char * s)
+{
+    return s;
+}
+
 A_stm A_CompoundStm(A_stm stm1,A_stm stm2)
 {
     A_stm s = checked_malloc(sizeof(*s));
@@ -108,7 +113,7 @@ T_tree Tree(T_tree left,string key,T_tree right)
     return t;
 }
 
-// The Elements are always inserted on node
+// The Elements are always inserted on root node
 T_tree tr_insert(string key, T_tree t)
 {
     if( t == NULL ) return Tree(NULL,key,NULL);
