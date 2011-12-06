@@ -1,0 +1,140 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ACHIIVES	Makefile	/^ACHIIVES=*$/;"	m
+AND	tokens.h	36;"	d
+ANDI	tokens.h	41;"	d
+AS	Makefile	/^AS =as$/;"	m
+A_AssignStm	tiny_types.c	/^A_stm A_AssignStm(string id, A_exp exp)$/;"	f
+A_CompoundStm	tiny_types.c	/^A_stm A_CompoundStm(A_stm stm1,A_stm stm2)$/;"	f
+A_EseqExp	tiny_types.c	/^A_exp A_EseqExp(A_stm stm,A_exp exp)$/;"	f
+A_IdExp	tiny_types.c	/^A_exp A_IdExp(string id)$/;"	f
+A_LastExpList	tiny_types.c	/^A_expList A_LastExpList(A_exp last)$/;"	f
+A_NumExp	tiny_types.c	/^A_exp A_NumExp(int num)$/;"	f
+A_OpExp	tiny_types.c	/^A_exp A_OpExp(A_exp left,A_binop op, A_exp right)$/;"	f
+A_PairExpList	tiny_types.c	/^A_expList A_PairExpList(A_exp head,A_expList tail)$/;"	f
+A_PrintStm	tiny_types.c	/^A_stm A_PrintStm(A_expList exps)$/;"	f
+A_assignStm	tiny_types.h	/^        A_assignStm,$/;"	e	enum:A_stm_::__anon2
+A_binop	tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	t	typeref:enum:__anon1
+A_compoundStm	tiny_types.h	/^        A_compoundStm,$/;"	e	enum:A_stm_::__anon2
+A_div	tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon1
+A_eseqExp	tiny_types.h	/^        A_eseqExp$/;"	e	enum:A_exp_::__anon7
+A_exp	tiny_types.h	/^typedef struct A_exp_ * A_exp;$/;"	t	typeref:struct:A_exp_
+A_expList	tiny_types.h	/^typedef struct A_expList_ * A_expList;$/;"	t	typeref:struct:A_expList_
+A_expList_	tiny_types.h	/^struct A_expList_ {$/;"	s
+A_exp_	tiny_types.h	/^struct A_exp_ {$/;"	s
+A_idExp	tiny_types.h	/^        A_idExp,$/;"	e	enum:A_exp_::__anon7
+A_lastExpList	tiny_types.h	/^        A_lastExpList$/;"	e	enum:A_expList_::__anon11
+A_minus	tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon1
+A_numExp	tiny_types.h	/^        A_numExp,$/;"	e	enum:A_exp_::__anon7
+A_opExp	tiny_types.h	/^        A_opExp,$/;"	e	enum:A_exp_::__anon7
+A_pairExpList	tiny_types.h	/^        A_pairExpList,$/;"	e	enum:A_expList_::__anon11
+A_plus	tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon1
+A_printStm	tiny_types.h	/^        A_printStm$/;"	e	enum:A_stm_::__anon2
+A_stm	tiny_types.h	/^typedef struct A_stm_ * A_stm;$/;"	t	typeref:struct:A_stm_
+A_stm_	tiny_types.h	/^struct A_stm_ {$/;"	s
+A_times	tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon1
+A_tree	tiny_types.h	/^typedef struct atree * A_tree;$/;"	t	typeref:struct:atree
+BREAK	tokens.h	11;"	d
+BT_deep	tiny_types.c	/^int BT_deep(B_tree t)$/;"	f
+BT_insert	tiny_types.c	/^B_tree BT_insert(string key, B_tree t)$/;"	f
+BT_print	tiny_types.c	/^void BT_print(B_tree t)$/;"	f
+BT_zag	tiny_types.c	/^B_tree BT_zag(B_tree t)$/;"	f
+BT_zig	tiny_types.c	/^B_tree BT_zig(B_tree t)$/;"	f
+BTree	tiny_types.c	/^B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth)$/;"	f
+B_tree	tiny_types.h	/^typedef struct btree * B_tree;$/;"	t	typeref:struct:btree
+CC	Makefile	/^CC =gcc$/;"	m
+CFLAG	Makefile	/^CFLAG =-Wall -O$/;"	m
+COMMA	tokens.h	20;"	d
+DO	tokens.h	8;"	d
+ELSE	tokens.h	7;"	d
+EQ	tokens.h	29;"	d
+FALSE	tiny_types.h	7;"	d
+FLOAT	tokens.h	2;"	d
+FOR	tokens.h	10;"	d
+GE	tokens.h	32;"	d
+GT	tokens.h	30;"	d
+ID	tokens.h	15;"	d
+IF	tokens.h	6;"	d
+INT	tokens.h	3;"	d
+LBRACE	tokens.h	24;"	d
+LD	Makefile	/^LD =ld$/;"	m
+LE	tokens.h	33;"	d
+LPAREN	tokens.h	22;"	d
+LT	tokens.h	31;"	d
+NEQ	tokens.h	28;"	d
+NUMBER	tokens.h	17;"	d
+OBJS	Makefile	/^OBJS = tiny_types.o tiny_util.o tiny_main.o$/;"	m
+OR	tokens.h	37;"	d
+ORI	tokens.h	42;"	d
+RBRACE	tokens.h	25;"	d
+RETURN	tokens.h	12;"	d
+RPAREN	tokens.h	23;"	d
+SEMI	tokens.h	21;"	d
+STRING	tokens.h	16;"	d
+S_tree	tiny_types.h	/^typedef struct stree * S_tree;$/;"	t	typeref:struct:stree
+String	tiny_types.c	/^string String(char * s)$/;"	f
+TRUE	tiny_types.h	6;"	d
+T_tree	tiny_types.h	/^typedef struct tree * T_tree;$/;"	t	typeref:struct:tree
+Table	tiny_types.c	/^Table_ Table(string id,int value, Table_ tail)$/;"	f
+Table_	tiny_types.h	/^typedef struct table * Table_;$/;"	t	typeref:struct:table
+Tree	tiny_types.c	/^T_tree Tree(T_tree left,string key,T_tree right)$/;"	f
+WHILE	tokens.h	9;"	d
+XOR	tokens.h	38;"	d
+XORI	tokens.h	43;"	d
+assign	tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	union:A_stm_::__anon3	typeref:struct:A_stm_::__anon3::__anon5
+atree	tiny_types.h	/^struct atree {$/;"	s
+boolean	tiny_types.h	/^typedef char boolean;$/;"	t
+btree	tiny_types.h	/^struct btree {$/;"	s
+checked_malloc	tiny_util.c	/^void * checked_malloc(int len)$/;"	f
+compound	tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	union:A_stm_::__anon3	typeref:struct:A_stm_::__anon3::__anon4
+eseq	tiny_types.h	/^        } eseq;$/;"	m	union:A_exp_::__anon8	typeref:struct:A_exp_::__anon8::__anon10
+exp	tiny_types.h	/^            A_exp exp;$/;"	m	struct:A_exp_::__anon8::__anon10
+exp	tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	struct:A_stm_::__anon3::__anon5
+exps	tiny_types.h	/^        struct { A_expList exps; } print;$/;"	m	struct:A_stm_::__anon3::__anon6
+fth	tiny_types.h	/^    B_tree fth; \/\/ father$/;"	m	struct:btree
+head	tiny_types.h	/^            A_exp head;$/;"	m	struct:A_expList_::__anon12::__anon13
+id	tiny_types.h	/^        string id;$/;"	m	union:A_exp_::__anon8
+id	tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	struct:A_stm_::__anon3::__anon5
+id	tiny_types.h	/^    string id;$/;"	m	struct:table
+key	tiny_types.h	/^    string key;$/;"	m	struct:btree
+key	tiny_types.h	/^    string key;$/;"	m	struct:tree
+kind	tiny_types.h	/^    } kind;$/;"	m	struct:A_expList_	typeref:enum:A_expList_::__anon11
+kind	tiny_types.h	/^    } kind;$/;"	m	struct:A_exp_	typeref:enum:A_exp_::__anon7
+kind	tiny_types.h	/^    } kind;$/;"	m	struct:A_stm_	typeref:enum:A_stm_::__anon2
+last	tiny_types.h	/^        A_exp last;$/;"	m	union:A_expList_::__anon12
+lch	tiny_types.h	/^    B_tree lch; \/\/ left child$/;"	m	struct:btree
+ldp	tiny_types.h	/^    int ldp;    \/\/ deep of left sub tree$/;"	m	struct:btree
+left	tiny_types.h	/^            A_exp left;$/;"	m	struct:A_exp_::__anon8::__anon9
+left	tiny_types.h	/^    T_tree left;$/;"	m	struct:tree
+main	tiny_main.c	/^int main(int argc, char ** argv)$/;"	f
+num	tiny_types.h	/^        int num;$/;"	m	union:A_exp_::__anon8
+op	tiny_types.h	/^            A_binop op;$/;"	m	struct:A_exp_::__anon8::__anon9
+oper	tiny_types.h	/^        } oper;$/;"	m	union:A_exp_::__anon8	typeref:struct:A_exp_::__anon8::__anon9
+pair	tiny_types.h	/^        } pair;$/;"	m	union:A_expList_::__anon12	typeref:struct:A_expList_::__anon12::__anon13
+print	tiny_types.h	/^        struct { A_expList exps; } print;$/;"	m	union:A_stm_::__anon3	typeref:struct:A_stm_::__anon3::__anon6
+print_blank	tiny_types.c	/^void print_blank(int count)$/;"	f
+rch	tiny_types.h	/^    B_tree rch; \/\/ right child$/;"	m	struct:btree
+rdp	tiny_types.h	/^    int rdp;    \/\/ deep of right sub tree$/;"	m	struct:btree
+right	tiny_types.h	/^            A_exp right;$/;"	m	struct:A_exp_::__anon8::__anon9
+right	tiny_types.h	/^    T_tree right;$/;"	m	struct:tree
+stm	tiny_types.h	/^            A_stm stm;$/;"	m	struct:A_exp_::__anon8::__anon10
+stm1	tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	struct:A_stm_::__anon3::__anon4
+stm2	tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	struct:A_stm_::__anon3::__anon4
+stree	tiny_types.h	/^struct stree {$/;"	s
+string	tiny_types.h	/^typedef char * string;$/;"	t
+t_interpStm	tiny_types.c	/^Table_ t_interpStm(A_stm s, Table_ t)$/;"	f
+table	tiny_types.h	/^struct table {$/;"	s
+tail	tiny_types.h	/^            A_expList tail;$/;"	m	struct:A_expList_::__anon12::__anon13
+tail	tiny_types.h	/^    Table_ tail;$/;"	m	struct:table
+tr_bindInsert	tiny_types.c	/^T_tree tr_bindInsert(string key, void * binding ,T_tree t)$/;"	f
+tr_insert	tiny_types.c	/^T_tree tr_insert(string key, T_tree t)$/;"	f
+tr_isMemberOf	tiny_types.c	/^int tr_isMemberOf(string key, T_tree t)$/;"	f
+tree	tiny_types.h	/^struct tree {$/;"	s
+uni	tiny_types.h	/^    } uni;$/;"	m	struct:A_expList_	typeref:union:A_expList_::__anon12
+uni	tiny_types.h	/^    } uni;$/;"	m	struct:A_exp_	typeref:union:A_exp_::__anon8
+uni	tiny_types.h	/^    } uni;$/;"	m	struct:A_stm_	typeref:union:A_stm_::__anon3
+value	tiny_types.h	/^    int value;$/;"	m	struct:table
