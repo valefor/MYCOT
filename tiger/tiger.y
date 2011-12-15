@@ -71,6 +71,21 @@ funcDec : KW_FUNC ID '(' typeFields ')' '=' exp
         | KW_FUNC ID '(' typeFields ')' ':' typeId '=' exp
 ;
 
+exp : KW_NIL
+    | seqExp
+    | constExp
+    | refExp
+    | arithExp
+    | compareExp
+    | boolExp
+    | assignExp
+    | controlExp
+;
+
+assignExp   : KW_VAR ID ':' typeId KW_ASSIGN exp
+;
+
 /* End of grammar. */
 
 %%
+
