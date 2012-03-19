@@ -34,4 +34,4 @@ debug:
 	$(CC) -g -o tinyMain *.c
 
 clean:
-	rm -f *.o *.s
+	rm -f *.o *.s *.exe
