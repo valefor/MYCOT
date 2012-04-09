@@ -9,28 +9,37 @@
 
 /* Regular Expressions and Actions: */
 
+/*
+ * Float unsupported
+ */
+
 DIGITS      [0-9]+
 ID          [_a-zA-Z][a-zA-Z0-9]*
-PUNTUATION  [{}(),=:;\[\]]
+PUNTUATOR   [{}(),=:;\[\]]
 ARITH_OP    [\+\-\*\/\%]
 ARRAY_OF    "array of"
 ASSIGN      ":="
 
-%x comment_block comment_line
+%x comment_block 
+%x comment_line
+%x literal
 
 %%
 
 "/*"    BEGIN(comment_block);
-"//"    BEGIN(comment_line)
+"//"    BEGIN(comment_line);
+"\""    BEGIN(literal);
 
 <comment_block>[^*\n]* 
 <comment_block>"*"+[^*/\n]* 
 <comment_block>\n ++line_num;
 <comment_block>"*"+"/" BEGIN(INITIAL);
 
-
 <comment_line>[^\n]* 
 <comment_line>\n    { ++line_num; BEGIN(INITIAL); }
+
+<literal>"\\"+"\"" 
+<literal>"\"" { BEGIN(INITIAL);} 
 
 <INITIAL>if     { return KW_IF; }
 <INITIAL>then   { return KW_THEN; }
@@ -46,10 +55,10 @@ ASSIGN      ":="
 <INITIAL>string { return KW_TYPE_STR; }
 <INITIAL>function   { return KW_FUNC; }
 
-<INITIAL>{PUNTUATION} { return *yytext; }
-
 <INITIAL>{ASSIGN}   { return KW_ASSIGN; }
 <INITIAL>{ARRAY_OF} { return KW_ARRAY_OF; }
+
+<INITIAL>{PUNTUATOR} { return *yytext; }
 
 
 <INITIAL>{ID}       { yylval->id = yytext;return KW_ID; }

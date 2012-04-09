@@ -1,0 +1,357 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ACHIIVES	sample/Makefile	/^ACHIIVES=*$/;"	m
+AND	sample/tokens.h	36;"	d
+ANDI	sample/tokens.h	41;"	d
+AS	sample/Makefile	/^AS =as$/;"	m
+A_AssignStm	sample/tiny_types.c	/^A_stm A_AssignStm(string id, A_exp exp)$/;"	f
+A_CompoundStm	sample/tiny_types.c	/^A_stm A_CompoundStm(A_stm stm1,A_stm stm2)$/;"	f
+A_EseqExp	sample/tiny_types.c	/^A_exp A_EseqExp(A_stm stm,A_exp exp)$/;"	f
+A_IdExp	sample/tiny_types.c	/^A_exp A_IdExp(string id)$/;"	f
+A_LastExpList	sample/tiny_types.c	/^A_expList A_LastExpList(A_exp last)$/;"	f
+A_NumExp	sample/tiny_types.c	/^A_exp A_NumExp(int num)$/;"	f
+A_OpExp	sample/tiny_types.c	/^A_exp A_OpExp(A_exp left,A_binop op, A_exp right)$/;"	f
+A_PairExpList	sample/tiny_types.c	/^A_expList A_PairExpList(A_exp head,A_expList tail)$/;"	f
+A_PrintStm	sample/tiny_types.c	/^A_stm A_PrintStm(A_expList exps)$/;"	f
+A_assignStm	sample/tiny_types.h	/^        A_assignStm,$/;"	e	enum:A_stm_::__anon3
+A_binop	sample/tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	t	typeref:enum:__anon2
+A_compoundStm	sample/tiny_types.h	/^        A_compoundStm,$/;"	e	enum:A_stm_::__anon3
+A_div	sample/tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon2
+A_eseqExp	sample/tiny_types.h	/^        A_eseqExp$/;"	e	enum:A_exp_::__anon8
+A_exp	sample/tiny_types.h	/^typedef struct A_exp_ * A_exp;$/;"	t	typeref:struct:A_exp_
+A_expList	sample/tiny_types.h	/^typedef struct A_expList_ * A_expList;$/;"	t	typeref:struct:A_expList_
+A_expList_	sample/tiny_types.h	/^struct A_expList_ {$/;"	s
+A_exp_	sample/tiny_types.h	/^struct A_exp_ {$/;"	s
+A_idExp	sample/tiny_types.h	/^        A_idExp,$/;"	e	enum:A_exp_::__anon8
+A_lastExpList	sample/tiny_types.h	/^        A_lastExpList$/;"	e	enum:A_expList_::__anon12
+A_minus	sample/tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon2
+A_numExp	sample/tiny_types.h	/^        A_numExp,$/;"	e	enum:A_exp_::__anon8
+A_opExp	sample/tiny_types.h	/^        A_opExp,$/;"	e	enum:A_exp_::__anon8
+A_pairExpList	sample/tiny_types.h	/^        A_pairExpList,$/;"	e	enum:A_expList_::__anon12
+A_plus	sample/tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon2
+A_printStm	sample/tiny_types.h	/^        A_printStm$/;"	e	enum:A_stm_::__anon3
+A_stm	sample/tiny_types.h	/^typedef struct A_stm_ * A_stm;$/;"	t	typeref:struct:A_stm_
+A_stm_	sample/tiny_types.h	/^struct A_stm_ {$/;"	s
+A_times	sample/tiny_types.h	/^typedef enum {A_plus, A_minus,A_times,A_div} A_binop;$/;"	e	enum:__anon2
+A_tree	sample/tiny_types.h	/^typedef struct atree * A_tree;$/;"	t	typeref:struct:atree
+BEGIN	lex.yy.c	131;"	d	file:
+BREAK	sample/tokens.h	11;"	d
+BT_deep	sample/tiny_types.c	/^int BT_deep(B_tree t)$/;"	f
+BT_insert	sample/tiny_types.c	/^B_tree BT_insert(string key, B_tree t)$/;"	f
+BT_print	sample/tiny_types.c	/^void BT_print(B_tree t)$/;"	f
+BT_zag	sample/tiny_types.c	/^B_tree BT_zag(B_tree t)$/;"	f
+BT_zig	sample/tiny_types.c	/^B_tree BT_zig(B_tree t)$/;"	f
+BTree	sample/tiny_types.c	/^B_tree BTree(B_tree lch,string key,B_tree rch,B_tree fth)$/;"	f
+B_tree	sample/tiny_types.h	/^typedef struct btree * B_tree;$/;"	t	typeref:struct:btree
+CC	sample/Makefile	/^CC =gcc$/;"	m
+CFLAG	sample/Makefile	/^CFLAG =-Wall -O$/;"	m
+COMMA	sample/tokens.h	20;"	d
+DO	sample/tokens.h	8;"	d
+ECHO	lex.yy.c	593;"	d	file:
+ELSE	sample/tokens.h	7;"	d
+EOB_ACT_CONTINUE_SCAN	lex.yy.c	166;"	d	file:
+EOB_ACT_END_OF_FILE	lex.yy.c	167;"	d	file:
+EOB_ACT_LAST_MATCH	lex.yy.c	168;"	d	file:
+EQ	sample/tokens.h	29;"	d
+FALSE	sample/tiny_types.h	7;"	d
+FLEXINT_H	lex.yy.c	36;"	d	file:
+FLEX_BETA	lex.yy.c	20;"	d	file:
+FLEX_SCANNER	lex.yy.c	15;"	d	file:
+FLOAT	sample/tokens.h	2;"	d
+FOR	sample/tokens.h	10;"	d
+GE	sample/tokens.h	32;"	d
+GT	sample/tokens.h	30;"	d
+ID	sample/tokens.h	15;"	d
+IF	sample/tokens.h	6;"	d
+INITIAL	lex.yy.c	505;"	d	file:
+INT	sample/tokens.h	3;"	d
+INT16_MAX	lex.yy.c	79;"	d	file:
+INT16_MIN	lex.yy.c	70;"	d	file:
+INT32_MAX	lex.yy.c	82;"	d	file:
+INT32_MIN	lex.yy.c	73;"	d	file:
+INT8_MAX	lex.yy.c	76;"	d	file:
+INT8_MIN	lex.yy.c	67;"	d	file:
+LBRACE	sample/tokens.h	24;"	d
+LD	sample/Makefile	/^LD =ld$/;"	m
+LE	sample/tokens.h	33;"	d
+LPAREN	sample/tokens.h	22;"	d
+LT	sample/tokens.h	31;"	d
+NEQ	sample/tokens.h	28;"	d
+NUMBER	sample/tokens.h	17;"	d
+OBJS	sample/Makefile	/^OBJS = tiny_types.o tiny_util.o tiny_main.o$/;"	m
+OR	sample/tokens.h	37;"	d
+ORI	sample/tokens.h	42;"	d
+RBRACE	sample/tokens.h	25;"	d
+REJECT	lex.yy.c	493;"	d	file:
+RETURN	sample/tokens.h	12;"	d
+RPAREN	sample/tokens.h	23;"	d
+SB_Record	tiger_types.h	/^typedef struct symbolRecord * SB_Record;$/;"	t	typeref:struct:symbolRecord
+SEMI	sample/tokens.h	21;"	d
+STRING	sample/tokens.h	16;"	d
+S_tree	sample/tiny_types.h	/^typedef struct stree * S_tree;$/;"	t	typeref:struct:stree
+String	sample/tiny_types.c	/^string String(char * s)$/;"	f
+TRUE	sample/tiny_types.h	6;"	d
+T_tree	sample/tiny_types.h	/^typedef struct tree * T_tree;$/;"	t	typeref:struct:tree
+Table	sample/tiny_types.c	/^Table_ Table(string id,int value, Table_ tail)$/;"	f
+Table_	sample/tiny_types.h	/^typedef struct table * Table_;$/;"	t	typeref:struct:table
+Tree	sample/tiny_types.c	/^T_tree Tree(T_tree left,string key,T_tree right)$/;"	f
+UINT16_MAX	lex.yy.c	88;"	d	file:
+UINT32_MAX	lex.yy.c	91;"	d	file:
+UINT8_MAX	lex.yy.c	85;"	d	file:
+WHILE	sample/tokens.h	9;"	d
+XOR	sample/tokens.h	38;"	d
+XORI	sample/tokens.h	43;"	d
+YYSTATE	lex.yy.c	138;"	d	file:
+YYTABLES_NAME	lex.yy.c	1870;"	d	file:
+YY_AT_BOL	lex.yy.c	337;"	d	file:
+YY_BREAK	lex.yy.c	672;"	d	file:
+YY_BUFFER_EOF_PENDING	lex.yy.c	253;"	d	file:
+YY_BUFFER_NEW	lex.yy.c	241;"	d	file:
+YY_BUFFER_NORMAL	lex.yy.c	242;"	d	file:
+YY_BUFFER_STATE	lex.yy.c	/^typedef struct yy_buffer_state *YY_BUFFER_STATE;$/;"	t	typeref:struct:yy_buffer_state	file:
+YY_BUF_SIZE	lex.yy.c	150;"	d	file:
+YY_CHAR	lex.yy.c	/^typedef unsigned char YY_CHAR;$/;"	t	file:
+YY_CURRENT_BUFFER	lex.yy.c	269;"	d	file:
+YY_CURRENT_BUFFER_LVALUE	lex.yy.c	276;"	d	file:
+YY_DECL	lex.yy.c	660;"	d	file:
+YY_DECL_IS_OURS	lex.yy.c	656;"	d	file:
+YY_DO_BEFORE_ACTION	lex.yy.c	362;"	d	file:
+YY_END_OF_BUFFER	lex.yy.c	370;"	d	file:
+YY_END_OF_BUFFER_CHAR	lex.yy.c	146;"	d	file:
+YY_EXIT_FAILURE	lex.yy.c	1668;"	d	file:
+YY_EXTRA_TYPE	lex.yy.c	517;"	d	file:
+YY_FATAL_ERROR	lex.yy.c	647;"	d	file:
+YY_FLEX_MAJOR_VERSION	lex.yy.c	16;"	d	file:
+YY_FLEX_MINOR_VERSION	lex.yy.c	17;"	d	file:
+YY_FLEX_SUBMINOR_VERSION	lex.yy.c	18;"	d	file:
+YY_FLUSH_BUFFER	lex.yy.c	305;"	d	file:
+YY_INPUT	lex.yy.c	600;"	d	file:
+YY_INT_ALIGNED	lex.yy.c	11;"	d	file:
+YY_LESS_LINENO	lex.yy.c	170;"	d	file:
+YY_MORE_ADJ	lex.yy.c	495;"	d	file:
+YY_NEW_FILE	lex.yy.c	144;"	d	file:
+YY_NULL	lex.yy.c	118;"	d	file:
+YY_NUM_RULES	lex.yy.c	369;"	d	file:
+YY_READ_BUF_SIZE	lex.yy.c	585;"	d	file:
+YY_RESTORE_YY_MORE_OFFSET	lex.yy.c	496;"	d	file:
+YY_RULE_SETUP	lex.yy.c	675;"	d	file:
+YY_SC_TO_UI	lex.yy.c	125;"	d	file:
+YY_START	lex.yy.c	137;"	d	file:
+YY_START_STACK_INCR	lex.yy.c	642;"	d	file:
+YY_STATE_BUF_SIZE	lex.yy.c	155;"	d	file:
+YY_STATE_EOF	lex.yy.c	141;"	d	file:
+YY_STRUCT_YY_BUFFER_STATE	lex.yy.c	194;"	d	file:
+YY_TYPEDEF_YY_BUFFER_STATE	lex.yy.c	158;"	d	file:
+YY_TYPEDEF_YY_SIZE_T	lex.yy.c	189;"	d	file:
+YY_USER_ACTION	lex.yy.c	667;"	d	file:
+YY_USE_CONST	lex.yy.c	106;"	d	file:
+YY_USE_CONST	lex.yy.c	99;"	d	file:
+__STDC_LIMIT_MACROS	lex.yy.c	46;"	d	file:
+arith_fncts	sample/calc.h	/^struct init const arith_fncts[] = $/;"	v
+assign	sample/tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	union:A_stm_::__anon4	typeref:struct:A_stm_::__anon4::__anon6
+assignExp	tiger.y	/^assignExp: ID tASSIGN value$/;"	l
+atree	sample/tiny_types.h	/^struct atree {$/;"	s
+boolean	sample/tiny_types.h	/^typedef char boolean;$/;"	t
+btree	sample/tiny_types.h	/^struct btree {$/;"	s
+checked_malloc	sample/tiny_util.c	/^void * checked_malloc(int len)$/;"	f
+comment	lex.yy.c	506;"	d	file:
+compound	sample/tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	union:A_stm_::__anon4	typeref:struct:A_stm_::__anon4::__anon5
+dec	tiger.y	/^dec : typeDec$/;"	l
+decs	tiger.y	/^decs: none$/;"	l
+eseq	sample/tiny_types.h	/^        } eseq;$/;"	m	union:A_exp_::__anon9	typeref:struct:A_exp_::__anon9::__anon11
+exp	sample/mfcalc.y	/^exp:    NUM             { $$ = $1; }$/;"	l
+exp	sample/mycalc.y	/^exp:    NUM         { $$ = $1; }$/;"	l
+exp	sample/tiny_types.h	/^            A_exp exp;$/;"	m	struct:A_exp_::__anon9::__anon11
+exp	sample/tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	struct:A_stm_::__anon4::__anon6
+exp	tiger.y	/^exp : KW_NIL$/;"	l
+exp	tiger.y	/^exp : none$/;"	l
+exps	sample/tiny_types.h	/^        struct { A_expList exps; } print;$/;"	m	struct:A_stm_::__anon4::__anon7
+father	tiger_types.h	/^    SB_Record father; \/\/ father$/;"	m	struct:symbolRecord
+flex_int16_t	lex.yy.c	/^typedef int16_t flex_int16_t;$/;"	t	file:
+flex_int16_t	lex.yy.c	/^typedef short int flex_int16_t;$/;"	t	file:
+flex_int32_t	lex.yy.c	/^typedef int flex_int32_t;$/;"	t	file:
+flex_int32_t	lex.yy.c	/^typedef int32_t flex_int32_t;$/;"	t	file:
+flex_int8_t	lex.yy.c	/^typedef int8_t flex_int8_t;$/;"	t	file:
+flex_int8_t	lex.yy.c	/^typedef signed char flex_int8_t;$/;"	t	file:
+flex_uint16_t	lex.yy.c	/^typedef uint16_t flex_uint16_t;$/;"	t	file:
+flex_uint16_t	lex.yy.c	/^typedef unsigned short int flex_uint16_t;$/;"	t	file:
+flex_uint32_t	lex.yy.c	/^typedef uint32_t flex_uint32_t;$/;"	t	file:
+flex_uint32_t	lex.yy.c	/^typedef unsigned int flex_uint32_t;$/;"	t	file:
+flex_uint8_t	lex.yy.c	/^typedef uint8_t flex_uint8_t;$/;"	t	file:
+flex_uint8_t	lex.yy.c	/^typedef unsigned char flex_uint8_t; $/;"	t	file:
+fname	sample/calc.h	/^    char const * fname;$/;"	m	struct:init
+fnct	sample/calc.h	/^    double (*fnct) (double);$/;"	m	struct:init
+fnctptr	sample/calc.h	/^        func_t fnctptr;$/;"	m	union:symrec::__anon1
+fth	sample/tiny_types.h	/^    B_tree fth; \/\/ father$/;"	m	struct:btree
+funcDec	tiger.y	/^funcDec : KW_FUNC ID '(' typeFields ')' '=' non_nil_stmts$/;"	l
+func_t	sample/calc.h	/^typedef double(*func_t) (double);$/;"	t
+head	sample/tiny_types.h	/^            A_exp head;$/;"	m	struct:A_expList_::__anon13::__anon14
+id	sample/tiny_types.h	/^        string id;$/;"	m	union:A_exp_::__anon9
+id	sample/tiny_types.h	/^        struct { string id; A_exp exp; } assign;$/;"	m	struct:A_stm_::__anon4::__anon6
+id	sample/tiny_types.h	/^    string id;$/;"	m	struct:table
+init	sample/calc.h	/^struct init$/;"	s
+input	sample/mfcalc.y	/^input: \/* empty *\/$/;"	l
+input	sample/mycalc.y	/^input: \/* empty *\/$/;"	l
+key	sample/tiny_types.h	/^    string key;$/;"	m	struct:btree
+key	sample/tiny_types.h	/^    string key;$/;"	m	struct:tree
+kind	sample/tiny_types.h	/^    } kind;$/;"	m	struct:A_expList_	typeref:enum:A_expList_::__anon12
+kind	sample/tiny_types.h	/^    } kind;$/;"	m	struct:A_exp_	typeref:enum:A_exp_::__anon8
+kind	sample/tiny_types.h	/^    } kind;$/;"	m	struct:A_stm_	typeref:enum:A_stm_::__anon3
+last	sample/tiny_types.h	/^        A_exp last;$/;"	m	union:A_expList_::__anon13
+lch	sample/tiny_types.h	/^    B_tree lch; \/\/ left child$/;"	m	struct:btree
+lchild	tiger_types.h	/^    SB_Record lchild;  \/\/ left child$/;"	m	struct:symbolRecord
+ldeep	tiger_types.h	/^    int ldeep;        \/\/ deep of left sub tree$/;"	m	struct:symbolRecord
+ldp	sample/tiny_types.h	/^    int ldp;    \/\/ deep of left sub tree$/;"	m	struct:btree
+left	sample/tiny_types.h	/^            A_exp left;$/;"	m	struct:A_exp_::__anon9::__anon10
+left	sample/tiny_types.h	/^    T_tree left;$/;"	m	struct:tree
+line	sample/mfcalc.y	/^line:   '\\n'$/;"	l
+line	sample/mycalc.y	/^line:   '\\n'$/;"	l
+main	sample/tiny_main.c	/^int main(int argc, char ** argv)$/;"	f
+name	sample/calc.h	/^    char * name;$/;"	m	struct:symrec
+next	sample/calc.h	/^    struct symrec *next;$/;"	m	struct:symrec	typeref:struct:symrec::symrec
+non_nil_stmts	tiger.y	/^non_nil_stmts   : stmt$/;"	l
+none	tiger.y	/^none    :$/;"	l
+num	sample/tiny_types.h	/^        int num;$/;"	m	union:A_exp_::__anon9
+op	sample/tiny_types.h	/^            A_binop op;$/;"	m	struct:A_exp_::__anon9::__anon10
+oper	sample/tiny_types.h	/^        } oper;$/;"	m	union:A_exp_::__anon9	typeref:struct:A_exp_::__anon9::__anon10
+opt_else	tiger.y	/^opt_else: none$/;"	l
+pair	sample/tiny_types.h	/^        } pair;$/;"	m	union:A_expList_::__anon13	typeref:struct:A_expList_::__anon13::__anon14
+print	sample/tiny_types.h	/^        struct { A_expList exps; } print;$/;"	m	union:A_stm_::__anon4	typeref:struct:A_stm_::__anon4::__anon7
+print_blank	sample/tiny_types.c	/^void print_blank(int count)$/;"	f
+prog	tiger.y	/^prog: none$/;"	l
+rch	sample/tiny_types.h	/^    B_tree rch; \/\/ right child$/;"	m	struct:btree
+rchild	tiger_types.h	/^    SB_Record rchild; \/\/ right child$/;"	m	struct:symbolRecord
+rdeep	tiger_types.h	/^    int rdeep;    \/\/ deep of right sub tree$/;"	m	struct:symbolRecord
+rdp	sample/tiny_types.h	/^    int rdp;    \/\/ deep of right sub tree$/;"	m	struct:btree
+right	sample/tiny_types.h	/^            A_exp right;$/;"	m	struct:A_exp_::__anon9::__anon10
+right	sample/tiny_types.h	/^    T_tree right;$/;"	m	struct:tree
+stm	sample/tiny_types.h	/^            A_stm stm;$/;"	m	struct:A_exp_::__anon9::__anon11
+stm1	sample/tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	struct:A_stm_::__anon4::__anon5
+stm2	sample/tiny_types.h	/^        struct { A_stm stm1, stm2; } compound;$/;"	m	struct:A_stm_::__anon4::__anon5
+stmt	tiger.y	/^stmt: KW_IF expr KW_THEN stmts opt_else$/;"	l
+stmts	tiger.y	/^stmts: none$/;"	l
+stree	sample/tiny_types.h	/^struct stree {$/;"	s
+string	sample/tiny_types.h	/^typedef char * string;$/;"	t
+symbolRecord	tiger_types.h	/^struct symbolRecord {$/;"	s
+symrec	sample/calc.h	/^struct symrec$/;"	s
+symrec	sample/calc.h	/^typedef struct symrec symrec;$/;"	t	typeref:struct:symrec
+t_interpStm	sample/tiny_types.c	/^Table_ t_interpStm(A_stm s, Table_ t)$/;"	f
+table	sample/tiny_types.h	/^struct table {$/;"	s
+tail	sample/tiny_types.h	/^            A_expList tail;$/;"	m	struct:A_expList_::__anon13::__anon14
+tail	sample/tiny_types.h	/^    Table_ tail;$/;"	m	struct:table
+term	tiger.y	/^term : ';' { yyerrok; }$/;"	l
+terms	tiger.y	/^terms : term$/;"	l
+tr_bindInsert	sample/tiny_types.c	/^T_tree tr_bindInsert(string key, void * binding ,T_tree t)$/;"	f
+tr_insert	sample/tiny_types.c	/^T_tree tr_insert(string key, T_tree t)$/;"	f
+tr_isMemberOf	sample/tiny_types.c	/^int tr_isMemberOf(string key, T_tree t)$/;"	f
+tree	sample/tiny_types.h	/^struct tree {$/;"	s
+type	sample/calc.h	/^    int type;$/;"	m	struct:symrec
+type	tiger.y	/^type: TYPE_ID$/;"	l
+typeBuildin	tiger.y	/^typeBuildin : KW_TYPE_INT$/;"	l
+typeDec	tiger.y	/^typeDec : KW_TYPE TYPE_ID '=' typeDef { \/* if typeDef is not defined yet,through out an parse error*\/ }$/;"	l
+typeDef	tiger.y	/^typeDef :type $/;"	l
+typeField	tiger.y	/^typeField   :  none$/;"	l
+typeFields	tiger.y	/^typeFields  : typeField$/;"	l
+uni	sample/tiny_types.h	/^    } uni;$/;"	m	struct:A_expList_	typeref:union:A_expList_::__anon13
+uni	sample/tiny_types.h	/^    } uni;$/;"	m	struct:A_exp_	typeref:union:A_exp_::__anon9
+uni	sample/tiny_types.h	/^    } uni;$/;"	m	struct:A_stm_	typeref:union:A_stm_::__anon4
+unput	lex.yy.c	186;"	d	file:
+value	sample/calc.h	/^    } value;$/;"	m	struct:symrec	typeref:union:symrec::__anon1
+value	sample/tiny_types.h	/^    int value;$/;"	m	struct:table
+value	tiger.y	/^value:ID$/;"	l
+value	tiger_types.h	/^    void * value;$/;"	m	struct:symbolRecord
+var	sample/calc.h	/^        double var;$/;"	m	union:symrec::__anon1
+varDec	tiger.y	/^varDec  : KW_VAR ID ASSIGN exp$/;"	l
+yy_accept	lex.yy.c	/^static yyconst flex_int16_t yy_accept[66] =$/;"	v	file:
+yy_at_bol	lex.yy.c	/^	int yy_at_bol;$/;"	m	struct:yy_buffer_state	file:
+yy_base	lex.yy.c	/^static yyconst flex_int16_t yy_base[70] =$/;"	v	file:
+yy_bs_column	lex.yy.c	/^    int yy_bs_column; \/**< The column count. *\/$/;"	m	struct:yy_buffer_state	file:
+yy_bs_lineno	lex.yy.c	/^    int yy_bs_lineno; \/**< The line count. *\/$/;"	m	struct:yy_buffer_state	file:
+yy_buf_pos	lex.yy.c	/^	char *yy_buf_pos;		\/* current position in input buffer *\/$/;"	m	struct:yy_buffer_state	file:
+yy_buf_size	lex.yy.c	/^	yy_size_t yy_buf_size;$/;"	m	struct:yy_buffer_state	file:
+yy_buffer_stack	lex.yy.c	/^static YY_BUFFER_STATE * yy_buffer_stack = 0; \/**< Stack as an array. *\/$/;"	v	file:
+yy_buffer_stack_max	lex.yy.c	/^static size_t yy_buffer_stack_max = 0; \/**< capacity of stack. *\/$/;"	v	file:
+yy_buffer_stack_top	lex.yy.c	/^static size_t yy_buffer_stack_top = 0; \/**< index of top of stack. *\/$/;"	v	file:
+yy_buffer_state	lex.yy.c	/^struct yy_buffer_state$/;"	s	file:
+yy_buffer_status	lex.yy.c	/^	int yy_buffer_status;$/;"	m	struct:yy_buffer_state	file:
+yy_c_buf_p	lex.yy.c	/^static char *yy_c_buf_p = (char *) 0;$/;"	v	file:
+yy_ch_buf	lex.yy.c	/^	char *yy_ch_buf;		\/* input buffer *\/$/;"	m	struct:yy_buffer_state	file:
+yy_chk	lex.yy.c	/^static yyconst flex_int16_t yy_chk[115] =$/;"	v	file:
+yy_create_buffer	lex.yy.c	/^    YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size )$/;"	f
+yy_def	lex.yy.c	/^static yyconst flex_int16_t yy_def[70] =$/;"	v	file:
+yy_delete_buffer	lex.yy.c	/^    void yy_delete_buffer (YY_BUFFER_STATE  b )$/;"	f
+yy_did_buffer_switch_on_eof	lex.yy.c	/^static int yy_did_buffer_switch_on_eof;$/;"	v	file:
+yy_ec	lex.yy.c	/^static yyconst flex_int32_t yy_ec[256] =$/;"	v	file:
+yy_fatal_error	lex.yy.c	/^static void yy_fatal_error (yyconst char* msg )$/;"	f	file:
+yy_fill_buffer	lex.yy.c	/^	int yy_fill_buffer;$/;"	m	struct:yy_buffer_state	file:
+yy_flex_debug	lex.yy.c	/^int yy_flex_debug = 0;$/;"	v
+yy_flex_strlen	lex.yy.c	/^static int yy_flex_strlen (yyconst char * s )$/;"	f	file:
+yy_flex_strncpy	lex.yy.c	/^static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )$/;"	f	file:
+yy_flush_buffer	lex.yy.c	/^    void yy_flush_buffer (YY_BUFFER_STATE  b )$/;"	f
+yy_get_next_buffer	lex.yy.c	/^static int yy_get_next_buffer (void)$/;"	f	file:
+yy_get_previous_state	lex.yy.c	/^    static yy_state_type yy_get_previous_state (void)$/;"	f	file:
+yy_hold_char	lex.yy.c	/^static char yy_hold_char;$/;"	v	file:
+yy_init	lex.yy.c	/^static int yy_init = 0;		\/* whether we need to initialize *\/$/;"	v	file:
+yy_init_buffer	lex.yy.c	/^    static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )$/;"	f	file:
+yy_init_globals	lex.yy.c	/^static int yy_init_globals (void)$/;"	f	file:
+yy_input_file	lex.yy.c	/^	FILE *yy_input_file;$/;"	m	struct:yy_buffer_state	file:
+yy_is_interactive	lex.yy.c	/^	int yy_is_interactive;$/;"	m	struct:yy_buffer_state	file:
+yy_is_our_buffer	lex.yy.c	/^	int yy_is_our_buffer;$/;"	m	struct:yy_buffer_state	file:
+yy_last_accepting_cpos	lex.yy.c	/^static char *yy_last_accepting_cpos;$/;"	v	file:
+yy_last_accepting_state	lex.yy.c	/^static yy_state_type yy_last_accepting_state;$/;"	v	file:
+yy_load_buffer_state	lex.yy.c	/^static void yy_load_buffer_state  (void)$/;"	f	file:
+yy_meta	lex.yy.c	/^static yyconst flex_int32_t yy_meta[29] =$/;"	v	file:
+yy_n_chars	lex.yy.c	/^	int yy_n_chars;$/;"	m	struct:yy_buffer_state	file:
+yy_n_chars	lex.yy.c	/^static int yy_n_chars;		\/* number of characters read into yy_ch_buf *\/$/;"	v	file:
+yy_new_buffer	lex.yy.c	315;"	d	file:
+yy_nxt	lex.yy.c	/^	flex_int32_t yy_nxt;$/;"	m	struct:yy_trans_info	file:
+yy_nxt	lex.yy.c	/^static yyconst flex_int16_t yy_nxt[115] =$/;"	v	file:
+yy_scan_buffer	lex.yy.c	/^YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )$/;"	f
+yy_scan_bytes	lex.yy.c	/^YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )$/;"	f
+yy_scan_string	lex.yy.c	/^YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )$/;"	f
+yy_set_bol	lex.yy.c	327;"	d	file:
+yy_set_interactive	lex.yy.c	317;"	d	file:
+yy_size_t	lex.yy.c	/^typedef size_t yy_size_t;$/;"	t	file:
+yy_start	lex.yy.c	/^static int yy_start = 0;	\/* start state number *\/$/;"	v	file:
+yy_state_type	lex.yy.c	/^typedef int yy_state_type;$/;"	t	file:
+yy_switch_to_buffer	lex.yy.c	/^    void yy_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )$/;"	f
+yy_trans_info	lex.yy.c	/^struct yy_trans_info$/;"	s	file:
+yy_try_NUL_trans	lex.yy.c	/^    static yy_state_type yy_try_NUL_trans  (yy_state_type yy_current_state )$/;"	f	file:
+yy_verify	lex.yy.c	/^	flex_int32_t yy_verify;$/;"	m	struct:yy_trans_info	file:
+yyalloc	lex.yy.c	/^void *yyalloc (yy_size_t  size )$/;"	f
+yyconst	lex.yy.c	112;"	d	file:
+yyconst	lex.yy.c	114;"	d	file:
+yyensure_buffer_stack	lex.yy.c	/^static void yyensure_buffer_stack (void)$/;"	f	file:
+yyfree	lex.yy.c	/^void yyfree (void * ptr )$/;"	f
+yyget_debug	lex.yy.c	/^int yyget_debug  (void)$/;"	f
+yyget_in	lex.yy.c	/^FILE *yyget_in  (void)$/;"	f
+yyget_leng	lex.yy.c	/^int yyget_leng  (void)$/;"	f
+yyget_lineno	lex.yy.c	/^int yyget_lineno  (void)$/;"	f
+yyget_out	lex.yy.c	/^FILE *yyget_out  (void)$/;"	f
+yyget_text	lex.yy.c	/^char *yyget_text  (void)$/;"	f
+yyin	lex.yy.c	/^FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;$/;"	v
+yyinput	lex.yy.c	/^    static int yyinput (void)$/;"	f	file:
+yyleng	lex.yy.c	/^int yyleng;$/;"	v
+yyless	lex.yy.c	1679;"	d	file:
+yyless	lex.yy.c	1680;"	d	file:
+yyless	lex.yy.c	173;"	d	file:
+yylex_destroy	lex.yy.c	/^int yylex_destroy  (void)$/;"	f
+yylineno	lex.yy.c	/^int yylineno = 1;$/;"	v
+yymore	lex.yy.c	494;"	d	file:
+yyout	lex.yy.c	/^FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;$/;"	v
+yypop_buffer_state	lex.yy.c	/^void yypop_buffer_state (void)$/;"	f
+yypush_buffer_state	lex.yy.c	/^void yypush_buffer_state (YY_BUFFER_STATE new_buffer )$/;"	f
+yyrealloc	lex.yy.c	/^void *yyrealloc  (void * ptr, yy_size_t  size )$/;"	f
+yyrestart	lex.yy.c	/^    void yyrestart  (FILE * input_file )$/;"	f
+yyset_debug	lex.yy.c	/^void yyset_debug (int  bdebug )$/;"	f
+yyset_in	lex.yy.c	/^void yyset_in (FILE *  in_str )$/;"	f
+yyset_lineno	lex.yy.c	/^void yyset_lineno (int  line_number )$/;"	f
+yyset_out	lex.yy.c	/^void yyset_out (FILE *  out_str )$/;"	f
+yyterminate	lex.yy.c	637;"	d	file:
+yytext	lex.yy.c	/^char *yytext;$/;"	v
+yytext_ptr	lex.yy.c	352;"	d	file:
+yyunput	lex.yy.c	/^    static void yyunput (int c, register char * yy_bp )$/;"	f	file:

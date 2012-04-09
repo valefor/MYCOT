@@ -1,3 +1,12 @@
+/*
+ * /$ Tiger's Grammar $\
+ * 
+ * Phase 1 ->
+ *  1. No constant
+ *  2. No global var
+ * 
+ */
+
 /* Declarations */
 %{
 
@@ -12,11 +21,11 @@ void yyerror(char const *);
 
 %union{
     char * id;
-    double  val;
-    typeDef
+    int val;
     symrec  *tptr;
 }
 
+/* Keyword(Reserved Word) */
 %token
     KW_IF
     KW_THEN
@@ -31,23 +40,43 @@ void yyerror(char const *);
     KW_TYPE_INT
     KW_TYPE_STR
     KW_FUNC
-    KW_ASSIGN
     KW_ARRAY_OF
 
+/* Token */
+%token
+    tLOWEST
+
+/* Token-Operater */
+%token
+    tEQ
+    tLEQ
+    tNEQ
+    tGEQ
+    tUMINUS
+    tASSIGN
+
+// Const & Variable
 %token <val>    NUM
-%token <id>     ID TYPE_ID
+%token <id>     ID
 %type  <val>    exp
 
 /*
 <<Operator precedence>>:
 The relative precedence of different operators is controlled by the order in which they are declared.
+The earliest declaration,the lowest precedence
 */
 
-%right  '='
+%nonassoc tLOWEST
+
+%nonassoc tEQ tNEQ '>' tGEQ '<' tLEQ
+%right  tASSIGN
+%left   '|' '&'
+/* %left   '>' tGEQ '<' tLEQ */
 %left   '-' '+'
 %left   '*' '/'
-%left   NEG
-%right  '^'
+%right  '!' tUMINUS
+
+/* start parse */
 %start prog
 %% /* Grammar rules and actions follow */
 
@@ -65,85 +94,110 @@ dec : typeDec
     | funcDec
 ;
 
-typeDec : KW_TYPE TYPE_ID '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
+typeDec : KW_TYPE ID '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
 ;
 
-typeDef :type 
-        |typeBuildin
+typeDef : type 
+        | KW_TYPE_INT
+        | KW_TYPE_STR
 ;
 
-type: TYPE_ID
+type: ID
     | '{' typeFields '}'
     | KW_ARRAY_OF typeDef
 ;
 
 typeFields  : typeField
-    | typeFields ',' typeField
+            | typeFields ',' typeField
 ;
 
-typeField   : none
-    | ID ':' typeDef
+typeField   :  none
+            | ID ':' typeDef
 ;
 
-typeBuildin: KW_TYPE_INT
-           | KW_TYPE_STR
+varDec  : KW_VAR ID ':' typeDef
+        | KW_VAR ID ':' typeDef tASSIGN exp
 ;
 
-
-varDec  : KW_VAR ID ASSIGN exp
-        | KW_VAR ID ':' typeDef ASSIGN exp
+funcDec : KW_FUNC ID '(' typeFields ')' '=' nonNilStmts
+        | KW_FUNC ID '(' typeFields ')' ':' typeDef '=' nonNilStmts
 ;
 
-funcDec : KW_FUNC ID '(' typeFields ')' '=' non_nil_stmts
-        | KW_FUNC ID '(' typeFields ')' ':' typeDef '=' non_nil_stmts
-;
-
-exp : KW_NIL
-    | seqExp
-    | arithExp
-    | compareExp
-    | assignExp
-;
-
-non_nil_stmts: stmt
-    | stmts term stmt
+nonNilStmts : stmt
+            | nonNilStmts term stmt
 ;
 
 stmts: none
-    | non_nil_stmts
+    | nonNilStmts
 ;
 
-stmt: KW_IF expr KW_THEN stmts opt_else
-    | KW_WHILE expr KW_DO stmts
-    | KW_FOR id KW_ASSIGN value KW_TO value KW_DO stmts
+stmt: KW_IF compExp KW_THEN stmts optElse
+    | KW_WHILE compExp KW_DO stmts
+    | KW_FOR ID tASSIGN value KW_TO value KW_DO stmts
     | KW_BREAK
-    | KW_LET decs in exps KW_END
-    | decs
-    | exps
+    | KW_LET decs in stmts KW_END
+    | dec
+    | exp
     | '(' stmt ')'
 ;
 
-opt_else: none
-    | KW_ELSE non_nil_stmts
+optElse: none
+    | KW_ELSE nonNilStmts
 ;
 
-exps: none
-    | exps term exp
+exp : primary
+    | assignExp
+    | compExp
+    | arithExp
+    | call
 ;
 
-exp : none
-    | 
+assignExp: ID tASSIGN exp
 ;
 
-assignExp   : KW_VAR ID ':' typeId KW_ASSIGN exp
+compExp : exp compOp exp
 ;
+
+compOp  : '>'
+        : '<'
+        | tEQ
+        | tLEQ
+        | tNEQ
+        | tGEQ
+;
+
+arithExp: exp '+' exp
+        | exp '-' exp
+        | exp '*' exp
+        | exp '/' exp
+        | '-' exp %prec tUMINUS
+        | '(' exp ')'
+;
+
+primary : KW_NIL
+        | number
+        | string
+        | ID
+;
+
+call: ID "(" argsX ')'
+;
+
+argsX :none
+    | args
+;
+
+args: arg
+    | args ',' arg
+;
+
+arg : 
 
 terms : term
     | terms ';' { yyerrok; }
 ;
 
-term : ';' { yyerrok; }
-    | '\n'
+term : ';'
 ;
 
 none    :
