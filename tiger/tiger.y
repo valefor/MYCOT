@@ -191,7 +191,8 @@ args: arg
     | args ',' arg
 ;
 
-arg : 
+arg : primary
+;
 
 terms : term
     | terms ';' { yyerrok; }

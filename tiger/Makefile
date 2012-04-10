@@ -16,10 +16,10 @@ ACHIIVES=*
 	$(CC) $(CFLAG) \
 	-c -o $*.o $<
 
-OBJS = tiny_types.o tiny_util.o tiny_main.o
+OBJS = hash.o test.o
 
 all: $(OBJS)
-	$(LD) -r -o tinyUtil.o $(OBJS)
+	$(LD) -r -o testMain.o $(OBJS)
 
 obj:
 	$(CC) $(CFLAG) -c *.c
@@ -27,11 +27,11 @@ obj:
 asm:
 	$(CC) $(CFLAG) -S *.c
 
-build:
-	$(CC) -o tinyMain $(OBJS)
+build:$(OBJS)
+	$(CC) -o testMain $(OBJS)
 
 debug:
-	$(CC) -g -o tinyMain *.c
+	$(CC) -g -o testMain *.c
 
 clean:
-	rm -f *.o *.s *.exe
+	rm -f *.o *.s *.exe *.stackdump
