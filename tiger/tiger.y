@@ -14,7 +14,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include "tiger_types.h" /* Contains definition of 'symrec' */
 int yylex(void);
 void yyerror(char const *);
 %}
@@ -22,7 +21,6 @@ void yyerror(char const *);
 %union{
     char * id;
     int val;
-    symrec  *tptr;
 }
 
 /* Keyword(Reserved Word) */
@@ -192,6 +190,12 @@ args: arg
 ;
 
 arg : primary
+;
+
+number  : tINT
+;
+
+string  : tSTR
 ;
 
 terms : term

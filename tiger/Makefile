@@ -6,6 +6,8 @@ AS =as
 LD =ld
 CC =gcc
 CFLAG =-Wall -O
+YACC =bison -d
+LEX	=flex
 
 ACHIIVES=*
 
@@ -35,3 +37,4 @@ debug:
 
 clean:
 	rm -f *.o *.s *.exe *.stackdump
+

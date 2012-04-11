@@ -1,9 +1,24 @@
-%top{
+%{
 /* C Declarations: */
 #include "tiger_types.h"
 #include "tiger.tab.h"
 
 %}
+
+%option noyywrap stack reentrant
+
+%x COMMENT_BLOCK 
+%x COMMENT_LINE
+%x LITERAL
+
+DIGITS      [0-9]+
+ID          [_a-zA-Z][a-zA-Z0-9]*
+PUNTUATOR   [{}(),=:;\[\]]
+ARITH_OP    [\+\-\*\/\%]
+ARRAY_OF    "array of"
+ASSIGN      ":="
+
+%%
 
 /* Lex Definitions: */
 
@@ -13,33 +28,22 @@
  * Float unsupported
  */
 
-DIGITS      [0-9]+
-ID          [_a-zA-Z][a-zA-Z0-9]*
-PUNTUATOR   [{}(),=:;\[\]]
-ARITH_OP    [\+\-\*\/\%]
-ARRAY_OF    "array of"
-ASSIGN      ":="
+<COMMENT_BLOCK>[^*\n]* 
+<COMMENT_BLOCK>"*"+[^*/\n]* 
+<COMMENT_BLOCK>\n ++line_num;
+<COMMENT_BLOCK>"*"+"/" BEGIN(INITIAL);
 
-%x comment_block 
-%x comment_line
-%x literal
+<COMMENT_LINE>[^\n]* 
+<COMMENT_LINE>\n    { ++line_num; BEGIN(INITIAL); }
 
-%%
+<LITERAL>"\\"+"\"" 
+<LITERAL>\n     ++line_num;
+<LITERAL>\n     ++line_num;
+<LITERAL>"\""   { BEGIN(INITIAL);yylval->id = yytext;return tSTR;} 
 
-"/*"    BEGIN(comment_block);
-"//"    BEGIN(comment_line);
-"\""    BEGIN(literal);
-
-<comment_block>[^*\n]* 
-<comment_block>"*"+[^*/\n]* 
-<comment_block>\n ++line_num;
-<comment_block>"*"+"/" BEGIN(INITIAL);
-
-<comment_line>[^\n]* 
-<comment_line>\n    { ++line_num; BEGIN(INITIAL); }
-
-<literal>"\\"+"\"" 
-<literal>"\"" { BEGIN(INITIAL);} 
+<INITIAL>"/*"   BEGIN(comment_block);
+<INITIAL>"//"   BEGIN(comment_line);
+<INITIAL>"\""   BEGIN(literal);
 
 <INITIAL>if     { return KW_IF; }
 <INITIAL>then   { return KW_THEN; }
