@@ -35,6 +35,7 @@ void yyerror(char const *);
     KW_LET
     KW_VAR
     KW_NIL
+    KW_TYPE
     KW_TYPE_INT
     KW_TYPE_STR
     KW_FUNC
@@ -55,7 +56,7 @@ void yyerror(char const *);
 
 // Const & Variable
 %token <val>    NUM
-%token <id>     ID
+%token <id>     IDENTIFIER
 %type  <val>    exp
 
 /*
@@ -78,79 +79,82 @@ The earliest declaration,the lowest precedence
 %start prog
 %% /* Grammar rules and actions follow */
 
-prog: none
-    | stmts
+/* Expressions */
+primaryExp
+        : IDENTIFIER
+        | NUMBER
+        | STRING
+        | '(' exp ')'
 ;
 
-decs: none
-    | dec
-    | decs terms dec
+postfixExp
+        : primaryExp
+        | postfixExp '[' exp ']' 
+        | postfixExp '(' ')' 
+        | postfixExp '(' argExpList ')'
 ;
 
-dec : typeDec
-    | varDec
-    | funcDec
+argExpList
+        : assignExp
+        | argExpList ',' assignExp
 ;
 
-typeDec : KW_TYPE ID '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
+unaryExp
+        : postfixExp
 ;
 
-typeDef : type 
-        | KW_TYPE_INT
-        | KW_TYPE_STR
+arithExp
+        : unaryExp
+        | arithExp '+' unaryExp
+        | arithExp '-' unaryExp
+        | arithExp '*' unaryExp
+        | arithExp '/' unaryExp
+        | '-' unaryExp %prec tUMINUS
 ;
 
-type: ID
-    | '{' typeFields '}'
-    | KW_ARRAY_OF typeDef
+relationExp
+        : arithExp
+        | relationExp tLEQ arithExp
+        | relationExp tGEQ arithExp
+        | relationExp '<' arithExp
+        | relationExp '>' arithExp
 ;
 
-typeFields  : typeField
-            | typeFields ',' typeField
+equalExp
+        : relationExp
+        | equalExp tEQ relationExp
+        | equalExp tNEQ relationExp
 ;
 
-typeField   :  none
-            | ID ':' typeDef
+andExp
+        : equalExp
+        | andExp '&' equalExp
 ;
 
-varDec  : KW_VAR ID ':' typeDef
-        | KW_VAR ID ':' typeDef tASSIGN exp
+orExp
+        : andExp
+        | orExp '|' andExp
 ;
 
-funcDec : KW_FUNC ID '(' typeFields ')' '=' nonNilStmts
-        | KW_FUNC ID '(' typeFields ')' ':' typeDef '=' nonNilStmts
+conditionalExp
+        : orExp
 ;
 
-nonNilStmts : stmt
-            | nonNilStmts term stmt
+assignExp
+        : conditionalExp
+        | unaryExp assignOp unaryExp
 ;
 
-stmts: none
-    | nonNilStmts
+exp     : assignExp
+        | exp ',' assignExp 
 ;
 
-stmt: KW_IF compExp KW_THEN stmts optElse
-    | KW_WHILE compExp KW_DO stmts
-    | KW_FOR ID tASSIGN value KW_TO value KW_DO stmts
-    | KW_BREAK
-    | KW_LET decs in stmts KW_END
-    | dec
-    | exp
-    | '(' stmt ')'
+assignOp
+        : tASSIGN
 ;
 
-optElse: none
-    | KW_ELSE nonNilStmts
-;
-
-exp : primary
-    | assignExp
-    | compExp
-    | arithExp
-    | call
-;
-
-assignExp: ID tASSIGN exp
+/*
+assignExp: IDENTIFIER tASSIGN exp
 ;
 
 compExp : exp compOp exp
@@ -164,38 +168,115 @@ compOp  : '>'
         | tGEQ
 ;
 
-arithExp: exp '+' exp
-        | exp '-' exp
-        | exp '*' exp
-        | exp '/' exp
-        | '-' exp %prec tUMINUS
-        | '(' exp ')'
+call: IDENTIFIER "(" argsX ')'
 ;
 
-primary : KW_NIL
-        | number
-        | string
-        | ID
+declaration
+        : decSpcfiers initDecList ';'
 ;
 
-call: ID "(" argsX ')'
+decSpcfiers
+        : typeSpcfier
 ;
 
-argsX :none
-    | args
+typeSpcfier
+        : KW_TYPE
 ;
 
-args: arg
-    | args ',' arg
+initDecList
+        : initDec
+        | initDecList ';' initDec
 ;
 
-arg : primary
+initDec
+        : declarator
+        | declarator assignOp initializer
 ;
 
-number  : tINT
+initializer
+        : assignExp
+        | '{' initializerList '}'
 ;
 
-string  : tSTR
+initializerList
+        : initializer
+        | initializerList ',' initializer
+;
+
+declarator
+        : IDENTIFIER
+        | '(' declarator ')'
+;
+
+*/
+
+/* Delarations */
+decs: none
+    | dec
+    | decs terms dec
+;
+
+dec : typeDec
+    | varDec
+;
+
+typeDec : KW_TYPE IDENTIFIER '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
+;
+
+typeDef : type 
+        | KW_TYPE_INT
+        | KW_TYPE_STR
+;
+
+type: IDENTIFIER
+    | '{' typeFields '}'
+    | KW_ARRAY_OF typeDef
+;
+
+typeFields  : typeField
+            | typeFields ',' typeField
+;
+
+typeField   :  none
+            | IDENTIFIER ':' typeDef
+;
+
+varDec  : KW_VAR IDENTIFIER ':' typeDef
+        | KW_VAR IDENTIFIER ':' typeDef assignOp assignExp
+;
+
+/* Function Delaration & Definition */
+
+funcDef : KW_FUNC IDENTIFIER '(' typeFields ')' '=' compoundStmt
+        | KW_FUNC IDENTIFIER '(' typeFields ')' ':' typeDef '=' compoundStmt
+;
+
+/* Statements */
+compoundStmt
+        : decs
+        |
+;
+
+nonNilStmts : stmt
+            | nonNilStmts term stmt
+;
+
+stmts: none
+    | nonNilStmts
+;
+
+stmt: KW_IF compExp KW_THEN stmts optElse
+    | KW_WHILE compExp KW_DO stmts
+    | KW_FOR IDENTIFIER tASSIGN value KW_TO value KW_DO stmts
+    | KW_BREAK
+    | KW_LET decs in stmts KW_END
+    | dec
+    | exp
+    | '(' stmt ')'
+;
+
+optElse: none
+    | KW_ELSE nonNilStmts
 ;
 
 terms : term
@@ -209,6 +290,17 @@ none    :
         {
         $$ = 0;
         }
+;
+
+/* start parse */
+prog: none
+    | extDec 
+    | prog extDec
+;
+
+extDec
+    : funcDef
+    | decs
 ;
 
 /* End of grammar. */

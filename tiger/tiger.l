@@ -55,6 +55,7 @@ ASSIGN      ":="
 <INITIAL>let    { return KW_LET; }
 <INITIAL>var    { return KW_VAR; }
 <INITIAL>nil    { return KW_NIL; }
+<INITIAL>type   { return KW_TYPE; }
 <INITIAL>int    { return KW_TYPE_INT; }
 <INITIAL>string { return KW_TYPE_STR; }
 <INITIAL>function   { return KW_FUNC; }
