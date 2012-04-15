@@ -6,7 +6,8 @@ AS =as
 LD =ld
 CC =gcc
 CFLAG =-Wall -O
-YACC =bison -d
+YACC =bison
+YACC_FLAG = -dt -v
 LEX	=flex
 
 ACHIIVES=*
@@ -18,7 +19,8 @@ ACHIIVES=*
 	$(CC) $(CFLAG) \
 	-c -o $*.o $<
 
-OBJS = hash.o test.o
+OBJS = hash.o test.o tiger_parser.o tiger_lexer.o
+GENS = tiger_parser.c tiger_lexer.c
 
 all: $(OBJS)
 	$(LD) -r -o testMain.o $(OBJS)
@@ -35,6 +37,15 @@ build:$(OBJS)
 debug:
 	$(CC) -g -o testMain *.c
 
+gen:
+	$(YACC) tiger.y
+
 clean:
 	rm -f *.o *.s *.exe *.stackdump
+	rm -f tiger_parser.* tiger_lexer.*
 
+tiger_parser.c: tiger.y
+	$(YACC) $(YACC_FLAG) -o $@ $<
+
+tiger_lexer.c: tiger.l
+	$(LEX) -o $@ $<

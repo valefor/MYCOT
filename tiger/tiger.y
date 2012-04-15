@@ -14,9 +14,15 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-int yylex(void);
+
+#define YYPARSE_PARAM   scanner
+#define YYLEX_PARAM     scanner
+
 void yyerror(char const *);
 %}
+
+%locations
+%pure_parser
 
 %union{
     char * id;
@@ -32,6 +38,9 @@ void yyerror(char const *);
     KW_WHILE
     KW_DO
     KW_FOR
+    KW_BREAK
+    KW_TO
+    KW_IN
     KW_LET
     KW_VAR
     KW_NIL
@@ -55,9 +64,10 @@ void yyerror(char const *);
     tASSIGN
 
 // Const & Variable
-%token <val>    NUM
+%token <val>    tNUMBER
+%token <id>     tSTRING
 %token <id>     IDENTIFIER
-%type  <val>    exp
+%type  <val>    exp none
 
 /*
 <<Operator precedence>>:
@@ -82,8 +92,8 @@ The earliest declaration,the lowest precedence
 /* Expressions */
 primaryExp
         : IDENTIFIER
-        | NUMBER
-        | STRING
+        | tNUMBER
+        | tSTRING
         | '(' exp ')'
 ;
 
@@ -153,6 +163,118 @@ assignOp
         : tASSIGN
 ;
 
+
+/* Delarations */
+decs
+        : dec
+        | decs terms dec
+;
+
+dec
+        : typeDec
+        | varDec
+        | funcDef
+;
+
+typeDec : KW_TYPE IDENTIFIER '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
+;
+
+typeDef : type 
+        | KW_TYPE_INT
+        | KW_TYPE_STR
+;
+
+type: IDENTIFIER
+    | '{' typeFields '}'
+    | KW_ARRAY_OF typeDef
+;
+
+typeFields  : typeField
+            | typeFields ',' typeField
+;
+
+typeField   : none
+            | IDENTIFIER ':' typeDef
+;
+
+varDec  : KW_VAR IDENTIFIER ':' typeDef
+        | KW_VAR IDENTIFIER ':' typeDef assignOp unaryExp
+;
+
+/* Function Delaration & Definition */
+
+funcDef : KW_FUNC IDENTIFIER '(' typeFields ')' '=' compoundStmt
+        | KW_FUNC IDENTIFIER '(' typeFields ')' ':' typeDef '=' compoundStmt
+;
+
+/* Statements */
+compoundStmt
+        : '(' ')'
+        | '(' decs ')' 
+        | '(' stmts ')' 
+        | '(' decs stmts ')' 
+;
+
+stmts   
+        : stmt
+        | stmts stmt
+;
+
+stmt
+        : expStmt
+        | compoundStmt
+        | selectionStmt
+        | iterationStmt
+        | jumpStmt
+        | letStmt
+;
+
+expStmt
+        : exp ';'
+;
+
+selectionStmt
+        : KW_IF exp KW_THEN stmt
+        | KW_IF exp KW_THEN stmt KW_ELSE stmt
+;
+
+iterationStmt
+        : KW_WHILE exp KW_DO stmt
+        | KW_FOR IDENTIFIER tASSIGN tNUMBER KW_TO tNUMBER KW_DO stmt
+;
+
+jumpStmt
+        : KW_BREAK
+;
+
+letStmt
+        : KW_LET decs KW_IN stmt KW_END
+;
+
+terms : term
+    | terms ';' { yyerrok; }
+;
+
+term : ';'
+;
+
+none    :
+        {
+        $$ = 0;
+        }
+;
+
+/* start parse */
+extDec
+    : dec
+    | stmt
+;
+
+prog: extDec 
+    | prog extDec
+;
+
+/* End of grammar. */
 /*
 assignExp: IDENTIFIER tASSIGN exp
 ;
@@ -208,102 +330,25 @@ declarator
         | '(' declarator ')'
 ;
 
-*/
-
-/* Delarations */
-decs: none
-    | dec
-    | decs terms dec
-;
-
-dec : typeDec
-    | varDec
-;
-
-typeDec : KW_TYPE IDENTIFIER '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
-;
-
-typeDef : type 
-        | KW_TYPE_INT
-        | KW_TYPE_STR
-;
-
-type: IDENTIFIER
-    | '{' typeFields '}'
-    | KW_ARRAY_OF typeDef
-;
-
-typeFields  : typeField
-            | typeFields ',' typeField
-;
-
-typeField   :  none
-            | IDENTIFIER ':' typeDef
-;
-
-varDec  : KW_VAR IDENTIFIER ':' typeDef
-        | KW_VAR IDENTIFIER ':' typeDef assignOp assignExp
-;
-
-/* Function Delaration & Definition */
-
-funcDef : KW_FUNC IDENTIFIER '(' typeFields ')' '=' compoundStmt
-        | KW_FUNC IDENTIFIER '(' typeFields ')' ':' typeDef '=' compoundStmt
-;
-
-/* Statements */
-compoundStmt
-        : decs
-        |
-;
-
-nonNilStmts : stmt
-            | nonNilStmts term stmt
-;
-
-stmts: none
-    | nonNilStmts
-;
-
 stmt: KW_IF compExp KW_THEN stmts optElse
     | KW_WHILE compExp KW_DO stmts
     | KW_FOR IDENTIFIER tASSIGN value KW_TO value KW_DO stmts
     | KW_BREAK
-    | KW_LET decs in stmts KW_END
+    | 
     | dec
     | exp
     | '(' stmt ')'
 ;
 
 optElse: none
-    | KW_ELSE nonNilStmts
+    |  nonNilStmts
 ;
 
-terms : term
-    | terms ';' { yyerrok; }
+nonNilStmts : stmt
+            | nonNilStmts term stmt
 ;
 
-term : ';'
-;
-
-none    :
-        {
-        $$ = 0;
-        }
-;
-
-/* start parse */
-prog: none
-    | extDec 
-    | prog extDec
-;
-
-extDec
-    : funcDef
-    | decs
-;
-
-/* End of grammar. */
+*/
 
 %%
 
