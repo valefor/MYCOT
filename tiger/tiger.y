@@ -15,18 +15,29 @@
 #include <stdio.h>
 #include <string.h>
 
-#define YYPARSE_PARAM   scanner
-#define YYLEX_PARAM     scanner
+struct parser_params
+{
+    char *parser_tiger_sourcefile;
+};
 
-void yyerror(char const *);
 %}
 
 %locations
 %pure_parser
+%parse-param { struct parser_params *parserParams }
 
 %union{
     char * id;
     int val;
+}
+
+%{
+int yylex(YYSTYPE *lvalp, YYLTYPE * llocap);
+void yyerror (YYLTYPE * llocap, struct parser_params * ,char const *s);
+%}
+
+%initial-action
+{
 }
 
 /* Keyword(Reserved Word) */
@@ -352,3 +363,28 @@ nonNilStmts : stmt
 
 %%
 
+void tiger_parse(char const * filename)
+{
+    
+}
+
+static void 
+parser_initialize(struct parser_params *parser)
+{
+    parser->parser_tiger_sourcefile = 0;
+}
+
+static struct parser_params *
+parser_new(void)
+{
+    struct parser_params *p;
+
+    p = malloc(sizeof(struct parser_params));
+    parser_initialize(p);
+    return p;
+}
+
+void yyerror(YYLTYPE *locp,struct parser_params * parserParams,char const *s)
+{
+    fprintf(stderr, "%s\n",s);
+}

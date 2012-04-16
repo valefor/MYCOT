@@ -1,6 +1,5 @@
 # 
-# Makefile for tiger-sample
-# The purpose is making a tiny compiler for execise use
+# Makefile for Tiger Compiler Alpha
 #
 AS =as
 LD =ld
@@ -19,8 +18,10 @@ ACHIIVES=*
 	$(CC) $(CFLAG) \
 	-c -o $*.o $<
 
-OBJS = hash.o test.o tiger_parser.o tiger_lexer.o
-GENS = tiger_parser.c tiger_lexer.c
+GEN_SRC = tiger_parser.c tiger_lexer.c
+GEN_HDR = $(GEN_SRC:.c=.h)
+
+OBJS = $(GEN_SRC:.c=.o) hash.o test.o 
 
 all: $(OBJS)
 	$(LD) -r -o testMain.o $(OBJS)
@@ -37,15 +38,15 @@ build:$(OBJS)
 debug:
 	$(CC) -g -o testMain *.c
 
-gen:
-	$(YACC) tiger.y
+lexer:tiger_lexer.o
+	$(CC) -o $@ $<
 
 clean:
-	rm -f *.o *.s *.exe *.stackdump
-	rm -f tiger_parser.* tiger_lexer.*
+	rm -f *.o *.s *.exe *.stackdump *.output
+	rm -f $(GEN_SRC) $(GEN_HDR)
 
 tiger_parser.c: tiger.y
 	$(YACC) $(YACC_FLAG) -o $@ $<
 
-tiger_lexer.c: tiger.l
-	$(LEX) -o $@ $<
+tiger_lexer.c: tiger.l tiger_parser.c 
+	$(LEX) --header-file=tiger_lexer.h -o $@ $<

@@ -10,6 +10,7 @@
 /* C Declarations: */
 #include "tiger_types.h"
 #include "tiger_parser.h"
+#include "config.h"
 
 
 int line_num = 0;
@@ -39,13 +40,13 @@ ASSIGN      ":="
 <COMMENT_BLOCK>[^*\n]* 
 <COMMENT_BLOCK>"*"+[^*/\n]* 
 <COMMENT_BLOCK>\n ++line_num;
-<COMMENT_BLOCK>"*"+"/" BEGIN(INITIAL);
+<COMMENT_BLOCK>"*"+"/" { yy_pop_state(yyscanner); }
 
 <COMMENT_LINE>[^\n]* 
-<COMMENT_LINE>\n    { ++line_num; BEGIN(INITIAL); }
+<COMMENT_LINE>\n    { ++line_num; yy_pop_state(yyscanner); }
 
-<INITIAL>"/*"   BEGIN(COMMENT_BLOCK);
-<INITIAL>"//"   BEGIN(COMMENT_LINE);
+<INITIAL>"/*"   { yy_push_state(COMMENT_BLOCK,yyscanner); }
+<INITIAL>"//"   { yy_push_state(COMMENT_LINE,yyscanner); }
 
 <INITIAL>if     { count(); return KW_IF; }
 <INITIAL>then   { count(); return KW_THEN; }
@@ -71,7 +72,7 @@ ASSIGN      ":="
 
 <INITIAL>{PUNTUATOR} { count(); return *yytext; }
 
-<INITIAL>{ID}       {  yylval->id = yytext ;count(); return IDENTIFIER; }
+<INITIAL>{ID}       {  /*yylval->id = yytext */;count(); return IDENTIFIER; }
 <INITIAL>{DIGITS}   { count(); return tNUMBER; }
 <INITIAL>{LETTERS}?\"(\\.|[^\\"])*\"     { count(); return tSTRING; }
 
@@ -96,6 +97,34 @@ void count_t(yyscan_t scanner)
 
         ECHO;
 }
+
+#if LEX_DEBUG > 0
+int main( int argc, char ** argv)
+{
+    printf("Enter Main\n");
+    ++argv,--argc; // skip over program name
+
+    yyscan_t scanner;
+    int tok;
+    yylex_init(&scanner);
+
+    struct yyguts_t * yyg = (struct yyguts_t*)scanner;
+
+    if( argc > 0 )
+        yyin = fopen(argv[0],"r");
+    else
+        yyin = stdin;
+
+    while((tok=yylex(scanner))>0) ;
+        //printf("token=%d yytext=%s\n",tok,yyget_text(scanner));
+    yylex_destroy(scanner);
+
+
+
+
+    return 0;
+}
+#endif
 
 /*
 
