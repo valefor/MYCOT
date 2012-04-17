@@ -48,6 +48,8 @@ ASSIGN      ":="
 <INITIAL>"/*"   { yy_push_state(COMMENT_BLOCK,yyscanner); }
 <INITIAL>"//"   { yy_push_state(COMMENT_LINE,yyscanner); }
 
+<INITIAL>[ \t]+ { putchar(' '); /* eat up whitespaces */ }
+
 <INITIAL>if     { count(); return KW_IF; }
 <INITIAL>then   { count(); return KW_THEN; }
 <INITIAL>else   { count(); return KW_ELSE; }

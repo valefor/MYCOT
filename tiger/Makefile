@@ -9,7 +9,7 @@ YACC =bison
 YACC_FLAG = -dt -v
 LEX	=flex
 
-ACHIIVES=*
+ACHIIVES=tiger
 
 .c.s:
 	$(CC) $(CFLAG) \
@@ -18,13 +18,17 @@ ACHIIVES=*
 	$(CC) $(CFLAG) \
 	-c -o $*.o $<
 
+TEST_TARGET = testMain
+TEST_OBJS = test.o
 GEN_SRC = tiger_parser.c tiger_lexer.c
 GEN_HDR = $(GEN_SRC:.c=.h)
 
-OBJS = $(GEN_SRC:.c=.o) hash.o test.o 
+OBJS = $(GEN_SRC:.c=.o) hash.o 
+
+$(OBJS): $(GEN_SRC)
 
 all: $(OBJS)
-	$(LD) -r -o testMain.o $(OBJS)
+	$(LD) -r -o tiger.o $(OBJS)
 
 obj:
 	$(CC) $(CFLAG) -c *.c
@@ -33,10 +37,13 @@ asm:
 	$(CC) $(CFLAG) -S *.c
 
 build:$(OBJS)
-	$(CC) -o testMain $(OBJS)
+	$(CC) -o $(ACHIIVES) $(OBJS)
+
+test:$(OBJS) $(TEST_OBJS)
+	$(CC) -o $(TEST_TARGET) $(OBJS) $(TEST_OBJS)
 
 debug:
-	$(CC) -g -o testMain *.c
+	$(CC) -g -o $(ACHIIVES) *.c
 
 lexer:tiger_lexer.o
 	$(CC) -o $@ $<

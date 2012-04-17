@@ -15,16 +15,22 @@
 #include <stdio.h>
 #include <string.h>
 
-struct parser_params
-{
-    char *parser_tiger_sourcefile;
-};
 
 %}
 
+%code provides
+{
+    struct parser_params
+    {
+        char *parser_tiger_sourcefile;
+    };
+}
+
 %locations
 %pure_parser
-%parse-param { struct parser_params *parserParams }
+%parse-param    { struct parser_params *parserParams }
+%parse-param    { void * scanner }
+%lex-param      { void * scanner }
 
 %union{
     char * id;
@@ -32,12 +38,22 @@ struct parser_params
 }
 
 %{
-int yylex(YYSTYPE *lvalp, YYLTYPE * llocap);
-void yyerror (YYLTYPE * llocap, struct parser_params * ,char const *s);
+#include "tiger_lexer.h"
+
+int yylex(YYSTYPE *lvalp, YYLTYPE * llocap, yyscan_t scanner);
+void yyerror (YYLTYPE * llocap, struct parser_params * ,yyscan_t scanner, char const *s);
+static void tiger_initLexer(struct parser_params *parserParams,void * scanner);
 %}
+
+%code provides
+{
+    struct parser_params * parser_new(void);
+}
 
 %initial-action
 {
+    // Initiate scanner params
+    tiger_initLexer(parserParams,scanner);
 }
 
 /* Keyword(Reserved Word) */
@@ -363,9 +379,30 @@ nonNilStmts : stmt
 
 %%
 
+/*
 void tiger_parse(char const * filename)
 {
     
+}
+*/
+
+static void tiger_initLexer(struct parser_params *parserParams,yyscan_t scanner)
+{
+    FILE * srcFile = fopen( parserParams->parser_tiger_sourcefile,"r" );
+    YYSTYPE * v_yyVal = malloc(sizeof(YYSTYPE));
+    YYLTYPE * v_yyLoc = malloc(sizeof(YYLTYPE));
+
+    v_yyVal->val = 0;
+    v_yyLoc->first_line = 0;
+    v_yyLoc->first_column = 0;
+    v_yyLoc->last_line = 0;
+    v_yyLoc->last_column = 0;
+
+    yylex_init(&scanner);
+
+    yyset_in(srcFile,scanner);
+
+    yylex_destroy(scanner);
 }
 
 static void 
@@ -374,7 +411,7 @@ parser_initialize(struct parser_params *parser)
     parser->parser_tiger_sourcefile = 0;
 }
 
-static struct parser_params *
+struct parser_params *
 parser_new(void)
 {
     struct parser_params *p;
@@ -384,7 +421,7 @@ parser_new(void)
     return p;
 }
 
-void yyerror(YYLTYPE *locp,struct parser_params * parserParams,char const *s)
+void yyerror(YYLTYPE *locp,struct parser_params * parserParams,yyscan_t scanner,char const *s)
 {
     fprintf(stderr, "%s\n",s);
 }

@@ -13,6 +13,12 @@ int main( int argc, char ** argv)
 
     ++argv,--argc; // skip over program name
 
+    struct parser_params *parserParams = parser_new();
+    yyscan_t scanner;
+    if( argc > 0 )
+    parserParams->parser_tiger_sourcefile = argv[0];
+    yyparse(parserParams,scanner);
+    /*
     FILE * srcFile;
     yyscan_t scanner;
     YYSTYPE * v_yyVal = malloc(sizeof(YYSTYPE));
@@ -36,7 +42,9 @@ int main( int argc, char ** argv)
 
     while((tok=yylex(v_yyVal,v_yyLoc,scanner))>0)
         printf("token=%d yytext=%s\n",tok,yyget_text(scanner));
+
     yylex_destroy(scanner);
+    */
 
     return 0;
 }
