@@ -42,7 +42,7 @@
 
 int yylex(YYSTYPE *lvalp, YYLTYPE * llocap, yyscan_t scanner);
 void yyerror (YYLTYPE * llocap, struct parser_params * ,yyscan_t scanner, char const *s);
-static void tiger_initLexer(struct parser_params *parserParams,void * scanner);
+static void tiger_initLexer(struct parser_params *parserParams,void ** scanner);
 %}
 
 %code provides
@@ -53,7 +53,7 @@ static void tiger_initLexer(struct parser_params *parserParams,void * scanner);
 %initial-action
 {
     // Initiate scanner params
-    tiger_initLexer(parserParams,scanner);
+    tiger_initLexer(parserParams,&scanner);
 }
 
 /* Keyword(Reserved Word) */
@@ -76,6 +76,7 @@ static void tiger_initLexer(struct parser_params *parserParams,void * scanner);
     KW_TYPE_STR
     KW_FUNC
     KW_ARRAY_OF
+    KW_OF
 
 /* Token */
 %token
@@ -127,6 +128,7 @@ primaryExp
 postfixExp
         : primaryExp
         | postfixExp '[' exp ']' 
+        | postfixExp '[' exp ']' KW_OF exp
         | postfixExp '(' ')' 
         | postfixExp '(' argExpList ')'
 ;
@@ -175,6 +177,7 @@ orExp
 
 conditionalExp
         : orExp
+        | KW_IF orExp KW_THEN exp KW_ELSE exp
 ;
 
 assignExp
@@ -224,7 +227,7 @@ typeField   : none
             | IDENTIFIER ':' typeDef
 ;
 
-varDec  : KW_VAR IDENTIFIER ':' typeDef
+varDec  : KW_VAR IDENTIFIER assignOp unaryExp
         | KW_VAR IDENTIFIER ':' typeDef assignOp unaryExp
 ;
 
@@ -267,7 +270,7 @@ selectionStmt
 
 iterationStmt
         : KW_WHILE exp KW_DO stmt
-        | KW_FOR IDENTIFIER tASSIGN tNUMBER KW_TO tNUMBER KW_DO stmt
+        | KW_FOR IDENTIFIER tASSIGN exp KW_TO exp KW_DO stmt
 ;
 
 jumpStmt
@@ -386,7 +389,7 @@ void tiger_parse(char const * filename)
 }
 */
 
-static void tiger_initLexer(struct parser_params *parserParams,yyscan_t scanner)
+static void tiger_initLexer(struct parser_params *parserParams,yyscan_t * scanner)
 {
     FILE * srcFile = fopen( parserParams->parser_tiger_sourcefile,"r" );
     YYSTYPE * v_yyVal = malloc(sizeof(YYSTYPE));
@@ -398,11 +401,11 @@ static void tiger_initLexer(struct parser_params *parserParams,yyscan_t scanner)
     v_yyLoc->last_line = 0;
     v_yyLoc->last_column = 0;
 
-    yylex_init(&scanner);
+    yylex_init(scanner);
 
-    yyset_in(srcFile,scanner);
+    yyset_in(srcFile,*scanner);
 
-    yylex_destroy(scanner);
+    //yylex_destroy(scanner);
 }
 
 static void 

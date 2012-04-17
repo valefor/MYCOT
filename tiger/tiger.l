@@ -31,6 +31,7 @@ LETTERS     [a-zA-Z_]
 HEX         [a-fA-F0-9]
 ID          [_a-zA-Z][a-zA-Z0-9]*
 PUNTUATOR   [{}(),=:;\[\]]
+LOGIC_OP    [<>\|&]
 ARITH_OP    [\+\-\*\/\%]
 ARRAY_OF    "array of"
 ASSIGN      ":="
@@ -61,6 +62,7 @@ ASSIGN      ":="
 <INITIAL>to     { count(); return KW_TO; }
 <INITIAL>break  { count(); return KW_BREAK; }
 <INITIAL>let    { count(); return KW_LET; }
+<INITIAL>of     { count(); return KW_OF; }
 
 <INITIAL>type   { count(); return KW_TYPE; }
 <INITIAL>nil    { count(); return KW_NIL; }
@@ -69,10 +71,15 @@ ASSIGN      ":="
 <INITIAL>string { count(); return KW_TYPE_STR; }
 <INITIAL>function   { count(); return KW_FUNC; }
 
+<INITIAL>"=="   { count(); return tEQ; }
+<INITIAL>"!="   { count(); return tNEQ; }
+<INITIAL>"<="   { count(); return tGEQ; }
+<INITIAL>">="   { count(); return tLEQ; }
 <INITIAL>{ASSIGN}   { count(); return tASSIGN; }
 <INITIAL>{ARRAY_OF} { count(); return KW_ARRAY_OF; }
 
-<INITIAL>{PUNTUATOR} { count(); return *yytext; }
+<INITIAL>{ARITH_OP} { count(); return *yytext; }
+<INITIAL>{LOGIC_OP}|{PUNTUATOR} { count(); return *yytext; }
 
 <INITIAL>{ID}       {  /*yylval->id = yytext */;count(); return IDENTIFIER; }
 <INITIAL>{DIGITS}   { count(); return tNUMBER; }
@@ -97,7 +104,8 @@ void count_t(yyscan_t scanner)
         // Must redefine yyg
         struct yyguts_t * yyg = (struct yyguts_t*)scanner;
 
-        ECHO;
+        printf("yytext=%s\n",yyget_text(scanner));
+        //ECHO;
 }
 
 #if LEX_DEBUG > 0

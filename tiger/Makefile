@@ -4,8 +4,8 @@
 AS =as
 LD =ld
 CC =gcc
-CFLAG =-Wall -O
-YACC =bison
+CFLAG =-Wall -O -g
+YACC =bison --debug
 YACC_FLAG = -dt -v
 LEX	=flex
 
@@ -40,7 +40,7 @@ build:$(OBJS)
 	$(CC) -o $(ACHIIVES) $(OBJS)
 
 test:$(OBJS) $(TEST_OBJS)
-	$(CC) -o $(TEST_TARGET) $(OBJS) $(TEST_OBJS)
+	$(CC) $(CFLAG) -o $(TEST_TARGET) $(OBJS) $(TEST_OBJS)
 
 debug:
 	$(CC) -g -o $(ACHIIVES) *.c
