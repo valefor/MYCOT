@@ -13,11 +13,11 @@ int main( int argc, char ** argv)
 
     ++argv,--argc; // skip over program name
 
-    struct parser_params *parserParams = parser_new();
+    struct s_psr_params *pl_psrParams = f_psr_new();
     yyscan_t scanner;
     if( argc > 0 )
-    parserParams->parser_tiger_sourcefile = argv[0];
-    yyparse(parserParams,scanner);
+    pl_psrParams->psr_tigerSrcFile = argv[0];
+    yyparse(pl_psrParams,scanner);
     /*
     FILE * srcFile;
     yyscan_t scanner;

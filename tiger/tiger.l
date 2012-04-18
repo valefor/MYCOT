@@ -1,10 +1,30 @@
 /*
- * /$ Tiger's Lexer $\
+ * @FileDesc:{ /$ Tiger's Lexer $\ }
  * 
+ * @Author:{
+ *  Name  : Adrian Hu
+ *  Email : adrain.f.tepes@gmail.com
+ * }
+ * 
+ *
+ * @Progress:{
  * Phase 1 ->
- *  Float unsupported
+ *  1. Float unsupported
  * 
- */
+ * }
+ * 
+ * @ModuleName:{
+ *  LocalMoudle:lexer
+ * }
+ * 
+ * @Doc:{
+ *
+ * }
+ ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
+
+%top{
+#define YY_DECL int tiger_yylex(struct s_psr_params *pl_psrParams, yyscan_t yyscanner)
+}
 
 %{
 /* C Declarations: */
@@ -15,13 +35,12 @@
 
 int line_num = 0;
 
-void count_t(yyscan_t);
-#define count()     count_t(yyscanner)
+void f_lxr_count(yyscan_t);
+
+#define COUNT  f_lxr_count(yyscanner);
 
 %}
-
 %option noyywrap stack reentrant
-%option bison-bridge bison-locations
 
 %x COMMENT_BLOCK 
 %x COMMENT_LINE
@@ -31,13 +50,12 @@ LETTERS     [a-zA-Z_]
 HEX         [a-fA-F0-9]
 ID          [_a-zA-Z][a-zA-Z0-9]*
 PUNTUATOR   [{}(),=:;\[\]]
-LOGIC_OP    [<>\|&]
+LOGIC_OP    [<>\|&\?]
 ARITH_OP    [\+\-\*\/\%]
 ARRAY_OF    "array of"
 ASSIGN      ":="
 
 %%
-
 <COMMENT_BLOCK>[^*\n]* 
 <COMMENT_BLOCK>"*"+[^*/\n]* 
 <COMMENT_BLOCK>\n ++line_num;
@@ -51,45 +69,45 @@ ASSIGN      ":="
 
 <INITIAL>[ \t]+ { putchar(' '); /* eat up whitespaces */ }
 
-<INITIAL>if     { count(); return KW_IF; }
-<INITIAL>then   { count(); return KW_THEN; }
-<INITIAL>else   { count(); return KW_ELSE; }
-<INITIAL>end    { count(); return KW_END; }
-<INITIAL>while  { count(); return KW_WHILE; }
-<INITIAL>do     { count(); return KW_DO; }
-<INITIAL>for    { count(); return KW_FOR; }
-<INITIAL>in     { count(); return KW_IN; }
-<INITIAL>to     { count(); return KW_TO; }
-<INITIAL>break  { count(); return KW_BREAK; }
-<INITIAL>let    { count(); return KW_LET; }
-<INITIAL>of     { count(); return KW_OF; }
+<INITIAL>if     { COUNT; return KW_IF; }
+<INITIAL>then   { COUNT; return KW_THEN; }
+<INITIAL>else   { COUNT; return KW_ELSE; }
+<INITIAL>end    { COUNT; return KW_END; }
+<INITIAL>while  { COUNT; return KW_WHILE; }
+<INITIAL>do     { COUNT; return KW_DO; }
+<INITIAL>for    { COUNT; return KW_FOR; }
+<INITIAL>in     { COUNT; return KW_IN; }
+<INITIAL>to     { COUNT; return KW_TO; }
+<INITIAL>break  { COUNT; return KW_BREAK; }
+<INITIAL>let    { COUNT; return KW_LET; }
+<INITIAL>of     { COUNT; return KW_OF; }
 
-<INITIAL>type   { count(); return KW_TYPE; }
-<INITIAL>nil    { count(); return KW_NIL; }
-<INITIAL>var    { count(); return KW_VAR; }
-<INITIAL>int    { count(); return KW_TYPE_INT; }
-<INITIAL>string { count(); return KW_TYPE_STR; }
-<INITIAL>function   { count(); return KW_FUNC; }
+<INITIAL>type   { COUNT; return KW_TYPE; }
+<INITIAL>nil    { COUNT; return KW_NIL; }
+<INITIAL>var    { COUNT; return KW_VAR; }
+<INITIAL>int    { COUNT; return KW_TYPE_INT; }
+<INITIAL>string { COUNT; return KW_TYPE_STR; }
+<INITIAL>function   { COUNT; return KW_FUNC; }
 
-<INITIAL>"=="   { count(); return tEQ; }
-<INITIAL>"!="   { count(); return tNEQ; }
-<INITIAL>"<="   { count(); return tGEQ; }
-<INITIAL>">="   { count(); return tLEQ; }
-<INITIAL>{ASSIGN}   { count(); return tASSIGN; }
-<INITIAL>{ARRAY_OF} { count(); return KW_ARRAY_OF; }
+<INITIAL>"=="   { COUNT; return tEQ; }
+<INITIAL>"!="   { COUNT; return tNEQ; }
+<INITIAL>"<="   { COUNT; return tGEQ; }
+<INITIAL>">="   { COUNT; return tLEQ; }
+<INITIAL>{ASSIGN}   { COUNT; return tASSIGN; }
+<INITIAL>{ARRAY_OF} { COUNT; return KW_ARRAY_OF; }
 
-<INITIAL>{ARITH_OP} { count(); return *yytext; }
-<INITIAL>{LOGIC_OP}|{PUNTUATOR} { count(); return *yytext; }
+<INITIAL>{ARITH_OP} { COUNT; return *yytext; }
+<INITIAL>{LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
 
-<INITIAL>{ID}       {  /*yylval->id = yytext */;count(); return IDENTIFIER; }
-<INITIAL>{DIGITS}   { count(); return tNUMBER; }
-<INITIAL>{LETTERS}?\"(\\.|[^\\"])*\"     { count(); return tSTRING; }
+<INITIAL>{ID}       {  /*yylval->id = yytext */;COUNT; return IDENTIFIER; }
+<INITIAL>{DIGITS}   { COUNT; return tNUMBER; }
+<INITIAL>{LETTERS}?\"(\\.|[^\\"])*\"     { COUNT; return tSTRING; }
 
 %%
 
 int column = 0;
 
-void count_t(yyscan_t scanner)
+void f_lxr_count(yyscan_t scanner)
 {
         int i;
 
@@ -104,8 +122,10 @@ void count_t(yyscan_t scanner)
         // Must redefine yyg
         struct yyguts_t * yyg = (struct yyguts_t*)scanner;
 
+        ECHO;
+        /*
         printf("yytext=%s\n",yyget_text(scanner));
-        //ECHO;
+        */
 }
 
 #if LEX_DEBUG > 0

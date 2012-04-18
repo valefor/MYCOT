@@ -1,11 +1,61 @@
 /*
- * /$ Tiger's Grammar $\
+ * @Proj:Tiger Compiler
+ *
+ * @FileDesc:{ /$ Tiger's Grammar $\ }
  * 
+ * @Author:{
+ *  Name  : Adrian Hu
+ *  Email : adrain.f.tepes@gmail.com
+ * }
+ * 
+ *
+ * @Progress:{
  * Phase 1 ->
  *  1. No constant
  *  2. No global var
  * 
- */
+ * }
+ * 
+ * @ModuleName:{
+ *  LocalMoudle:parser
+ *  AssocMoudle:lexer
+ * }
+ * 
+ * @Doc:{
+ * 
+ *
+ * <<The CGL(Coding Guide Line)>>
+ * All the naming should be as symbolic as possible,then as laconic as possible
+ * 
+ * The naming out of this program's scope will not be constrained,e.g the yacc
+ * or lex built-in declaration & macro.
+ * 
+ * Use all uppercase letters word carefully.Don't mix them up with MARCO 
+ *
+ *  1. Nameing:
+ *    1> Declaration:
+ *      #1. MARCO : macro definitions with uppercase letters
+ *      #2. vg_<[Module]>_<variableName> : global variables 
+ *      #3. vl_<variableName> : local variables 
+ *      #4. f_<Module>_<funcName> : local variables 
+ *      #5. s_<structName> : struct
+ *      #6. pl_<parameterName> : parameter
+ *      #7. ptr_<pointerName> : pointer,this rule can be overwritten by #6 
+ *
+ *  2. Consistency:
+ *
+ *  3. Comments:
+ *    #1. "//" Only use this for single line comment.
+ *    #2. the function header comments are not mandatory,but if it'll be greate
+ *      if it has,it will help others understand the function more quickly.
+ *
+ *  x. Abbreviations:
+ *      lexer       <->     lxr
+ *      parser      <->     psr
+ *      parameter   <->     param
+ *
+ * }
+ ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 
 /* Declarations */
 %{
@@ -20,16 +70,29 @@
 
 %code provides
 {
-    struct parser_params
+    typedef struct YYLTYPE
     {
-        char *parser_tiger_sourcefile;
+      int first_line;
+      int first_column;
+      int last_line;
+      int last_column;
+    } YYLTYPE;
+
+    struct s_psr_params
+    {
+        char *psr_tigerSrcFile;
+
+        YYSTYPE *psr_yylval;
+
+        void * psr_scanner;
     };
+
 }
 
-%locations
 %pure_parser
-%parse-param    { struct parser_params *parserParams }
+%parse-param    { struct s_psr_params *pl_psrParams }
 %parse-param    { void * scanner }
+%lex-param      { struct s_psr_params *pl_psrParams }
 %lex-param      { void * scanner }
 
 %union{
@@ -40,20 +103,20 @@
 %{
 #include "tiger_lexer.h"
 
-int yylex(YYSTYPE *lvalp, YYLTYPE * llocap, yyscan_t scanner);
-void yyerror (YYLTYPE * llocap, struct parser_params * ,yyscan_t scanner, char const *s);
-static void tiger_initLexer(struct parser_params *parserParams,void ** scanner);
+static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
+void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
+static void f_psr_initLexer(struct s_psr_params *,void **);
 %}
 
 %code provides
 {
-    struct parser_params * parser_new(void);
+    struct s_psr_params * f_psr_new(void);
 }
 
 %initial-action
 {
     // Initiate scanner params
-    tiger_initLexer(parserParams,&scanner);
+    f_psr_initLexer(pl_psrParams,&scanner);
 }
 
 /* Keyword(Reserved Word) */
@@ -105,9 +168,9 @@ The earliest declaration,the lowest precedence
 
 %nonassoc tLOWEST
 
+%left   '|' '&'
 %nonassoc tEQ tNEQ '>' tGEQ '<' tLEQ
 %right  tASSIGN
-%left   '|' '&'
 /* %left   '>' tGEQ '<' tLEQ */
 %left   '-' '+'
 %left   '*' '/'
@@ -177,7 +240,7 @@ orExp
 
 conditionalExp
         : orExp
-        | KW_IF orExp KW_THEN exp KW_ELSE exp
+        | orExp '?' exp ':' conditionalExp
 ;
 
 assignExp
@@ -197,13 +260,13 @@ assignOp
 /* Delarations */
 decs
         : dec
-        | decs terms dec
+        | decs dec
 ;
 
 dec
-        : typeDec
-        | varDec
-        | funcDef
+        : typeDec terms
+        | varDec terms
+        | funcDef terms
 ;
 
 typeDec : KW_TYPE IDENTIFIER '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
@@ -247,11 +310,11 @@ compoundStmt
 
 stmts   
         : stmt
-        | stmts stmt
+        | stmts term stmt
 ;
 
 stmt
-        : expStmt
+        : expStmts
         | compoundStmt
         | selectionStmt
         | iterationStmt
@@ -259,9 +322,12 @@ stmt
         | letStmt
 ;
 
-expStmt
-        : exp ';'
+expStmts
+        : exp
+        | expStmts term exp
 ;
+
+
 
 selectionStmt
         : KW_IF exp KW_THEN stmt
@@ -389,42 +455,65 @@ void tiger_parse(char const * filename)
 }
 */
 
-static void tiger_initLexer(struct parser_params *parserParams,yyscan_t * scanner)
-{
-    FILE * srcFile = fopen( parserParams->parser_tiger_sourcefile,"r" );
-    YYSTYPE * v_yyVal = malloc(sizeof(YYSTYPE));
-    YYLTYPE * v_yyLoc = malloc(sizeof(YYLTYPE));
+extern int tiger_yylex(void *pl_psrParams, void * scanner);
 
-    v_yyVal->val = 0;
-    v_yyLoc->first_line = 0;
-    v_yyLoc->first_column = 0;
-    v_yyLoc->last_line = 0;
-    v_yyLoc->last_column = 0;
+// Redefine yylex
+#if YYPURE
+static int 
+yylex(YYSTYPE *pl_lval,struct s_psr_params *pl_psrParams,yyscan_t scanner)
+#else
+static int 
+yylex(void *p)
+#endif
+{
+    struct s_psr_params *vl_psrParams = (struct s_psr_params*)pl_psrParams;
+    int t;
+#if YYPURE
+    vl_psrParams->psr_yylval = pl_lval;
+#endif
+    t = tiger_yylex(vl_psrParams,scanner);
+
+    return t;
+}
+
+static void 
+f_psr_initLexer(struct s_psr_params *pl_psrParams,yyscan_t * scanner)
+{
+    FILE * ptr_srcFile = fopen( pl_psrParams->psr_tigerSrcFile,"r" );
+    YYSTYPE * ptr_yyVal = malloc(sizeof(YYSTYPE));
+    YYLTYPE * ptr_yyLoc = malloc(sizeof(YYLTYPE));
+
+    ptr_yyVal->val = 0;
+    ptr_yyLoc->first_line = 0;
+    ptr_yyLoc->first_column = 0;
+    ptr_yyLoc->last_line = 0;
+    ptr_yyLoc->last_column = 0;
 
     yylex_init(scanner);
 
-    yyset_in(srcFile,*scanner);
+    yyset_in(ptr_srcFile,*scanner);
 
     //yylex_destroy(scanner);
 }
 
 static void 
-parser_initialize(struct parser_params *parser)
+f_psr_initPsrParams(struct s_psr_params *pl_psrParams)
 {
-    parser->parser_tiger_sourcefile = 0;
+    pl_psrParams->psr_tigerSrcFile = 0;
 }
 
-struct parser_params *
-parser_new(void)
+struct s_psr_params *
+f_psr_new(void)
 {
-    struct parser_params *p;
+    struct s_psr_params *ptr_psrParams;
 
-    p = malloc(sizeof(struct parser_params));
-    parser_initialize(p);
-    return p;
+    ptr_psrParams = malloc(sizeof(struct s_psr_params));
+    f_psr_initPsrParams(ptr_psrParams);
+    return ptr_psrParams;
 }
 
-void yyerror(YYLTYPE *locp,struct parser_params * parserParams,yyscan_t scanner,char const *s)
+void 
+yyerror(struct s_psr_params * pl_psrParams,yyscan_t scanner,char const *s)
 {
     fprintf(stderr, "%s\n",s);
 }
