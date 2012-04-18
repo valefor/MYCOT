@@ -5,7 +5,7 @@ AS =as
 LD =ld
 CC =gcc
 CFLAG =-Wall -O -g
-YACC =bison --debug
+YACC =bison
 YACC_FLAG = -dt -v
 LEX	=flex
 
@@ -22,10 +22,11 @@ TEST_TARGET = testMain
 TEST_OBJS = test.o
 GEN_SRC = tiger_parser.c tiger_lexer.c
 GEN_HDR = $(GEN_SRC:.c=.h)
+HEADERS = config.h $(GEN_HDR)
 
 OBJS = $(GEN_SRC:.c=.o) hash.o 
 
-$(OBJS): $(GEN_SRC)
+$(OBJS): $(GEN_SRC) $(HEADERS)
 
 all: $(OBJS)
 	$(LD) -r -o tiger.o $(OBJS)

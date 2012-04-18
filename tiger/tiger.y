@@ -30,7 +30,7 @@
  * The naming out of this program's scope will not be constrained,e.g the yacc
  * or lex built-in declaration & macro.
  * 
- * Use all uppercase letters word carefully.Don't mix them up with MARCO 
+ * Use all uppercase letters words carefully.Don't mix them up with MARCO 
  *
  *  1. Nameing:
  *    1> Declaration:
@@ -41,6 +41,8 @@
  *      #5. s_<structName> : struct
  *      #6. pl_<parameterName> : parameter
  *      #7. ptr_<pointerName> : pointer,this rule can be overwritten by #6 
+ *      #8. xxx_<Name> : the <Name> is recommended to be written in camelStyle 
+ *          underscode_style is not recommended
  *
  *  2. Consistency:
  *
@@ -89,6 +91,7 @@
 
 }
 
+%debug
 %pure_parser
 %parse-param    { struct s_psr_params *pl_psrParams }
 %parse-param    { void * scanner }
@@ -102,6 +105,7 @@
 
 %{
 #include "tiger_lexer.h"
+#include "config.h"
 
 static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
 void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
@@ -117,6 +121,12 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
 {
     // Initiate scanner params
     f_psr_initLexer(pl_psrParams,&scanner);
+
+    // Enable yydebug
+#if YACC_DEBUG > 0
+    yydebug = 1;
+#endif
+
 }
 
 /* Keyword(Reserved Word) */
@@ -448,13 +458,9 @@ nonNilStmts : stmt
 
 %%
 
-/*
-void tiger_parse(char const * filename)
-{
-    
-}
-*/
-
+/*********************
+ * User code section *
+ *********************/
 extern int tiger_yylex(void *pl_psrParams, void * scanner);
 
 // Redefine yylex

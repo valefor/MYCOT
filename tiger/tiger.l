@@ -23,7 +23,10 @@
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 
 %top{
-#define YY_DECL int tiger_yylex(struct s_psr_params *pl_psrParams, yyscan_t yyscanner)
+#define YY_DECL int tiger_yylex( \
+    struct s_psr_params *pl_psrParams, \
+    yyscan_t yyscanner\
+)
 }
 
 %{
@@ -104,6 +107,10 @@ ASSIGN      ":="
 <INITIAL>{LETTERS}?\"(\\.|[^\\"])*\"     { COUNT; return tSTRING; }
 
 %%
+
+/*********************
+ * User code section *
+ *********************/
 
 int column = 0;
 
