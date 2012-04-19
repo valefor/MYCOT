@@ -48,7 +48,9 @@
  *        %3. xxx_<Name>:the <Name> is recommended to be written in camelStyle,
  *              underscode_style is not recommended
  *
- *      $2. xxx_<Name>_<Typedef_tag> : the tailed <Typedef_tag>('_t') is allowd 
+ *      $2. xxx_<Name>_<Typedef_tag> :the tailed <TypeDef_tag>('_t') is allowed 
+ *
+ *      $3. temporary variables are not force to follow the rule,e.g i,j, .etc
  *
  *    #2 Definition:
  *      $1. MARCO : macro definitions with uppercase letters

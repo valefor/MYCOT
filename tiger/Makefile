@@ -49,8 +49,11 @@ debug:
 lexer:tiger_lexer.o
 	$(CC) -o $@ $<
 
+ctags:
+	ctags *.c *h *.y *.l
+
 clean:
-	rm -f *.o *.s *.exe *.stackdump *.output
+	rm -f *.o *.s *.exe *.stackdump *.output tags
 	rm -f $(GEN_SRC) $(GEN_HDR)
 
 tiger_parser.c: tiger.y

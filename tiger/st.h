@@ -1,3 +1,26 @@
+/*
+ * @Proj:Tiger Compiler
+ *
+ * @FileDesc:{ /$ Symbol Table Header File$\ }
+ * 
+ * @Author:{
+ *  Name  : Adrian Hu
+ *  Email : adrain.f.tepes@gmail.com
+ * }
+ * 
+ *
+ * @Progress:{
+ * 
+ * }
+ * 
+ * @Module:{
+ *  LocalMoudle:symbolTable
+ * }
+ * 
+ * @Doc:{
+ *
+ * }
+ ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
