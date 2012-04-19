@@ -22,9 +22,9 @@ TEST_TARGET = testMain
 TEST_OBJS = test.o
 GEN_SRC = tiger_parser.c tiger_lexer.c
 GEN_HDR = $(GEN_SRC:.c=.h)
-HEADERS = config.h $(GEN_HDR)
+HEADERS = config.h st.h $(GEN_HDR)
 
-OBJS = $(GEN_SRC:.c=.o) hash.o 
+OBJS = $(GEN_SRC:.c=.o) hash.o st.o
 
 $(OBJS): $(GEN_SRC) $(HEADERS)
 

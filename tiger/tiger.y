@@ -16,7 +16,7 @@
  * 
  * }
  * 
- * @ModuleName:{
+ * @Module:{
  *  LocalMoudle:parser
  *  AssocMoudle:lexer
  * }
@@ -33,16 +33,27 @@
  * Use all uppercase letters words carefully.Don't mix them up with MARCO 
  *
  *  1. Nameing:
- *    1> Declaration:
- *      #1. MARCO : macro definitions with uppercase letters
- *      #2. vg_<[Module]>_<variableName> : global variables 
- *      #3. vl_<variableName> : local variables 
- *      #4. f_<Module>_<funcName> : local variables 
- *      #5. s_<structName> : struct
- *      #6. pl_<parameterName> : parameter
- *      #7. ptr_<pointerName> : pointer,this rule can be overwritten by #6 
- *      #8. xxx_<Name> : the <Name> is recommended to be written in camelStyle 
- *          underscode_style is not recommended
+ *    #1 Declaration:
+ *      $1. <scopeSpec>_<[Module]>_<Name> : 
+ *        %1. <scopeSpec> ~~~ scope specifers:
+ *          &1. vg : global variable
+ *          &2. vl : local variable
+ *          &3. pl : parameter
+ *          &4. ptr: pointer,this rule can be overwritten by rule : [$1%1&3]
+ *          &5. cl : local const,e.g static const or static
+ *          &6. cg : global const
+ *
+ *        %2. [<Module>] ~~~ module name is optional
+ *
+ *        %3. xxx_<Name>:the <Name> is recommended to be written in camelStyle,
+ *              underscode_style is not recommended
+ *
+ *      $2. xxx_<Name>_<Typedef_tag> : the tailed <Typedef_tag>('_t') is allowd 
+ *
+ *    #2 Definition:
+ *      $1. MARCO : macro definitions with uppercase letters
+ *      $2. f_<Module>_<funcName> : local variables 
+ *      $3. s_<structName> : struct
  *
  *  2. Consistency:
  *

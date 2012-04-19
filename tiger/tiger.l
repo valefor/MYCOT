@@ -1,4 +1,6 @@
 /*
+ * @Proj:Tiger Compiler
+ *
  * @FileDesc:{ /$ Tiger's Lexer $\ }
  * 
  * @Author:{
@@ -13,7 +15,7 @@
  * 
  * }
  * 
- * @ModuleName:{
+ * @Module:{
  *  LocalMoudle:lexer
  * }
  * 

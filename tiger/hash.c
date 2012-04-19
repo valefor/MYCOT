@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include "config.h"
+#include "st.h"
 
 typedef unsigned int UINT;
 
@@ -151,7 +148,6 @@ uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed )
   
         return h;  
 }   
-  
   
 // 64-bit hash for 32-bit platforms  
 uint64_t MurmurHash64B ( const void * key, int len, unsigned int seed )  
