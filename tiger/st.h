@@ -49,6 +49,7 @@ struct s_st_table
 {
     const struct s_st_hashType *hashType;
     st_index_t  binsNbr;
+    st_index_t  totalEntryNbr;
     struct s_st_tableEntry  **bins;
     struct s_st_tableEntry  *head,*tail;
 };

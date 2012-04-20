@@ -54,6 +54,17 @@ static const struct s_st_hashType cl_strHashType =
  */
 
 #define ST_TABLE_MINSIZE 8
+/*
+ * DEFAULT_MAX_DENSITY is the default for the largest we allow the
+ * average number of items per bin before increasing the number of
+ * bins
+ *
+ * DEFAULT_INIT_TABLE_SIZE is the default for the number of bins
+ * allocated initially
+ *
+ */
+#define ST_MAX_BIN_SIZE 5
+#define ST_INIT_TABLE_SIZE 11
 
 /*
 Table of prime numbers 2^n+a, 2<=n<=30.
