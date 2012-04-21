@@ -21,9 +21,12 @@
  *  AssocMoudle:lexer
  * }
  * 
+ * @CGL:{
+ *  Obey
+ * }
+ * 
  * @Doc:{
  * 
- *
  * <<The CGL(Coding Guide Line)>>
  * All the naming should be as symbolic as possible,then as laconic as possible
  * 
@@ -34,23 +37,35 @@
  *
  *  1. Nameing:
  *    #1 Declaration:
- *      $1. <scopeSpec>_<[Module]>_<Name> : 
+ *      $1. <scopeSpec><[Module_]><Name> : 
  *        %1. <scopeSpec> ~~~ scope specifers:
- *          &1. vg : global variable
- *          &2. vl : local variable
- *          &3. pl : parameter
- *          &4. ptr: pointer,this rule can be overwritten by rule : [$1%1&3]
- *          &5. cl : local const,e.g static const or static
- *          &6. cg : global const
+ *          &1. g_  : global variable
+ *          &2. v_  : local variable
+ *          &3. pm  : parameter.
+ *          &4. cl_ : local const,e.g static const or static
+ *          &5. cg_ : global const
  *
- *        %2. [<Module>] ~~~ module name is optional
+ *        %2. [<Module_>] ~~~ module name is optional
  *
  *        %3. xxx_<Name>:the <Name> is recommended to be written in camelStyle,
  *              underscode_style is not recommended
  *
- *      $2. xxx_<Name>_<Typedef_tag> :the tailed <TypeDef_tag>('_t') is allowed 
+ *      $2. <typeSpec><Name>:Sometimes a local variable "v_murMurMur" isn't fit
+ *            your style,there are so may local variables,this rule use type
+ *            specifer to make variables more accurate.
+ *        %1. <typeSpec>:
+ *          &1. i : integer
+ *          &2. b : boolean
+ *          &3. s : string
+ *          &4. c : char
+ *          &5. p : pointer
+ *          &6. t : user defined type
  *
- *      $3. temporary variables are not force to follow the rule,e.g i,j, .etc
+ *        %2. <Name> : follow rule:[$1%3],then what ever...
+ *
+ *      $3. xxx_<Name>_<Typedef_tag> :the tailed <TypeDef_tag>('_t') is allowed 
+ *
+ *      $4. temporary variables ain't force to follow above rules,e.g i,j, .etc
  *
  *    #2 Definition:
  *      $1. MARCO : macro definitions with uppercase letters
@@ -119,6 +134,7 @@
 %{
 #include "tiger_lexer.h"
 #include "config.h"
+#include "utils.h"
 
 static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
 void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
@@ -499,8 +515,8 @@ static void
 f_psr_initLexer(struct s_psr_params *pl_psrParams,yyscan_t * scanner)
 {
     FILE * ptr_srcFile = fopen( pl_psrParams->psr_tigerSrcFile,"r" );
-    YYSTYPE * ptr_yyVal = malloc(sizeof(YYSTYPE));
-    YYLTYPE * ptr_yyLoc = malloc(sizeof(YYLTYPE));
+    YYSTYPE * ptr_yyVal = MEM_ALLOC(YYSTYPE);
+    YYLTYPE * ptr_yyLoc = MEM_ALLOC(YYLTYPE);
 
     ptr_yyVal->val = 0;
     ptr_yyLoc->first_line = 0;

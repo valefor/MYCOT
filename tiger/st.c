@@ -24,17 +24,6 @@
 #include "st.h"
 #include "utils.h"
 
-typedef struct s_st_tableEntry st_tableEntry;
-
-struct s_st_tableEntry 
-{
-    st_index_t      hashCode;
-    st_data_t       key;
-    st_data_t       value;
-    st_tableEntry   *next;
-    st_tableEntry   *fore, *back;
-};
-
 static const struct s_st_hashType cl_numHashType =
 {
     f_st_numCmp,
@@ -112,25 +101,66 @@ static const unsigned int cl_primes[] = {
 #define ST_ENTRY_EQUAL(table,x,y) ((x)==(y) || \
         (*(table)->hashType->compare)((x),(y)) == 0)
 
-#define ST_PTR_NOT_EQUAL(table, ptr_tableEntry, vl_hashVal, key) \
-    ((ptr_tableEntry) != 0 && ( (ptr_tableEntry)->hashCode != (vl_hashVal) || \
-    !ST_ENTRY_EQUAL((table),(key),(ptr_tableEntry)->key) ) )
+#define ST_PTR_NOT_EQUAL(table, entry, hashVal, key) \
+    ((entry) != 0 && ( (entry)->hashCode != (hashVal) || \
+    !ST_ENTRY_EQUAL((table),(key),(entry)->key) ) )
 #define ST_DO_HASH(table,key) (unsigned int)(st_index_t)\
     (*(table)->hashType->hash)((key)) 
 
-#define ST_DO_HASH_BIN(table,key) (ST_DO_HASH((key), \
-    (table))%(table)->binsNbr)
+#define ST_DO_HASH_BIN(table,key) (ST_DO_HASH((table), \
+    (key)) % (table)->binsNbr)
 
-#define ST_FIND_ENTRY(table, ptr_tableEntry, vl_hashVal, vl_binPos) do{ \
-    (vl_binPos) = (vl_hashVal)%(table)->binsNbr; \
-    (ptr_tableEntry) = (table)->bins[(vl_binPos)]; \
-    if(ST_PTR_NOT_EQUAL((table),(ptr_tableEntry),(vl_hashVal),key)) { \
-    while(ST_PTR_NOT_EQUAL((table),(ptr_tableEntry)->next,(vl_hashVal),key)){ \
-        (ptr_tableEntry) = (ptr_tableEntry)->next; \
+#define ST_FIND_ENTRY(table, entry, hashVal, binPos) do{ \
+    (binPos) = (hashVal)%(table)->binsNbr; \
+    (entry) = (table)->bins[(binPos)]; \
+    if(ST_PTR_NOT_EQUAL((table),(entry),(hashVal),key)) { \
+    while(ST_PTR_NOT_EQUAL((table),(entry)->next,(hashVal),key)){ \
+        (entry) = (entry)->next; \
     } \
-    (ptr_tableEntry) = (ptr_tableEntry)->next; \
+    (entry) = (entry)->next; \
     } \
 } while (0)
+
+#define ST_INSERT_ENTRY(table, key, value, hashVal, binPos) do { \
+    st_tableEntry_t * pEntry;\
+    if((table)->totalEntryNbr > ST_MAX_BIN_SIZE * (table)->binsNbr) { \
+        f_st_rehash(table); \
+        (binPos) = (hashVal) % (table)->binsNbr; \
+    }\
+    pEntry = MEM_ALLOC(st_tableEntry_t); \
+    pEntry->hashCode = (hashVal); \
+    pEntry->key = (key); \
+    pEntry->value = (value); \
+    pEntry->next = (table)->bins[(binPos)]; \
+    if((table)->head != 0) { \
+        pEntry->fore = 0; \
+        (pEntry->back = (table)->tail)->fore = pEntry; \
+        (table)->tail = pEntry; \
+    } \
+    else { \
+        (table)->head = (table)->tail = pEntry; \
+        pEntry->fore = pEntry->back = 0; \
+    }\
+    (table)->bins[(binPos)] = pEntry; \
+    (table)->totalEntryNbr++; \
+    \
+}while (0)
+
+#define ST_REMOVE_ENTRY(table,entry) do { \
+    if((entry)->fore == 0 && (entry)->back == 0) { \
+        (table)->head = 0; \
+        (table)->tail = 0; \
+    } \
+    else { \
+        st_tableEntry_t *pFore = (entry)->fore, \
+        *pBack = (entry)->back; \
+        if(pFore) pFore->back = pBack; \
+        if(pBack) pBack->fore = pFore; \
+        if( (entry) == (table)->head ) (table)->head = pFore; \
+        if( (entry) == (table)->tail ) (table)->tail = pBack; \
+    } \
+    (table)->totalEntryNbr--; \
+} while(0)\
 
 static st_index_t
 f_st_newHashSize(st_index_t size)
@@ -145,32 +175,32 @@ f_st_newHashSize(st_index_t size)
     }
 
     /* Ran out of polynomial */
-    fprint(stderr,"symbol table too big!\n");
+    fprintf(stderr,"symbol table too big!\n");
 
     return -1;
 }
 
 static void
-f_st_rehash(register st_table *table)
+f_st_rehash(register st_table_t *table)
 {
-    register st_tableEntry *ptr_tableEntry, ** p2_newBins;
-    st_index_t i,vl_newBinsNbr,vl_hashVal;
+    register st_tableEntry_t *pEntry, ** p2NewBins;
+    st_index_t i,tNewBinsNbr,tHashVal;
 
-    vl_newBinsNbr = f_st_newHashSize(table->binsNbr+1);
+    tNewBinsNbr = f_st_newHashSize(table->binsNbr+1);
 
-    p2_newBins = (st_tableEntry**) 
-        realloc(table->bins, vl_newBinsNbr * sizeof(st_tableEntry *));
-    for(i = 0; i < vl_newBinsNbr; ++i) p2_newBins[i] = 0;
-    table->binsNbr = vl_newBinsNbr;
-    table->bins = p2_newBins;
+    p2NewBins = (st_tableEntry_t**) 
+        realloc(table->bins, tNewBinsNbr * sizeof(st_tableEntry_t *));
+    for(i = 0; i < tNewBinsNbr; ++i) p2NewBins[i] = 0;
+    table->binsNbr = tNewBinsNbr;
+    table->bins = p2NewBins;
 
-    if((ptr_tableEntry = table->head) != 0 )
+    if((pEntry = table->head) != 0 )
     {
         do {
-            vl_hashVal = ptr_tableEntry->hashCode % vl_newBinsNbr;
-            ptr_tableEntry->next = p2_newBins[vl_hashVal];
-            p2_newBins[vl_hashVal] = ptr_tableEntry;
-        } while ( (ptr_tableEntry = ptr_tableEntry->fore) != 0 );
+            tHashVal = pEntry->hashCode % tNewBinsNbr;
+            pEntry->next = p2NewBins[tHashVal];
+            p2NewBins[tHashVal] = pEntry;
+        } while ( (pEntry = pEntry->fore) != 0 );
     }
 }
 
@@ -193,27 +223,68 @@ f_st_numHash(st_data_t n)
     return (st_index_t)n;
 }
 
-int 
-f_st_delete(st_table * table ,register st_data_t key ,st_data_t * value)
+int f_st_insert(st_table_t * table,register st_data_t key,st_data_t value)
 {
-    return 0;
-}
+    st_index_t tHashVal,tBinPos;
+    register st_tableEntry_t *pEntry;
 
-int f_st_insert(st_table * table,register st_data_t key,st_data_t * value)
-{
-    st_index_t vl_hashVal,vl_binPos;
-    register st_tableEntry *ptr_tableEntry;
+    tHashVal = ST_DO_HASH(table,key);
+    ST_FIND_ENTRY(table,pEntry,tHashVal,tBinPos);
 
-    vl_hashVal = ST_DO_HASH(table,key);
-    ST_FIND_ENTRY(table,ptr_tableEntry,vl_hashVal,vl_binPos);
-
-    if(!ptr_tableEntry)
+    if(!pEntry)
     {
+        ST_INSERT_ENTRY(table,key,value,tHashVal,tBinPos);
+        return 0;
     }
+    else
+    {
+        pEntry->value = value;
+        return 1;
+    }
+}
+
+int f_st_lookup(st_table_t * table,register st_data_t key,st_data_t * value)
+{
+    st_index_t tHashVal,tBinPos;
+    register st_tableEntry_t *pEntry;
+
+    tHashVal = ST_DO_HASH(table,key);
+    ST_FIND_ENTRY(table,pEntry,tHashVal,tBinPos);
+
+    if(!pEntry)
+    {
+        return 0;
+    }
+    else
+    {
+        if(value != 0) *value = pEntry->value;
+        return 1;
+    }
+}
+
+int f_st_delete(st_table_t * table ,register st_data_t * key,st_data_t * value)
+{
+    st_index_t tHashVal;
+    st_tableEntry_t **p2Prev;
+    register st_tableEntry_t *pEntry;
+    
+    tHashVal = ST_DO_HASH_BIN(table,*key);
+
+    for(p2Prev = &table->bins[tHashVal];
+            (pEntry = *p2Prev) !=0 ; p2Prev = &pEntry->next)
+    {
+        if( ST_ENTRY_EQUAL(table, *key, pEntry->key) )
+        {
+            *p2Prev = pEntry->next;
+            ST_REMOVE_ENTRY(table,pEntry);
+            if(value != 0) *value = pEntry->value;
+            *key = pEntry->key;
+            free(pEntry);
+            return 1;
+        }
+    }
+
+    if(value != 0) *value = 0;
     return 0;
 }
 
-int f_st_lookup(st_table * table,register st_data_t key,st_data_t * value)
-{
-    return 0;
-}

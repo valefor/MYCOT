@@ -53,19 +53,32 @@ struct s_st_table
     struct s_st_tableEntry  **bins;
     struct s_st_tableEntry  *head,*tail;
 };
-typedef struct s_st_table st_table;
+typedef struct s_st_table st_table_t;
 
 /**/
 
+typedef struct s_st_tableEntry st_tableEntry_t;
+
+struct s_st_tableEntry 
+{
+    st_index_t      hashCode;
+    st_data_t       key;
+    st_data_t       value;
+    st_tableEntry_t   *next;
+    st_tableEntry_t   *fore, *back;
+};
+
+
+
 /* symbol table functions - initiating */
-st_table * f_st_initTable(const st_hashType_t,st_index_t);
+st_table_t * f_st_initTable(const st_hashType_t,st_index_t);
 int f_st_numCmp(st_data_t, st_data_t);
 st_index_t f_st_numHash(st_data_t );
 
 /* symbol table functions - operating */
-int f_st_delete(st_table *,st_data_t ,st_data_t *);
-int f_st_insert(st_table *,st_data_t ,st_data_t *);
-int f_st_lookup(st_table *,st_data_t ,st_data_t *);
+int f_st_insert(st_table_t *,st_data_t ,st_data_t );
+int f_st_delete(st_table_t *,st_data_t *,st_data_t *);
+int f_st_lookup(st_table_t *,st_data_t ,st_data_t *);
 
 /* Hash Functions*/
 uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed );
