@@ -22,7 +22,9 @@
  * }
  * 
  * @CGL:{
- *  Obey
+ *  Contract: Disobey
+ *  Reason  : This file is the input file of YACC program,is not a pure C file.
+ *            Naming can't meet the CGL requirement;
  * }
  * 
  * @Doc:{
@@ -51,7 +53,7 @@
  *              underscode_style is not recommended
  *
  *      $2. <typeSpec><Name>:Sometimes a local variable "v_murMurMur" isn't fit
- *            your style,there are so may local variables,this rule use type
+ *            your style,there are so many local variables,this rule use type
  *            specifer to make variables more accurate.
  *        %1. <typeSpec>:
  *          &1. i : integer
@@ -65,7 +67,7 @@
  *
  *      $3. xxx_<Name>_<Typedef_tag> :the tailed <TypeDef_tag>('_t') is allowed 
  *
- *      $4. temporary variables ain't force to follow above rules,e.g i,j, .etc
+ *      $4. temporary variables ain't forced to follow above rules,e.g i,j,...
  *
  *    #2 Definition:
  *      $1. MARCO : macro definitions with uppercase letters

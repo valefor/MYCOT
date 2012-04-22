@@ -1,5 +1,31 @@
+#*
+#* @Proj:Tiger Compiler
+#*
+#* @FileDesc:{ /$Makefile for Alpha$\ }
+#* 
+#* @Author:{
+#*  Name  : Adrian Hu
+#*  Email : adrain.f.tepes@gmail.com
+#* }
+#* 
+#*
+#* @Progress:{
+#* 
+#* }
+#* 
+#* @Module:{
+#*  LocalMoudle:utils
+#* }
+#* 
+#* @CGL:{
+#*  Contract: Obey
+#* }
+#* 
+#* @Doc:{
+#*
+#* }
+#****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/# 
 # 
-# Makefile for Tiger Compiler Alpha
 #
 AS =as
 LD =ld

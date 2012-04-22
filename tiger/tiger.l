@@ -15,12 +15,23 @@
  * 
  * }
  * 
+ * }
  * @Module:{
  *  LocalMoudle:lexer
  * }
  * 
+ * @CGL:{
+ *  Contract: Disobey
+ *  Reason  : This file is the input file of YACC program,is not a pure C file.
+ *            Naming can't meet the CGL requirement;
+ * }
+ * 
  * @Doc:{
  *
+ *  x. Abbreviations:
+ *      lexer       <->     lxr
+ *      parser      <->     psr
+ *      parameter   <->     param
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 

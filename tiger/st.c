@@ -1,7 +1,7 @@
 /*
  * @Proj:Tiger Compiler
  *
- * @FileDesc:{ /$ Symbol Table $\ }
+ * @FileDesc:{ /$ Symbol Table Implemetation File$\ }
  * 
  * @Author:{
  *  Name  : Adrian Hu
@@ -17,8 +17,14 @@
  *  LocalMoudle:symbolTable
  * }
  * 
+ * @CGL:{
+ *  Contract: Obey
+ * }
+ * 
  * @Doc:{
  *
+ *  x. Abbreviations:
+ *      st      <->     symbol table
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 #include "st.h"

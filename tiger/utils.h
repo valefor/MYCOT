@@ -17,6 +17,10 @@
  *  LocalMoudle:utils
  * }
  * 
+ * @CGL:{
+ *  Contract: Obey
+ * }
+ * 
  * @Doc:{
  *
  * }
