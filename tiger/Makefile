@@ -78,7 +78,7 @@ debug:
 lexer:tiger_lexer.o
 	$(CC) -o $@ $<
 
-ctags:
+ctags:$(GEN_SRC)
 	ctags -R
 
 clean:

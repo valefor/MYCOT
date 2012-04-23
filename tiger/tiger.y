@@ -96,7 +96,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "tiger.h"
 
 %}
 
@@ -136,7 +136,6 @@
 }
 
 %{
-#include "tiger.h"
 #include "tiger_lexer.h"
 
 static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
@@ -155,7 +154,7 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
     f_psr_initLexer(pPsrParams,&scanner);
 
     // Enable yydebug
-#if TG_LEX_DEBUG > 0
+#if TG_YACC_DEBUG > 0
     yydebug = 1;
 #endif
 
