@@ -1,39 +1,42 @@
-#*
-#* @Proj:Tiger Compiler
-#*
-#* @FileDesc:{ /$Makefile for Alpha$\ }
-#* 
-#* @Author:{
-#*  Name  : Adrian Hu
-#*  Email : adrain.f.tepes@gmail.com
-#* }
-#* 
-#*
-#* @Progress:{
-#* 
-#* }
-#* 
-#* @Module:{
-#*  LocalMoudle:utils
-#* }
-#* 
-#* @CGL:{
-#*  Contract: Obey
-#* }
-#* 
-#* @Doc:{
-#*
-#* }
-#****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/# 
+#
+# @Proj:Tiger Compiler
+#
+# @FileDesc:{ /$The Makefile$\ }
+# 
+# @Author:{
+#  Name  : Adrian Hu
+#  Email : adrain.f.tepes@gmail.com
+# }
+# 
+#
+# @Progress:{
+# 
+# }
+# 
+# @Module:{
+#  LocalMoudle:utils
+# }
+# 
+# @CGL:{
+#  Contract: Disobey
+# }
+# 
+# @Doc:{
+#
+# }
+#****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******# 
 # 
 #
 AS =as
 LD =ld
 CC =gcc
-CFLAG =-Wall -O -g
 YACC =bison
-YACC_FLAG = -dt -v
 LEX	=flex
+
+# Flags
+HDR_DIR =include/
+CFLAG = -I$(HDR_DIR) -Wall -O -g
+YACC_FLAG = -dt -v
 
 ACHIIVES=tiger
 
@@ -48,7 +51,7 @@ TEST_TARGET = testMain
 TEST_OBJS = test.o
 GEN_SRC = tiger_parser.c tiger_lexer.c
 GEN_HDR = $(GEN_SRC:.c=.h)
-HEADERS = config.h st.h $(GEN_HDR)
+HEADERS = $(HDR_DIR)*.h
 
 OBJS = $(GEN_SRC:.c=.o) hash.o st.o
 
@@ -76,7 +79,7 @@ lexer:tiger_lexer.o
 	$(CC) -o $@ $<
 
 ctags:
-	ctags *.c *h *.y *.l
+	ctags -R
 
 clean:
 	rm -f *.o *.s *.exe *.stackdump *.output tags

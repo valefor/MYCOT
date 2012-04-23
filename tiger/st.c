@@ -28,7 +28,6 @@
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 #include "st.h"
-#include "utils.h"
 
 static const struct s_st_hashType cl_numHashType =
 {
@@ -50,11 +49,11 @@ static const struct s_st_hashType cl_strHashType =
 
 #define ST_TABLE_MINSIZE 8
 /*
- * DEFAULT_MAX_DENSITY is the default for the largest we allow the
+ * ST_MAX_BIN_SIZE is the default for the largest we allow the
  * average number of items per bin before increasing the number of
  * bins
  *
- * DEFAULT_INIT_TABLE_SIZE is the default for the number of bins
+ * ST_INIT_TABLE_SIZE is the default for the number of bins
  * allocated initially
  *
  */

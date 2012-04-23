@@ -119,13 +119,15 @@
         void * psr_scanner;
     };
 
+    typedef struct s_psr_params psr_params_t;
+
 }
 
 %debug
 %pure_parser
-%parse-param    { struct s_psr_params *pl_psrParams }
+%parse-param    { struct s_psr_params *pPsrParams }
 %parse-param    { void * scanner }
-%lex-param      { struct s_psr_params *pl_psrParams }
+%lex-param      { struct s_psr_params *pPsrParams }
 %lex-param      { void * scanner }
 
 %union{
@@ -134,9 +136,8 @@
 }
 
 %{
+#include "tiger.h"
 #include "tiger_lexer.h"
-#include "config.h"
-#include "utils.h"
 
 static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
 void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
@@ -151,10 +152,10 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
 %initial-action
 {
     // Initiate scanner params
-    f_psr_initLexer(pl_psrParams,&scanner);
+    f_psr_initLexer(pPsrParams,&scanner);
 
     // Enable yydebug
-#if YACC_DEBUG > 0
+#if TG_LEX_DEBUG > 0
     yydebug = 1;
 #endif
 
@@ -201,6 +202,8 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
 %token <id>     IDENTIFIER
 %type  <val>    exp none
 
+// Last ID,Don't use it in this file
+%token <id>     tLAST_ID
 /*
 <<Operator precedence>>:
 The relative precedence of different operators is controlled by the order in which they are declared.
@@ -492,18 +495,18 @@ nonNilStmts : stmt
 /*********************
  * User code section *
  *********************/
-extern int tiger_yylex(void *pl_psrParams, void * scanner);
+extern int tiger_yylex(void *pPsrParams, void * scanner);
 
 // Redefine yylex
 #if YYPURE
 static int 
-yylex(YYSTYPE *pl_lval,struct s_psr_params *pl_psrParams,yyscan_t scanner)
+yylex(YYSTYPE *pl_lval,struct s_psr_params *pPsrParams,yyscan_t scanner)
 #else
 static int 
 yylex(void *p)
 #endif
 {
-    struct s_psr_params *vl_psrParams = (struct s_psr_params*)pl_psrParams;
+    struct s_psr_params *vl_psrParams = (struct s_psr_params*)pPsrParams;
     int t;
 #if YYPURE
     vl_psrParams->psr_yylval = pl_lval;
@@ -514,43 +517,43 @@ yylex(void *p)
 }
 
 static void 
-f_psr_initLexer(struct s_psr_params *pl_psrParams,yyscan_t * scanner)
+f_psr_initLexer(struct s_psr_params *pPsrParams,yyscan_t * scanner)
 {
-    FILE * ptr_srcFile = fopen( pl_psrParams->psr_tigerSrcFile,"r" );
-    YYSTYPE * ptr_yyVal = MEM_ALLOC(YYSTYPE);
-    YYLTYPE * ptr_yyLoc = MEM_ALLOC(YYLTYPE);
+    FILE * pSrcFile = fopen( pPsrParams->psr_tigerSrcFile,"r" );
+    YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
+    YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
 
-    ptr_yyVal->val = 0;
-    ptr_yyLoc->first_line = 0;
-    ptr_yyLoc->first_column = 0;
-    ptr_yyLoc->last_line = 0;
-    ptr_yyLoc->last_column = 0;
+    pYyVal->val = 0;
+    pYyLoc->first_line = 0;
+    pYyLoc->first_column = 0;
+    pYyLoc->last_line = 0;
+    pYyLoc->last_column = 0;
 
     yylex_init(scanner);
 
-    yyset_in(ptr_srcFile,*scanner);
+    yyset_in(pSrcFile,*scanner);
 
     //yylex_destroy(scanner);
 }
 
 static void 
-f_psr_initPsrParams(struct s_psr_params *pl_psrParams)
+f_psr_initPsrParams(struct s_psr_params *pPsrParams)
 {
-    pl_psrParams->psr_tigerSrcFile = 0;
+    pPsrParams->psr_tigerSrcFile = 0;
 }
 
 struct s_psr_params *
 f_psr_new(void)
 {
-    struct s_psr_params *ptr_psrParams;
+    struct s_psr_params *pPsrParams;
 
-    ptr_psrParams = malloc(sizeof(struct s_psr_params));
-    f_psr_initPsrParams(ptr_psrParams);
-    return ptr_psrParams;
+    pPsrParams = malloc(sizeof(struct s_psr_params));
+    f_psr_initPsrParams(pPsrParams);
+    return pPsrParams;
 }
 
 void 
-yyerror(struct s_psr_params * pl_psrParams,yyscan_t scanner,char const *s)
+yyerror(struct s_psr_params * pPsrParams,yyscan_t scanner,char const *s)
 {
     fprintf(stderr, "%s\n",s);
 }

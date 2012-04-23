@@ -44,9 +44,9 @@
 
 %{
 /* C Declarations: */
+#include "tiger.h"
 #include "tiger_types.h"
 #include "tiger_parser.h"
-#include "config.h"
 
 
 int line_num = 0;
@@ -148,7 +148,7 @@ void f_lxr_count(yyscan_t scanner)
         */
 }
 
-#if LEX_DEBUG > 0
+#if TG_LEX_DEBUG > 0
 int main( int argc, char ** argv)
 {
     printf("Enter Main\n");
