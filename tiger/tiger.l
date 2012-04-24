@@ -45,7 +45,7 @@
 %{
 /* C Declarations: */
 #include "tiger.h"
-#include "tiger_types.h"
+#include "st.h"
 #include "tiger_parser.h"
 
 void f_lxr_count(yyscan_t,psr_params_t *);
@@ -130,6 +130,10 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
+void f_tg_regToSymbolTable()
+{
+
+}
 
 void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
 {

@@ -105,6 +105,10 @@
 %code provides
 {
 
+typedef struct s_tg_symbols {
+    st_table_t * idTbl;
+} tg_symbols_t;
+
 typedef struct YYLTYPE
 {
   int first_line;
@@ -119,6 +123,8 @@ struct s_psr_params
 
     YYSTYPE *psr_yylval;
     YYLTYPE *psr_yylloc;
+
+    tg_symbols_t *psr_tgSymbols;
 };
 
 typedef struct s_psr_params psr_params_t;
@@ -128,10 +134,7 @@ typedef struct s_psr_params psr_params_t;
 /* Local Definitions */
 %{
 
-static struct s_tg_symbols {
-    st_table_t * idTbl;
-} gl_tigerSymbols = { NULL };
-typedef struct s_tg_symbols tg_symbols_t;
+//static tg_symbols_t gl_tigerSymbols = { NULL };
 
 %}
 
@@ -523,7 +526,7 @@ static const st_hashType_t cl_tg_hashType = {
 void
 f_tg_initSymbolTables()
 {
-    gl_tigerSymbols.idTbl = f_st_initTable(&cl_tg_hashType,1000);
+    //gl_tigerSymbols.idTbl = f_st_initTable(&cl_tg_hashType,1000);
 }
 
 /******************************************************************************
@@ -569,15 +572,19 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
 {
     YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
     YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
+    tg_symbols_t * pTgSymbols = MEM_ALLOC(tg_symbols_t);
 
     pYyVal->val = 0;
     pYyLoc->first_line = 1;
     pYyLoc->first_column = 0;
     pYyLoc->last_line = 1;
     pYyLoc->last_column = 0;
+    pTgSymbols->idTbl = f_st_initTable(&cl_tg_hashType,1000);
+
     pPsrParams->psr_tigerSrcFile = 0;
     pPsrParams->psr_yylval = pYyVal;
     pPsrParams->psr_yylloc = pYyLoc;
+    pPsrParams->psr_tgSymbols = pTgSymbols;
 }
 
 struct s_psr_params *

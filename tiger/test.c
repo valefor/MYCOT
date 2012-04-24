@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "st.h"
 #include "tiger_parser.h"
 #include "tiger_lexer.h"
 
@@ -13,11 +14,11 @@ int main( int argc, char ** argv)
 
     ++argv,--argc; // skip over program name
 
-    struct s_psr_params *pl_psrParams = f_psr_new();
+    struct s_psr_params *pPsrParams = f_psr_new();
     yyscan_t scanner;
     if( argc > 0 )
-    pl_psrParams->psr_tigerSrcFile = argv[0];
-    yyparse(pl_psrParams,scanner);
+    pPsrParams->psr_tigerSrcFile = argv[0];
+    yyparse(pPsrParams,scanner);
     /*
     FILE * srcFile;
     yyscan_t scanner;
