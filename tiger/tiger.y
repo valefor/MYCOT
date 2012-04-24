@@ -78,7 +78,7 @@
  *
  *  3. Comments:
  *    #1. "//" Only use this for single line comment.
- *    #2. the function header comments are not mandatory,but if it'll be greate
+ *    #2. the function header comments are not mandatory,but it'll be greate
  *      if it has,it will help others understand the function more quickly.
  *
  *  x. Abbreviations:
@@ -97,32 +97,45 @@
 #include <stdio.h>
 #include <string.h>
 #include "tiger.h"
+#include "st.h"
 
 %}
 
+/* Definitions that'll be used by other module */
 %code provides
 {
-    typedef struct YYLTYPE
-    {
-      int first_line;
-      int first_column;
-      int last_line;
-      int last_column;
-    } YYLTYPE;
 
-    struct s_psr_params
-    {
-        char *psr_tigerSrcFile;
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+} YYLTYPE;
 
-        YYSTYPE *psr_yylval;
+struct s_psr_params
+{
+    char *psr_tigerSrcFile;
 
-        void * psr_scanner;
-    };
+    YYSTYPE *psr_yylval;
+    YYLTYPE *psr_yylloc;
+};
 
-    typedef struct s_psr_params psr_params_t;
+typedef struct s_psr_params psr_params_t;
 
 }
 
+/* Local Definitions */
+%{
+
+static struct s_tg_symbols {
+    st_table_t * idTbl;
+} gl_tigerSymbols = { NULL };
+typedef struct s_tg_symbols tg_symbols_t;
+
+%}
+
+/* Bison Options */
 %debug
 %pure_parser
 %parse-param    { struct s_psr_params *pPsrParams }
@@ -130,6 +143,7 @@
 %lex-param      { struct s_psr_params *pPsrParams }
 %lex-param      { void * scanner }
 
+/* YYSTYPE */
 %union{
     char * id;
     int val;
@@ -137,15 +151,16 @@
 
 %{
 #include "tiger_lexer.h"
-
 static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
 void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
 static void f_psr_initLexer(struct s_psr_params *,void **);
 %}
 
+/* External function declaration */
 %code provides
 {
-    struct s_psr_params * f_psr_new(void);
+    int yyparse(struct s_psr_params * pPsrParams, void * scanner);
+    psr_params_t * f_psr_new(void);
 }
 
 %initial-action
@@ -490,10 +505,32 @@ nonNilStmts : stmt
 */
 
 %%
-
 /*********************
  * User code section *
  *********************/
+
+/******************************************************************************
+ *
+ *  Tiger Level Related Funtions
+ *
+ *****************************************************************************/
+#define f_tg_strCmp strcmp
+static const st_hashType_t cl_tg_hashType = { 
+    f_tg_strCmp,
+    f_tg_strHash
+};
+
+void
+f_tg_initSymbolTables()
+{
+    gl_tigerSymbols.idTbl = f_st_initTable(&cl_tg_hashType,1000);
+}
+
+/******************************************************************************
+ *
+ *  Parser Level Related Funtions
+ *
+ *****************************************************************************/
 extern int tiger_yylex(void *pPsrParams, void * scanner);
 
 // Redefine yylex
@@ -519,14 +556,6 @@ static void
 f_psr_initLexer(struct s_psr_params *pPsrParams,yyscan_t * scanner)
 {
     FILE * pSrcFile = fopen( pPsrParams->psr_tigerSrcFile,"r" );
-    YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
-    YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
-
-    pYyVal->val = 0;
-    pYyLoc->first_line = 0;
-    pYyLoc->first_column = 0;
-    pYyLoc->last_line = 0;
-    pYyLoc->last_column = 0;
 
     yylex_init(scanner);
 
@@ -538,15 +567,24 @@ f_psr_initLexer(struct s_psr_params *pPsrParams,yyscan_t * scanner)
 static void 
 f_psr_initPsrParams(struct s_psr_params *pPsrParams)
 {
+    YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
+    YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
+
+    pYyVal->val = 0;
+    pYyLoc->first_line = 1;
+    pYyLoc->first_column = 0;
+    pYyLoc->last_line = 1;
+    pYyLoc->last_column = 0;
     pPsrParams->psr_tigerSrcFile = 0;
+    pPsrParams->psr_yylval = pYyVal;
+    pPsrParams->psr_yylloc = pYyLoc;
 }
 
 struct s_psr_params *
 f_psr_new(void)
 {
-    struct s_psr_params *pPsrParams;
+    psr_params_t *pPsrParams = MEM_ALLOC(psr_params_t);
 
-    pPsrParams = malloc(sizeof(struct s_psr_params));
     f_psr_initPsrParams(pPsrParams);
     return pPsrParams;
 }
@@ -556,3 +594,5 @@ yyerror(struct s_psr_params * pPsrParams,yyscan_t scanner,char const *s)
 {
     fprintf(stderr, "%s\n",s);
 }
+
+

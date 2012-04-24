@@ -1,6 +1,7 @@
 /* A example program to solve the 8-queens problem */
 
-let
+
+let // line comments
     var N := 8;
 
     type intArray = array of int;

@@ -50,3 +50,7 @@ typedef double F65;
 #ifndef TRUE
     #define TRUE 1
 #endif
+
+#ifndef NULL
+    #define NULL 0
+#endif

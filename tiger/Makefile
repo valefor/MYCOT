@@ -79,7 +79,7 @@ lexer:tiger_lexer.o
 	$(CC) -o $@ $<
 
 ctags:$(GEN_SRC)
-	ctags -R
+	ctags -R .
 
 clean:
 	rm -f *.o *.s *.exe *.stackdump *.output tags

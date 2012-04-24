@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "st.h"
 
 typedef unsigned int UINT;

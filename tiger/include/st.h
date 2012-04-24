@@ -27,12 +27,6 @@
  *      st      <->     symbol table
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include "tiger.h"
-
 typedef unsigned long long uint64_t;
 typedef unsigned long st_data_t;
 
@@ -74,10 +68,8 @@ struct s_st_tableEntry
     st_tableEntry_t   *fore, *back;
 };
 
-
-
 /* symbol table functions - initiating */
-st_table_t * f_st_initTable(const st_hashType_t,st_index_t);
+st_table_t * f_st_initTable(const st_hashType_t *hashType,st_index_t size);
 int f_st_numCmp(st_data_t, st_data_t);
 st_index_t f_st_numHash(st_data_t );
 
@@ -87,5 +79,10 @@ int f_st_delete(st_table_t *,st_data_t *,st_data_t *);
 int f_st_lookup(st_table_t *,st_data_t ,st_data_t *);
 
 /* Hash Functions*/
+
+// murmur hash
 uint64_t MurmurHash64A ( const void * key, int len, unsigned int seed );
 uint64_t MurmurHash64B ( const void * key, int len, unsigned int seed );
+
+/* Tiger dedicated hash type */
+st_index_t f_tg_strHash(st_data_t);

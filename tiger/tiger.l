@@ -37,7 +37,7 @@
 
 %top{
 #define YY_DECL int tiger_yylex( \
-    struct s_psr_params *pl_psrParams, \
+    struct s_psr_params *pPsrParams, \
     yyscan_t yyscanner\
 )
 }
@@ -48,12 +48,11 @@
 #include "tiger_types.h"
 #include "tiger_parser.h"
 
+void f_lxr_count(yyscan_t,psr_params_t *);
 
-int line_num = 0;
-
-void f_lxr_count(yyscan_t);
-
-#define COUNT  f_lxr_count(yyscanner);
+#define yylloc pPsrParams->psr_yylloc
+#define yylval pPsrParams->psr_yylval
+#define COUNT  f_lxr_count(yyscanner,pPsrParams)
 
 %}
 %option noyywrap stack reentrant
@@ -64,7 +63,7 @@ void f_lxr_count(yyscan_t);
 DIGITS      [0-9]+
 LETTERS     [a-zA-Z_]
 HEX         [a-fA-F0-9]
-ID          [_a-zA-Z][a-zA-Z0-9]*
+IDENTIFIER  [_a-zA-Z][a-zA-Z0-9]*
 PUNTUATOR   [{}(),=:;\[\]]
 LOGIC_OP    [<>\|&\?]
 ARITH_OP    [\+\-\*\/\%]
@@ -72,52 +71,59 @@ ARRAY_OF    "array of"
 ASSIGN      ":="
 
 %%
-<COMMENT_BLOCK>[^*\n]* 
-<COMMENT_BLOCK>"*"+[^*/\n]* 
-<COMMENT_BLOCK>\n ++line_num;
-<COMMENT_BLOCK>"*"+"/" { yy_pop_state(yyscanner); }
+<COMMENT_BLOCK>{
+[^*\n]* 
+"*"+[^*/\n]* 
+\n      { COUNT; }
+"*"+"/" { yy_pop_state(yyscanner); }
+} 
 
 <COMMENT_LINE>[^\n]* 
-<COMMENT_LINE>\n    { ++line_num; yy_pop_state(yyscanner); }
+<COMMENT_LINE>\n { COUNT;yy_pop_state(yyscanner); }
 
-<INITIAL>"/*"   { yy_push_state(COMMENT_BLOCK,yyscanner); }
-<INITIAL>"//"   { yy_push_state(COMMENT_LINE,yyscanner); }
 
-<INITIAL>[ \t]+ { putchar(' '); /* eat up whitespaces */ }
+<INITIAL>{
+"/*"    { yy_push_state(COMMENT_BLOCK,yyscanner); }
+"//"    { yy_push_state(COMMENT_LINE,yyscanner); }
 
-<INITIAL>if     { COUNT; return KW_IF; }
-<INITIAL>then   { COUNT; return KW_THEN; }
-<INITIAL>else   { COUNT; return KW_ELSE; }
-<INITIAL>end    { COUNT; return KW_END; }
-<INITIAL>while  { COUNT; return KW_WHILE; }
-<INITIAL>do     { COUNT; return KW_DO; }
-<INITIAL>for    { COUNT; return KW_FOR; }
-<INITIAL>in     { COUNT; return KW_IN; }
-<INITIAL>to     { COUNT; return KW_TO; }
-<INITIAL>break  { COUNT; return KW_BREAK; }
-<INITIAL>let    { COUNT; return KW_LET; }
-<INITIAL>of     { COUNT; return KW_OF; }
+[ \t]+  { COUNT;putchar(' '); /* eat up whitespaces */ }
+\n      { COUNT; }      
 
-<INITIAL>type   { COUNT; return KW_TYPE; }
-<INITIAL>nil    { COUNT; return KW_NIL; }
-<INITIAL>var    { COUNT; return KW_VAR; }
-<INITIAL>int    { COUNT; return KW_TYPE_INT; }
-<INITIAL>string { COUNT; return KW_TYPE_STR; }
-<INITIAL>function   { COUNT; return KW_FUNC; }
+if      { COUNT; return KW_IF; }
+then    { COUNT; return KW_THEN; }
+else    { COUNT; return KW_ELSE; }
+end     { COUNT; return KW_END; }
+while   { COUNT; return KW_WHILE; }
+do      { COUNT; return KW_DO; }
+for     { COUNT; return KW_FOR; }
+in      { COUNT; return KW_IN; }
+to      { COUNT; return KW_TO; }
+break   { COUNT; return KW_BREAK; }
+let     { COUNT; return KW_LET; }
+of      { COUNT; return KW_OF; }
 
-<INITIAL>"=="   { COUNT; return tEQ; }
-<INITIAL>"!="   { COUNT; return tNEQ; }
-<INITIAL>"<="   { COUNT; return tGEQ; }
-<INITIAL>">="   { COUNT; return tLEQ; }
-<INITIAL>{ASSIGN}   { COUNT; return tASSIGN; }
-<INITIAL>{ARRAY_OF} { COUNT; return KW_ARRAY_OF; }
+type    { COUNT; return KW_TYPE; }
+nil     { COUNT; return KW_NIL; }
+var     { COUNT; return KW_VAR; }
+int     { COUNT; return KW_TYPE_INT; }
+string  { COUNT; return KW_TYPE_STR; }
+function { COUNT; return KW_FUNC; }
 
-<INITIAL>{ARITH_OP} { COUNT; return *yytext; }
-<INITIAL>{LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
+"=="    { COUNT; return tEQ; }
+"!="    { COUNT; return tNEQ; }
+"<="    { COUNT; return tGEQ; }
+">="    { COUNT; return tLEQ; }
+{ASSIGN}    { COUNT; return tASSIGN; }
+{ARRAY_OF}  { COUNT; return KW_ARRAY_OF; }
 
-<INITIAL>{ID}       {  /*yylval->id = yytext */;COUNT; return IDENTIFIER; }
-<INITIAL>{DIGITS}   { COUNT; return tNUMBER; }
-<INITIAL>{LETTERS}?\"(\\.|[^\\"])*\"     { COUNT; return tSTRING; }
+{ARITH_OP}  { COUNT; return *yytext; }
+{LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
+
+{DIGITS}    { COUNT; return tNUMBER; }
+{IDENTIFIER}    {  yylval->id = yytext ;COUNT; return IDENTIFIER; }
+{LETTERS}?\"(\\.|[^\\"])*\" { COUNT; return tSTRING; }
+
+} 
 
 %%
 
@@ -125,25 +131,32 @@ ASSIGN      ":="
  * User code section *
  *********************/
 
-int column = 0;
-
-void f_lxr_count(yyscan_t scanner)
+void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
 {
         int i;
 
         for (i = 0; yyget_text(scanner)[i] != '\0'; i++)
         if (yyget_text(scanner)[i] == '\n')
-                column = 0;
+        {
+            ++yylloc->last_line;
+            yylloc->last_column = 0;
+        }
         else if (yyget_text(scanner)[i] == '\t')
-                column += 8 - (column % 8);
+            yylloc->last_column +=  8 - (yylloc->last_column % 8);
         else
-                column++;
+            ++yylloc->last_column;
 
+
+        printf("[%d:%d]yytext=%s\n",
+            yylloc->last_line,
+            yylloc->last_column,
+            yyget_text(scanner)
+        );
+        /*
         // Must redefine yyg
         struct yyguts_t * yyg = (struct yyguts_t*)scanner;
-
         ECHO;
-        /*
+
         printf("yytext=%s\n",yyget_text(scanner));
         */
 }

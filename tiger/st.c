@@ -27,8 +27,18 @@
  *      st      <->     symbol table
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "tiger.h"
+
 #include "st.h"
 
+/******************************************************************************
+ *
+ *  Symbol Table Definitions
+ *
+ *****************************************************************************/
 static const struct s_st_hashType cl_numHashType =
 {
     f_st_numCmp,
@@ -102,7 +112,11 @@ static const unsigned int cl_primes[] = {
  */
 #define FNV_32_PRIME 0x01000193
 
-/* ST UTIL MARCO Section */
+/******************************************************************************
+ *
+ *  Symbol Table Util Marcos
+ *
+ *****************************************************************************/
 #define ST_ENTRY_EQUAL(table,x,y) ((x)==(y) || \
         (*(table)->hashType->compare)((x),(y)) == 0)
 
@@ -167,6 +181,11 @@ static const unsigned int cl_primes[] = {
     (table)->totalEntryNbr--; \
 } while(0)\
 
+/******************************************************************************
+ *
+ *  Symbol Table Hash Functions
+ *
+ *****************************************************************************/
 static st_index_t
 f_st_newHashSize(st_index_t size)
 {
@@ -226,6 +245,38 @@ st_index_t
 f_st_numHash(st_data_t n)
 {
     return (st_index_t)n;
+}
+
+st_index_t
+f_tg_strHash(st_data_t arg)
+{
+    return f_st_strHash(arg);
+}
+
+
+
+/******************************************************************************
+ *
+ *  Symbol Table Operating Functions
+ *
+ *****************************************************************************/
+st_table_t * 
+f_st_initTable(const st_hashType_t *hashType,st_index_t size)
+{
+    st_table_t *pTable;
+
+    /* round up to prime number */
+    size = f_st_newHashSize(size);
+
+    pTable = MEM_ALLOC(st_table_t);
+    pTable->hashType = hashType;
+    pTable->totalEntryNbr = 0;
+    pTable->binsNbr = size;
+    pTable->bins = (st_tableEntry_t**)MEM_CALLOC(size,sizeof(st_tableEntry_t*));
+    pTable->head = NULL;
+    pTable->tail = NULL;
+
+    return pTable;
 }
 
 int f_st_insert(st_table_t * table,register st_data_t key,st_data_t value)
