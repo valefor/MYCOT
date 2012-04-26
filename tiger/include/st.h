@@ -24,6 +24,7 @@
  * @Doc:{
  *
  *  x. Abbreviations:
+ *      tg      <->     tiger
  *      st      <->     symbol table
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/

@@ -82,9 +82,11 @@
  *      if it has,it will help others understand the function more quickly.
  *
  *  x. Abbreviations:
- *      lexer       <->     lxr
- *      parser      <->     psr
- *      parameter   <->     param
+ *      tg      <->     tiger
+ *      st      <->     symbol table
+ *      lxr     <->     lexer
+ *      psr     <->     parser
+ *      param   <->     parameter
  *
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
@@ -101,12 +103,13 @@
 
 %}
 
-/* Definitions that'll be used by other module */
+/* Definitions that'll be used by other modules */
 %code provides
 {
 
 typedef struct s_tg_symbols {
-    st_table_t * idTbl;
+    st_table_t * str2idTbl;
+    st_table_t * id2strTbl;
 } tg_symbols_t;
 
 typedef struct YYLTYPE
@@ -148,8 +151,10 @@ typedef struct s_psr_params psr_params_t;
 
 /* YYSTYPE */
 %union{
-    char * id;
-    int val;
+    tg_id_t id;
+    tg_node_t * node;
+    tg_value_t value;
+    int num;
 }
 
 %{
@@ -214,18 +219,21 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
     tASSIGN
 
 // Const & Variable
-%token <val>    tNUMBER
-%token <id>     tSTRING
-%token <id>     IDENTIFIER
-%type  <val>    exp none
+%token <id>     IDENTIFIER tSTRING
+%token <value>  tNUMBER
+%type  <node>   exp primaryExp postfixExp unaryExp  arithExp argExpList
+%type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 
 // Last ID,Don't use it in this file
 %token <id>     tLAST_ID
 /*
-<<Operator precedence>>:
-The relative precedence of different operators is controlled by the order in which they are declared.
-The earliest declaration,the lowest precedence
-*/
+ * Precedence Table
+ *
+ * <<Operator precedence>>:
+ * The relative precedence of different operators is controlled by the order
+ * in which they are declared.The earliest declaration,the lowest precedence
+ *
+ */
 
 %nonassoc tLOWEST
 
@@ -240,6 +248,14 @@ The earliest declaration,the lowest precedence
 /* start parse */
 %start prog
 %% /* Grammar rules and actions follow */
+
+/******************************************************************************
+ *
+ *  Action Section:
+ *    1. If you don't specify an action for a rule,Bison supplies a default:
+ *       $$ = $1.
+ *
+ *****************************************************************************/
 
 /* Expressions */
 primaryExp
@@ -518,9 +534,14 @@ nonNilStmts : stmt
  *
  *****************************************************************************/
 #define f_tg_strCmp strcmp
-static const st_hashType_t cl_tg_hashType = { 
+static const st_hashType_t cl_tg_strHashType = { 
     f_tg_strCmp,
     f_tg_strHash
+};
+
+static const st_hashType_t cl_tg_numHashType = { 
+    f_st_numCmp,
+    f_st_numHash
 };
 
 void
@@ -579,7 +600,7 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
     pYyLoc->first_column = 0;
     pYyLoc->last_line = 1;
     pYyLoc->last_column = 0;
-    pTgSymbols->idTbl = f_st_initTable(&cl_tg_hashType,1000);
+    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
 
     pPsrParams->psr_tigerSrcFile = 0;
     pPsrParams->psr_yylval = pYyVal;

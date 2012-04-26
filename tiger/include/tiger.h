@@ -33,3 +33,8 @@
 #include "utils.h"
 #include "config.h"
 
+// tiger ID
+typedef unsigned long tg_id_t;
+
+// tiger VALUE
+typedef unsigned long tg_value_t;

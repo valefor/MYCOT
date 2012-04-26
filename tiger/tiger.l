@@ -29,9 +29,11 @@
  * @Doc:{
  *
  *  x. Abbreviations:
- *      lexer       <->     lxr
- *      parser      <->     psr
- *      parameter   <->     param
+ *      tg      <->     tiger
+ *      st      <->     symbol table
+ *      lxr     <->     lexer
+ *      psr     <->     parser
+ *      param   <->     parameter
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 
