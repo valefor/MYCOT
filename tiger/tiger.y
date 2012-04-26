@@ -223,6 +223,7 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
 %token <value>  tNUMBER
 %type  <node>   exp primaryExp postfixExp unaryExp  arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
+%type  <node>   none
 
 // Last ID,Don't use it in this file
 %token <id>     tLAST_ID
@@ -258,70 +259,59 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
  *****************************************************************************/
 
 /* Expressions */
-primaryExp
-        : IDENTIFIER
+primaryExp: IDENTIFIER
         | tNUMBER
         | tSTRING
-        | '(' exp ')'
+        | '(' exp ')' { $$ = $2; }
 ;
 
-postfixExp
-        : primaryExp
+postfixExp: primaryExp
         | postfixExp '[' exp ']' 
         | postfixExp '[' exp ']' KW_OF exp
         | postfixExp '(' ')' 
         | postfixExp '(' argExpList ')'
 ;
 
-argExpList
-        : assignExp
+argExpList: assignExp
         | argExpList ',' assignExp
 ;
 
-unaryExp
-        : postfixExp
+unaryExp: postfixExp
 ;
 
-arithExp
-        : unaryExp
+arithExp: unaryExp
         | arithExp '+' unaryExp
         | arithExp '-' unaryExp
         | arithExp '*' unaryExp
         | arithExp '/' unaryExp
-        | '-' unaryExp %prec tUMINUS
+        | '-' unaryExp %prec tUMINUS { $$ = -$2; }
 ;
 
-relationExp
-        : arithExp
+relationExp: arithExp
         | relationExp tLEQ arithExp
         | relationExp tGEQ arithExp
         | relationExp '<' arithExp
         | relationExp '>' arithExp
 ;
 
-equalExp
-        : relationExp
+equalExp: relationExp
         | equalExp tEQ relationExp
         | equalExp tNEQ relationExp
 ;
 
-andExp
-        : equalExp
+andExp  : equalExp
         | andExp '&' equalExp
 ;
 
-orExp
-        : andExp
+orExp   : andExp
         | orExp '|' andExp
 ;
 
-conditionalExp
-        : orExp
+conditionalExp: orExp
         | orExp '?' exp ':' conditionalExp
 ;
 
-assignExp
-        : conditionalExp
+assignExp: conditionalExp
         | unaryExp assignOp unaryExp
 ;
 
@@ -329,19 +319,16 @@ exp     : assignExp
         | exp ',' assignExp 
 ;
 
-assignOp
-        : tASSIGN
+assignOp: tASSIGN
 ;
 
 
 /* Delarations */
-decs
-        : dec
+decs    : dec
         | decs dec
 ;
 
-dec
-        : typeDec terms
+dec     : typeDec terms
         | varDec terms
         | funcDef terms
 ;
@@ -354,17 +341,17 @@ typeDef : type
         | KW_TYPE_STR
 ;
 
-type: IDENTIFIER
-    | '{' typeFields '}'
-    | KW_ARRAY_OF typeDef
+type    : IDENTIFIER
+        | '{' typeFields '}'
+        | KW_ARRAY_OF typeDef
 ;
 
 typeFields  : typeField
-            | typeFields ',' typeField
+        | typeFields ',' typeField
 ;
 
 typeField   : none
-            | IDENTIFIER ':' typeDef
+        | IDENTIFIER ':' typeDef
 ;
 
 varDec  : KW_VAR IDENTIFIER assignOp unaryExp
@@ -378,20 +365,17 @@ funcDef : KW_FUNC IDENTIFIER '(' typeFields ')' '=' compoundStmt
 ;
 
 /* Statements */
-compoundStmt
-        : '(' ')'
+compoundStmt: '(' ')'
         | '(' decs ')' 
         | '(' stmts ')' 
         | '(' decs stmts ')' 
 ;
 
-stmts   
-        : stmt
+stmts   : stmt
         | stmts term stmt
 ;
 
-stmt
-        : expStmts
+stmt    : expStmts
         | compoundStmt
         | selectionStmt
         | iterationStmt
@@ -399,29 +383,24 @@ stmt
         | letStmt
 ;
 
-expStmts
-        : exp
+expStmts: exp
         | expStmts term exp
 ;
 
 
 
-selectionStmt
-        : KW_IF exp KW_THEN stmt
+selectionStmt: KW_IF exp KW_THEN stmt
         | KW_IF exp KW_THEN stmt KW_ELSE stmt
 ;
 
-iterationStmt
-        : KW_WHILE exp KW_DO stmt
+iterationStmt: KW_WHILE exp KW_DO stmt
         | KW_FOR IDENTIFIER tASSIGN exp KW_TO exp KW_DO stmt
 ;
 
-jumpStmt
-        : KW_BREAK
+jumpStmt: KW_BREAK
 ;
 
-letStmt
-        : KW_LET decs KW_IN stmt KW_END
+letStmt: KW_LET decs KW_IN stmt KW_END
 ;
 
 terms : term
@@ -438,13 +417,12 @@ none    :
 ;
 
 /* start parse */
-extDec
-    : dec
-    | stmt
+extDec  : dec
+        | stmt
 ;
 
-prog: extDec 
-    | prog extDec
+prog    : extDec 
+        | prog extDec
 ;
 
 /* End of grammar. */

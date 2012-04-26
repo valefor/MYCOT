@@ -14,7 +14,7 @@
  * }
  * 
  * @Module:{
- *  LocalMoudle:synTax Tree
+ *  LocalMoudle:syntax Tree
  * }
  * 
  * @CGL:{
