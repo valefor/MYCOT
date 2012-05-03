@@ -87,3 +87,5 @@ uint64_t MurmurHash64B ( const void * key, int len, unsigned int seed );
 
 /* Tiger dedicated hash type */
 st_index_t f_tg_strHash(st_data_t);
+st_index_t f_tg_numHash(st_data_t);
+int f_tg_numCmp(st_data_t x, st_data_t y);

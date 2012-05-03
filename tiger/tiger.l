@@ -22,7 +22,7 @@
  * 
  * @CGL:{
  *  Contract: Disobey
- *  Reason  : This file is the input file of YACC program,is not a pure C file.
+ *  Reason  : This file is the input file of LEX program,is not a pure C file.
  *            Naming can't meet the CGL requirement;
  * }
  * 
@@ -122,7 +122,11 @@ function { COUNT; return KW_FUNC; }
 {LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
 
 {DIGITS}    { COUNT; return tNUMBER; }
-{IDENTIFIER}    {  yylval->id = yytext ;COUNT; return IDENTIFIER; }
+{IDENTIFIER}
+    { 
+        yylval->id = f_tg_regToSymbolTable(yytext,pPsrParams->psr_tgSymbols);
+        COUNT; return IDENTIFIER; 
+    }
 {LETTERS}?\"(\\.|[^\\"])*\" { COUNT; return tSTRING; }
 
 } 
@@ -132,7 +136,7 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
-void f_tg_regToSymbolTable()
+void f_tg_regToSymbolTable(char * pYyText,tg_symbols_t *pTgSymbols)
 {
 
 }

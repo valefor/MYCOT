@@ -221,7 +221,7 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
 // Const & Variable
 %token <id>     IDENTIFIER tSTRING
 %token <value>  tNUMBER
-%type  <node>   exp primaryExp postfixExp unaryExp  arithExp argExpList
+%type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   none
 
@@ -579,6 +579,7 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
     pYyLoc->last_line = 1;
     pYyLoc->last_column = 0;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
+    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
 
     pPsrParams->psr_tigerSrcFile = 0;
     pPsrParams->psr_yylval = pYyVal;

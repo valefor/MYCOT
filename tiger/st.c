@@ -253,7 +253,17 @@ f_tg_strHash(st_data_t arg)
     return f_st_strHash(arg);
 }
 
+int
+f_tg_numCmp(st_data_t x, st_data_t y)
+{
+    return x != y;
+}
 
+st_index_t
+f_tg_numHash(st_data_t arg)
+{
+    return f_st_numHash(arg);
+}
 
 /******************************************************************************
  *
