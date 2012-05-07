@@ -219,8 +219,8 @@ static void f_psr_initLexer(struct s_psr_params *,void **);
     tASSIGN
 
 // Const & Variable
-%token <id>     IDENTIFIER tSTRING
-%token <value>  tNUMBER
+%token <node>   IDENTIFIER tSTRING
+%token <node>   tNUMBER
 %type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   none

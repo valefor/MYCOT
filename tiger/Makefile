@@ -81,8 +81,11 @@ lexer:tiger_lexer.o
 ctags:$(GEN_SRC)
 	ctags -R .
 
+csc:$(GEN_SRC)
+	cscope -Rqb
+
 clean:
-	rm -f *.o *.s *.exe *.stackdump *.output tags
+	rm -f *.o *.s *.exe *.stackdump *.output tags cscope.*
 	rm -f $(GEN_SRC) $(GEN_HDR)
 
 tiger_parser.c: tiger.y
