@@ -142,9 +142,8 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
-
-// C
-bool f_tg_symbolExisted(
+bool 
+f_tg_symbolExisted(
     const char * pYyText,
     tg_symbols_t *pTgSymbols,
     tg_id_t * pId
@@ -153,20 +152,23 @@ bool f_tg_symbolExisted(
     return f_st_lookup(pTgSymbols->str2idTbl,pYyText,pId);
 }
  
-tg_id_t f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
+tg_id_t 
+f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
 {
-    tg_id_t tId = 0;
+    tg_id_t tId = ++pTgSymbols->lastId;
     int iStrLen = strlen(pYyText);
     char * pStr = MEM_CALLOC(0,iStrLen+1);
     MEM_COPY(pStr,pYyText,char,iStrLen);
     pStr[iStrLen] = '\0';
 
-    f_st_insert(pTgSymbols->str2idTbl,pStr,tId);
+    f_st_add(pTgSymbols->str2idTbl,pStr,tId);
+    f_st_add(pTgSymbols->id2strTbl,tId,pStr);
 
     return tId;
 }
 
-void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
+void 
+f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
 {
         int i;
 
@@ -197,7 +199,8 @@ void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
 }
 
 #if TG_LEX_DEBUG > 0
-int main( int argc, char ** argv)
+int 
+main( int argc, char ** argv)
 {
     printf("Enter Main\n");
     ++argv,--argc; // skip over program name

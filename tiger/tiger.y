@@ -60,6 +60,7 @@
 {
 
 typedef struct s_tg_symbols {
+    tg_id_t lastId;
     st_table_t * str2idTbl;
     st_table_t * id2strTbl;
 } tg_symbols_t;
@@ -534,6 +535,7 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
     pYyLoc->last_line = 1;
     pYyLoc->last_column = 0;
 
+    pTgSymbols->lastId = tLAST_ID;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
     pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
 

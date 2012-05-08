@@ -75,6 +75,7 @@ int f_st_numCmp(st_data_t, st_data_t);
 st_index_t f_st_numHash(st_data_t );
 
 /* symbol table functions - operating */
+void f_st_add(st_table_t *,st_data_t ,st_data_t);
 int f_st_insert(st_table_t *,st_data_t ,st_data_t );
 int f_st_delete(st_table_t *,st_data_t *,st_data_t *);
 int f_st_lookup(st_table_t *,st_data_t ,st_data_t *);

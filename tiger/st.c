@@ -309,6 +309,15 @@ int f_st_insert(st_table_t * table,register st_data_t key,st_data_t value)
     }
 }
 
+void f_st_add(st_table_t * table,register st_data_t key,st_data_t value)
+{
+    st_index_t tHashVal,tBinPos;
+
+    tHashVal = ST_DO_HASH(table,key);
+    tBinPos = tHashVal % table->binsNbr;
+    ST_INSERT_ENTRY(table,key,value,tHashVal,tBinPos);
+}
+
 int f_st_lookup(st_table_t * table,register st_data_t key,st_data_t * value)
 {
     st_index_t tHashVal,tBinPos;
