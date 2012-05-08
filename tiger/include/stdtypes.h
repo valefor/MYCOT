@@ -14,7 +14,7 @@
  * }
  * 
  * @Module:{
- *  LocalMoudle:STD
+ *  LocalModule:STD
  * }
  * 
  * @CGL:{

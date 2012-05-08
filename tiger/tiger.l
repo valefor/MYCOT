@@ -17,7 +17,7 @@
  * 
  * }
  * @Module:{
- *  LocalMoudle:lexer
+ *  LocalModule:lexer
  * }
  * 
  * @CGL:{
@@ -48,12 +48,16 @@
 /* C Declarations: */
 #include "tiger.h"
 #include "st.h"
+#include "node.h"
 #include "tiger_parser.h"
 
 void f_lxr_count(yyscan_t,psr_params_t *);
+bool f_tg_symbolExisted(const char * ,tg_symbols_t *,tg_id_t *);
+tg_id_t f_tg_regToSymbolTable(const char * ,tg_symbols_t *);
 
 #define yylloc pPsrParams->psr_yylloc
 #define yylval pPsrParams->psr_yylval
+#define yysymb pPsrParams->psr_tgSymbols
 #define COUNT  f_lxr_count(yyscanner,pPsrParams)
 
 %}
@@ -122,9 +126,11 @@ function { COUNT; return KW_FUNC; }
 {LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
 
 {DIGITS}    { COUNT; return tNUMBER; }
-{IDENTIFIER}
-    { 
-        yylval->id = f_tg_regToSymbolTable(yytext,pPsrParams->psr_tgSymbols);
+{IDENTIFIER} { 
+        if( !f_tg_symbolExisted(yytext,yysymb,&(yylval->id)) )
+        {
+            yylval->id = f_tg_regToSymbolTable(yytext,yysymb);
+        }
         COUNT; return IDENTIFIER; 
     }
 {LETTERS}?\"(\\.|[^\\"])*\" { COUNT; return tSTRING; }
@@ -136,9 +142,28 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
-void f_tg_regToSymbolTable(char * pYyText,tg_symbols_t *pTgSymbols)
-{
 
+// C
+bool f_tg_symbolExisted(
+    const char * pYyText,
+    tg_symbols_t *pTgSymbols,
+    tg_id_t * pId
+)
+{
+    return f_st_lookup(pTgSymbols->str2idTbl,pYyText,pId);
+}
+ 
+tg_id_t f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
+{
+    tg_id_t tId = 0;
+    int iStrLen = strlen(pYyText);
+    char * pStr = MEM_CALLOC(0,iStrLen+1);
+    MEM_COPY(pStr,pYyText,char,iStrLen);
+    pStr[iStrLen] = '\0';
+
+    f_st_insert(pTgSymbols->str2idTbl,pStr,tId);
+
+    return tId;
 }
 
 void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
@@ -152,7 +177,7 @@ void f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
             yylloc->last_column = 0;
         }
         else if (yyget_text(scanner)[i] == '\t')
-            yylloc->last_column +=  8 - (yylloc->last_column % 8);
+            yylloc->last_column +=  4 - (yylloc->last_column % 4);
         else
             ++yylloc->last_column;
 

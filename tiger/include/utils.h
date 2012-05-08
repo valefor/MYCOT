@@ -14,7 +14,7 @@
  * }
  * 
  * @Module:{
- *  LocalMoudle:utils
+ *  LocalModule:utils
  * }
  * 
  * @CGL:{

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "st.h"
+#include "tiger.h"
+#include "node.h"
 #include "tiger_parser.h"
 #include "tiger_lexer.h"
 
@@ -17,7 +19,7 @@ int main( int argc, char ** argv)
     struct s_psr_params *pPsrParams = f_psr_new();
     yyscan_t scanner;
     if( argc > 0 )
-    pPsrParams->psr_tigerSrcFile = argv[0];
+    pPsrParams->psr_srcFileName = argv[0];
     yyparse(pPsrParams,scanner);
     /*
     FILE * srcFile;

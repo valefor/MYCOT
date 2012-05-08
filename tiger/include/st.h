@@ -14,7 +14,7 @@
  * }
  * 
  * @Module:{
- *  LocalMoudle:symbolTable
+ *  LocalModule:symbolTable
  * }
  * 
  * @CGL:{
