@@ -143,8 +143,6 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
-static int iClBuffSize;
-
 bool 
 f_tg_symbolExisted(
     const char * pYyText,
@@ -156,25 +154,25 @@ f_tg_symbolExisted(
 }
 
 bool
-f_lxr_createClBuffer(char * pBuff)
+f_lxr_createClBuffer(char ** pBuffRef,int * sizeRef)
 {
-    iClBuffSize = LEX_CURR_LINE_BUFF_SIZE;
+    *sizeRef = LEX_CURR_LINE_BUFF_SIZE;
 
-    if( pBuff = MEM_CALLOC(iClBuffSize,sizeof(char)) )
+    if( *pBuffRef = MEM_CALLOC(*sizeRef,sizeof(char)) )
         return TRUE;
     else
         return FALSE;
 }
 
 bool 
-f_lxr_reSizeClBuffer(char * pBuff)
+f_lxr_reSizeClBuffer(char ** pBuffRef,int * sizeRef)
 {
     char * pNewBuff;
-    iClBuffSize = iClBuffSize * 2;
-    if( pNewBuff = MEM_REALLOC(char,pNewBuff,iClBuffSize) )
+    *sizeRef = *sizeRef * 2;
+    if( pNewBuff = MEM_REALLOC(char,pNewBuff,*sizeRef) )
     {
-        MEM_COPY(pNewBuff,pBuff,char,iClBuffSize/2);
-        pBuff = pNewBuff;
+        MEM_COPY(pNewBuff,*pBuffRef,char,(*sizeRef)/2);
+        *pBuffRef = pNewBuff;
         return TRUE;
     }
     else {return FALSE;}
@@ -189,7 +187,8 @@ f_lxr_fillClBuffer(char * currBuff,char c)
 void
 f_lxr_flushClBuffer(char * currBuff)
 {
-    currBuff[0] = '\0';
+    if(currBuff)
+        currBuff[0] = '\0';
 }
 
 void 
@@ -198,7 +197,10 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
     int i;
 
     if( !(yylloc->currLineBuff) )
-        f_lxr_createClBuffer(yylloc->currLineBuff);
+        f_lxr_createClBuffer(
+            &(yylloc->currLineBuff),
+            &(yylloc->buffSize)
+        );
     
     for (i = 0; yyget_text(scanner)[i] != '\0'; i++)
     {
@@ -210,21 +212,23 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
         }
         else
         {
-            if(yylloc->lastColumn >= iClBuffSize-2)
-                f_lxr_reSizeClBuffer(yylloc->currLineBuff);
+            if( (yylloc->lastColumn) >= (yylloc->buffSize - 2) )
+                f_lxr_reSizeClBuffer(
+                    &(yylloc->currLineBuff),
+                    &(yylloc->buffSize)
+                );
+
+            yylloc->currLineBuff[yylloc->lastColumn] = yyget_text(scanner)[i];
 
             if (yyget_text(scanner)[i] == '\t')
                 yylloc->lastColumn +=  4 - (yylloc->lastColumn % 4);
             else
                 ++yylloc->lastColumn;
 
-            yylloc->currLineBuff[yylloc->lastColumn] = yyget_text(scanner)[i];
-
         }
     }
 
-    yylloc->currLineBuff[yylloc->lastColumn] = '\0';
-
+    yylloc->currLineBuff[yylloc->lastColumn + 1] = '\0';
 
     printf("[%d:%d]yytext=%s\n",
         yylloc->lastLine,

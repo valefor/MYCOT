@@ -72,7 +72,7 @@ typedef struct YYLTYPE
     int lastLine;
     int lastColumn;
     char *currLineBuff;
-    int buffPos;
+    int buffSize;
 } YYLTYPE;
 
 struct psr_params_s
@@ -539,7 +539,7 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     pYyLoc->lastLine = 1;
     pYyLoc->lastColumn = 0;
     pYyLoc->currLineBuff = NULL;
-    pYyLoc->buffPos = -1;
+    pYyLoc->buffSize = 0;
 
     pTgSymbols->lastId = tLAST_ID;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
@@ -563,6 +563,11 @@ f_psr_new(void)
 void 
 yyerror(psr_params_t * pPsrParams,yyscan_t scanner,char const * errorMsg)
 {
+    fprintf(stderr, "%s:%d\t%s\n",
+        pPsrParams->psr_srcFileName,
+        pPsrParams->psr_yylloc->lastLine,
+        pPsrParams->psr_yylloc->currLineBuff
+    );
     fprintf(stderr, "%s:%d\t%s\n",
         pPsrParams->psr_srcFileName,
         pPsrParams->psr_yylloc->lastLine,
