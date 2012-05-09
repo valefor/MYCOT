@@ -39,7 +39,7 @@
 
 %top{
 #define YY_DECL int tiger_yylex( \
-    struct s_psr_params *pPsrParams, \
+    struct psr_params_s *pPsrParams, \
     yyscan_t yyscanner\
 )
 }
@@ -59,6 +59,8 @@ tg_id_t f_tg_regToSymbolTable(const char * ,tg_symbols_t *);
 #define yylval pPsrParams->psr_yylval
 #define yysymb pPsrParams->psr_tgSymbols
 #define COUNT  f_lxr_count(yyscanner,pPsrParams)
+
+#define LEX_CURR_LINE_BUFF_SIZE 160
 
 %}
 %option noyywrap stack reentrant
@@ -92,8 +94,7 @@ ASSIGN      ":="
 "/*"    { yy_push_state(COMMENT_BLOCK,yyscanner); }
 "//"    { yy_push_state(COMMENT_LINE,yyscanner); }
 
-[ \t]+  { COUNT;putchar(' '); /* eat up whitespaces */ }
-\n      { COUNT; }      
+[ \t\n]+  { COUNT;putchar(' '); /* eat up whitespaces */ }
 
 if      { COUNT; return KW_IF; }
 then    { COUNT; return KW_THEN; }
@@ -142,6 +143,8 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
+static int iClBuffSize;
+
 bool 
 f_tg_symbolExisted(
     const char * pYyText,
@@ -151,7 +154,92 @@ f_tg_symbolExisted(
 {
     return f_st_lookup(pTgSymbols->str2idTbl,pYyText,pId);
 }
- 
+
+bool
+f_lxr_createClBuffer(char * pBuff)
+{
+    iClBuffSize = LEX_CURR_LINE_BUFF_SIZE;
+
+    if( pBuff = MEM_CALLOC(iClBuffSize,sizeof(char)) )
+        return TRUE;
+    else
+        return FALSE;
+}
+
+bool 
+f_lxr_reSizeClBuffer(char * pBuff)
+{
+    char * pNewBuff;
+    iClBuffSize = iClBuffSize * 2;
+    if( pNewBuff = MEM_REALLOC(char,pNewBuff,iClBuffSize) )
+    {
+        MEM_COPY(pNewBuff,pBuff,char,iClBuffSize/2);
+        pBuff = pNewBuff;
+        return TRUE;
+    }
+    else {return FALSE;}
+}
+
+bool
+f_lxr_fillClBuffer(char * currBuff,char c)
+{
+    return TRUE;
+}
+
+void
+f_lxr_flushClBuffer(char * currBuff)
+{
+    currBuff[0] = '\0';
+}
+
+void 
+f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
+{
+    int i;
+
+    if( !(yylloc->currLineBuff) )
+        f_lxr_createClBuffer(yylloc->currLineBuff);
+    
+    for (i = 0; yyget_text(scanner)[i] != '\0'; i++)
+    {
+        if (yyget_text(scanner)[i] == '\n')
+        {
+            ++yylloc->lastLine;
+            yylloc->lastColumn = 0;
+            f_lxr_flushClBuffer(yylloc->currLineBuff);
+        }
+        else
+        {
+            if(yylloc->lastColumn >= iClBuffSize-2)
+                f_lxr_reSizeClBuffer(yylloc->currLineBuff);
+
+            if (yyget_text(scanner)[i] == '\t')
+                yylloc->lastColumn +=  4 - (yylloc->lastColumn % 4);
+            else
+                ++yylloc->lastColumn;
+
+            yylloc->currLineBuff[yylloc->lastColumn] = yyget_text(scanner)[i];
+
+        }
+    }
+
+    yylloc->currLineBuff[yylloc->lastColumn] = '\0';
+
+
+    printf("[%d:%d]yytext=%s\n",
+        yylloc->lastLine,
+        yylloc->lastColumn,
+        yyget_text(scanner)
+    );
+    /*
+    // Must redefine yyg
+    struct yyguts_t * yyg = (struct yyguts_t*)scanner;
+    ECHO;
+
+    printf("yytext=%s\n",yyget_text(scanner));
+    */
+}
+
 tg_id_t 
 f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
 {
@@ -167,36 +255,6 @@ f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
     return tId;
 }
 
-void 
-f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
-{
-        int i;
-
-        for (i = 0; yyget_text(scanner)[i] != '\0'; i++)
-        if (yyget_text(scanner)[i] == '\n')
-        {
-            ++yylloc->last_line;
-            yylloc->last_column = 0;
-        }
-        else if (yyget_text(scanner)[i] == '\t')
-            yylloc->last_column +=  4 - (yylloc->last_column % 4);
-        else
-            ++yylloc->last_column;
-
-
-        printf("[%d:%d]yytext=%s\n",
-            yylloc->last_line,
-            yylloc->last_column,
-            yyget_text(scanner)
-        );
-        /*
-        // Must redefine yyg
-        struct yyguts_t * yyg = (struct yyguts_t*)scanner;
-        ECHO;
-
-        printf("yytext=%s\n",yyget_text(scanner));
-        */
-}
 
 #if TG_LEX_DEBUG > 0
 int 

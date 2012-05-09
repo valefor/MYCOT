@@ -32,7 +32,9 @@
 /* Memory Management */
 #define MEM_ALLOC(type) (type*)malloc((size_t)sizeof(type))
 #define MEM_CALLOC(n,s) (char*)calloc((n),(s))
+#define MEM_REALLOC(type,p,s) (type*)realloc((p),(s))
 #define MEM_ZERO(p,type,n) memset((p),0,sizeof(type)*(n))
 #define MEM_MOVE(to,from,type,n) memmove((to),(from),sizeof(type)*(n))
 #define MEM_COPY(to,from,type,n) memcpy((to),(from),sizeof(type)*(n))
 #define MEM_CMP(p1,p2,type,n) memcmp((p1),(p2),sizeof(type)*(n))
+#define MEM_FREE(p) free(p)

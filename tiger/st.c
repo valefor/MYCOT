@@ -39,7 +39,7 @@
  *  Symbol Table Definitions
  *
  *****************************************************************************/
-static const struct s_st_hashType cl_numHashType =
+static const struct st_hashType_s cl_numHashType =
 {
     f_st_numCmp,
     f_st_numHash,
@@ -47,7 +47,7 @@ static const struct s_st_hashType cl_numHashType =
 
 #define f_st_strCmp strcmp
 static st_index_t f_st_strHash(st_data_t);
-static const struct s_st_hashType cl_strHashType =
+static const struct st_hashType_s cl_strHashType =
 {
     f_st_strCmp,
     f_st_strHash,

@@ -59,7 +59,7 @@
 %code provides
 {
 
-typedef struct s_tg_symbols {
+typedef struct tg_symbols_s {
     tg_id_t lastId;
     st_table_t * str2idTbl;
     st_table_t * id2strTbl;
@@ -67,23 +67,26 @@ typedef struct s_tg_symbols {
 
 typedef struct YYLTYPE
 {
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
+    int firstLine;
+    int firstColumn;
+    int lastLine;
+    int lastColumn;
+    char *currLineBuff;
+    int buffPos;
 } YYLTYPE;
 
-struct s_psr_params
+struct psr_params_s
 {
+    /* File related parameters,etc. line,column number,file name... */
     char *psr_srcFileName;
-
-    YYSTYPE *psr_yylval;
     YYLTYPE *psr_yylloc;
 
+    /* Parser&Lexer dedicated parameters */
+    YYSTYPE *psr_yylval;
     tg_symbols_t *psr_tgSymbols;
 };
 
-typedef struct s_psr_params psr_params_t;
+typedef struct psr_params_s psr_params_t;
 
 }
 
@@ -97,9 +100,9 @@ typedef struct s_psr_params psr_params_t;
 /* Bison Options */
 %debug
 %pure_parser
-%parse-param    { struct s_psr_params *pPsrParams }
+%parse-param    { psr_params_t *pPsrParams }
 %parse-param    { void * scanner }
-%lex-param      { struct s_psr_params *pPsrParams }
+%lex-param      { psr_params_t *pPsrParams }
 %lex-param      { void * scanner }
 
 /* YYSTYPE */
@@ -112,15 +115,15 @@ typedef struct s_psr_params psr_params_t;
 
 %{
 #include "tiger_lexer.h"
-static int yylex(YYSTYPE *,struct s_psr_params *, yyscan_t );
-void yyerror (struct s_psr_params * ,yyscan_t , char const *s);
-static void f_psr_initLexer(struct s_psr_params *,void **);
+static int yylex(YYSTYPE *,psr_params_t *, yyscan_t );
+void yyerror (psr_params_t * ,yyscan_t , char const *s);
+static void f_psr_initLexer(psr_params_t *,void **);
 %}
 
 /* External function declaration */
 %code provides
 {
-    int yyparse(struct s_psr_params * pPsrParams, void * scanner);
+    int yyparse(psr_params_t * pPsrParams, void * scanner);
     psr_params_t * f_psr_new(void);
 }
 
@@ -491,13 +494,13 @@ extern int tiger_yylex(void *pPsrParams, void * scanner);
 // Redefine yylex
 #if YYPURE
 static int 
-yylex(YYSTYPE *pl_lval,struct s_psr_params *pPsrParams,yyscan_t scanner)
+yylex(YYSTYPE *pl_lval,psr_params_t *pPsrParams,yyscan_t scanner)
 #else
 static int 
 yylex(void *p)
 #endif
 {
-    struct s_psr_params *vl_psrParams = (struct s_psr_params*)pPsrParams;
+    psr_params_t *vl_psrParams = (psr_params_t*)pPsrParams;
     int t;
 #if YYPURE
     vl_psrParams->psr_yylval = pl_lval;
@@ -508,7 +511,7 @@ yylex(void *p)
 }
 
 static void 
-f_psr_initLexer(struct s_psr_params *pPsrParams,yyscan_t * scanner)
+f_psr_initLexer(psr_params_t *pPsrParams,yyscan_t * scanner)
 {
     FILE * pSrcFile = fopen( pPsrParams->psr_srcFileName,"r" );
 
@@ -520,7 +523,7 @@ f_psr_initLexer(struct s_psr_params *pPsrParams,yyscan_t * scanner)
 }
 
 static void 
-f_psr_initPsrParams(struct s_psr_params *pPsrParams)
+f_psr_initPsrParams(psr_params_t *pPsrParams)
 {
     YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
     YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
@@ -530,10 +533,13 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
     pYyVal->value = 0;
     pYyVal->node = MEM_ALLOC(tg_node_t);
     pYyVal->num = 0;
-    pYyLoc->first_line = 1;
-    pYyLoc->first_column = 0;
-    pYyLoc->last_line = 1;
-    pYyLoc->last_column = 0;
+
+    pYyLoc->firstLine = 1;
+    pYyLoc->firstColumn = 0;
+    pYyLoc->lastLine = 1;
+    pYyLoc->lastColumn = 0;
+    pYyLoc->currLineBuff = NULL;
+    pYyLoc->buffPos = -1;
 
     pTgSymbols->lastId = tLAST_ID;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
@@ -545,7 +551,7 @@ f_psr_initPsrParams(struct s_psr_params *pPsrParams)
     pPsrParams->psr_tgSymbols = pTgSymbols;
 }
 
-struct s_psr_params *
+psr_params_t *
 f_psr_new(void)
 {
     psr_params_t *pPsrParams = MEM_ALLOC(psr_params_t);
@@ -555,11 +561,11 @@ f_psr_new(void)
 }
 
 void 
-yyerror(struct s_psr_params * pPsrParams,yyscan_t scanner,char const * errorMsg)
+yyerror(psr_params_t * pPsrParams,yyscan_t scanner,char const * errorMsg)
 {
     fprintf(stderr, "%s:%d\t%s\n",
         pPsrParams->psr_srcFileName,
-        pPsrParams->psr_yylloc->last_line,
+        pPsrParams->psr_yylloc->lastLine,
         errorMsg
     );
 }

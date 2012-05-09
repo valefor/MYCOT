@@ -39,28 +39,28 @@ typedef st_data_t st_index_t;
 #   define ANYARGS
 #endif
 
-struct s_st_hashType
+struct st_hashType_s
 {
     int (*compare)(ANYARGS);
     st_index_t (*hash)(ANYARGS);
 };
-typedef struct s_st_hashType st_hashType_t;
+typedef struct st_hashType_s st_hashType_t;
 
-struct s_st_table
+struct st_table_s
 {
-    const struct s_st_hashType *hashType;
+    const struct st_hashType_s *hashType;
     st_index_t  binsNbr;
     st_index_t  totalEntryNbr;
-    struct s_st_tableEntry  **bins;
-    struct s_st_tableEntry  *head,*tail;
+    struct st_tableEntry_s  **bins;
+    struct st_tableEntry_s  *head,*tail;
 };
-typedef struct s_st_table st_table_t;
+typedef struct st_table_s st_table_t;
 
 /**/
 
-typedef struct s_st_tableEntry st_tableEntry_t;
+typedef struct st_tableEntry_s st_tableEntry_t;
 
-struct s_st_tableEntry 
+struct st_tableEntry_s 
 {
     st_index_t      hashCode;
     st_data_t       key;
