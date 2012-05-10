@@ -36,8 +36,7 @@ let // line comments
                 col[c] := r;
                 try(c+1);
                 row[r] := 0;
-                diag1[r+c] := 0
-                ;
+                diag1[r+c] := 0;
                 diag2[r+7-c] := 0
                 )
     );

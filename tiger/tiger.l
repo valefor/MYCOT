@@ -38,7 +38,7 @@
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 
 %top{
-#define YY_DECL int tiger_yylex( \
+#define YY_DECL int f_tg_yylex( \
     struct psr_params_s *pPsrParams, \
     yyscan_t yyscanner\
 )
@@ -127,12 +127,13 @@ function { COUNT; return KW_FUNC; }
 {LOGIC_OP}|{PUNTUATOR} { COUNT; return *yytext; }
 
 {DIGITS}    { COUNT; return tNUMBER; }
-{IDENTIFIER} { 
+
+{IDENTIFIER} { COUNT; 
         if( !f_tg_symbolExisted(yytext,yysymb,&(yylval->id)) )
         {
             yylval->id = f_tg_regToSymbolTable(yytext,yysymb);
         }
-        COUNT; return IDENTIFIER; 
+        return IDENTIFIER; 
     }
 {LETTERS}?\"(\\.|[^\\"])*\" { COUNT; return tSTRING; }
 
@@ -178,12 +179,6 @@ f_lxr_reSizeClBuffer(char ** pBuffRef,int * sizeRef)
     else {return FALSE;}
 }
 
-bool
-f_lxr_fillClBuffer(char * currBuff,char c)
-{
-    return TRUE;
-}
-
 void
 f_lxr_flushClBuffer(char * currBuff)
 {
@@ -207,8 +202,8 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
         if (yyget_text(scanner)[i] == '\n')
         {
             ++yylloc->lastLine;
-            yylloc->lastColumn = 0;
             f_lxr_flushClBuffer(yylloc->currLineBuff);
+            yylloc->lastColumn = 0;
         }
         else
         {
@@ -228,7 +223,7 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
         }
     }
 
-    yylloc->currLineBuff[yylloc->lastColumn + 1] = '\0';
+    yylloc->currLineBuff[yylloc->lastColumn] = '\0';
 
     printf("[%d:%d]yytext=%s\n",
         yylloc->lastLine,

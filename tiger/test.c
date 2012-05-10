@@ -17,10 +17,9 @@ int main( int argc, char ** argv)
     ++argv,--argc; // skip over program name
 
     struct psr_params_s *pPsrParams = f_psr_new();
-    yyscan_t scanner;
     if( argc > 0 )
     pPsrParams->psr_srcFileName = argv[0];
-    yyparse(pPsrParams,scanner);
+    yyparse(pPsrParams);
     /*
     FILE * srcFile;
     yyscan_t scanner;

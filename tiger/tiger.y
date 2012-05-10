@@ -82,6 +82,7 @@ struct psr_params_s
     YYLTYPE *psr_yylloc;
 
     /* Parser&Lexer dedicated parameters */
+    void * psr_scanner;
     YYSTYPE *psr_yylval;
     tg_symbols_t *psr_tgSymbols;
 };
@@ -101,9 +102,7 @@ typedef struct psr_params_s psr_params_t;
 %debug
 %pure_parser
 %parse-param    { psr_params_t *pPsrParams }
-%parse-param    { void * scanner }
 %lex-param      { psr_params_t *pPsrParams }
-%lex-param      { void * scanner }
 
 /* YYSTYPE */
 %union{
@@ -115,22 +114,22 @@ typedef struct psr_params_s psr_params_t;
 
 %{
 #include "tiger_lexer.h"
-static int yylex(YYSTYPE *,psr_params_t *, yyscan_t );
-void yyerror (psr_params_t * ,yyscan_t , char const *s);
-static void f_psr_initLexer(psr_params_t *,void **);
+static int yylex(YYSTYPE *,psr_params_t *);
+void yyerror (psr_params_t * ,char const *s);
+static void f_psr_initLexer(psr_params_t *);
 %}
 
 /* External function declaration */
 %code provides
 {
-    int yyparse(psr_params_t * pPsrParams, void * scanner);
+    int yyparse(psr_params_t * pPsrParams);
     psr_params_t * f_psr_new(void);
 }
 
 %initial-action
 {
     // Initiate scanner params
-    f_psr_initLexer(pPsrParams,&scanner);
+    f_psr_initLexer(pPsrParams);
 
     // Enable yydebug
 #if TG_YACC_DEBUG > 0
@@ -175,8 +174,8 @@ static void f_psr_initLexer(psr_params_t *,void **);
     tASSIGN
 
 // Const & Variable
-%token <node>   IDENTIFIER tSTRING
-%token <node>   tNUMBER
+%token <id>     IDENTIFIER tSTRING
+%token <num>    tNUMBER
 %type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   none
@@ -215,7 +214,7 @@ static void f_psr_initLexer(psr_params_t *,void **);
  *****************************************************************************/
 
 /* Expressions */
-primaryExp: IDENTIFIER
+primaryExp: IDENTIFIER { $$ = f_psr_getNodeById($1); }
         | tNUMBER
         | tSTRING
         | '(' exp ')' { $$ = $2; }
@@ -489,12 +488,12 @@ f_tg_initSymbolTables()
  *  Parser Level Related Funtions
  *
  *****************************************************************************/
-extern int tiger_yylex(void *pPsrParams, void * scanner);
+extern int f_tg_yylex(void *pPsrParams,yyscan_t);
 
 // Redefine yylex
 #if YYPURE
 static int 
-yylex(YYSTYPE *pl_lval,psr_params_t *pPsrParams,yyscan_t scanner)
+yylex(YYSTYPE *pl_lval,psr_params_t *pPsrParams)
 #else
 static int 
 yylex(void *p)
@@ -505,21 +504,27 @@ yylex(void *p)
 #if YYPURE
     vl_psrParams->psr_yylval = pl_lval;
 #endif
-    t = tiger_yylex(vl_psrParams,scanner);
+    t = f_tg_yylex(vl_psrParams,vl_psrParams->psr_scanner);
 
     return t;
 }
 
+tg_node_t *
+f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
+{
+    return NULL;
+}
+
 static void 
-f_psr_initLexer(psr_params_t *pPsrParams,yyscan_t * scanner)
+f_psr_initLexer(psr_params_t *pPsrParams)
 {
     FILE * pSrcFile = fopen( pPsrParams->psr_srcFileName,"r" );
 
-    yylex_init(scanner);
+    yylex_init(&(pPsrParams->psr_scanner));
 
-    yyset_in(pSrcFile,*scanner);
+    yyset_in(pSrcFile,pPsrParams->psr_scanner);
 
-    //yylex_destroy(scanner);
+    //yylex_destroy(pPsrParams->psr_scanner);
 }
 
 static void 
@@ -561,7 +566,7 @@ f_psr_new(void)
 }
 
 void 
-yyerror(psr_params_t * pPsrParams,yyscan_t scanner,char const * errorMsg)
+yyerror(psr_params_t * pPsrParams,char const * errorMsg)
 {
     fprintf(stderr, "%s:%d\t%s\n",
         pPsrParams->psr_srcFileName,
