@@ -13,6 +13,7 @@
  * Phase 1 ->
  *  1. No constant
  *  2. No global var
+ *  3. No gc
  * 
  * }
  * 
@@ -45,9 +46,7 @@
 /* Declarations */
 %{
 
-#include <stdlib.h>
 #include <math.h>
-#include <stdio.h>
 #include <string.h>
 #include "tiger.h"
 #include "st.h"
@@ -58,6 +57,25 @@
 /* Definitions that'll be used by other modules */
 %code provides
 {
+typedef struct psr_iTable_s psr_iTable_t;
+
+struct psr_iTable_s
+{
+    tg_id_t * table;
+    int pos; // the last id's position
+    int cap; // the capacity of table
+    psr_iTable_t * prevTbl; // the previous id table
+};
+
+typedef struct psr_localScope_s psr_localScope_t;
+
+struct psr_localScope_s
+{
+    psr_iTable_t * typeDefs;
+    psr_iTable_t * args;
+    psr_iTable_t * vars;
+    psr_localScope_t * prevScope; // the previous scope
+};
 
 typedef struct tg_symbols_s {
     tg_id_t lastId;
@@ -83,6 +101,7 @@ struct psr_params_s
 
     /* Parser&Lexer dedicated parameters */
     void * psr_scanner;
+    psr_localScope_t * psr_locScp;
     YYSTYPE *psr_yylval;
     tg_symbols_t *psr_tgSymbols;
 };
@@ -91,12 +110,7 @@ typedef struct psr_params_s psr_params_t;
 
 }
 
-/* Local Definitions */
-%{
 
-//static tg_symbols_t gl_tigerSymbols = { NULL };
-
-%}
 
 /* Bison Options */
 %debug
@@ -137,6 +151,81 @@ static void f_psr_initLexer(psr_params_t *);
 #endif
 
 }
+
+/* Local Definitions */
+%code {
+tg_node_t * f_psr_getNodeById(psr_params_t *,tg_id_t);
+#define PSR_LOC_SCP pPsrParams->psr_locScp
+#define F_PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
+
+/******************************************************************************
+ *
+ *  Parser Utils:the definitions and operations of local scope for Identifiers
+ *
+ *****************************************************************************/
+
+static psr_iTable_t *
+f_psr_iTable_new(psr_iTable_t * pPrevTbl)
+{
+    psr_iTable_t * pNewTbl = MEM_ALLOC(psr_iTable_t);
+    pNewTbl->pos = 0;
+    pNewTbl->cap = 10;
+    pNewTbl->table = MEM_ALLOCN(tg_id_t,pNewTbl->cap);
+    pNewTbl->prevTbl = pPrevTbl;
+    
+    return pNewTbl;
+} 
+
+static bool
+f_psr_iTable_include(const psr_iTable_t * pTbl,tg_id_t tId)
+{
+    int i;
+    for(i = 0; i < pTbl->pos ; i++ )
+    {
+        if( pTbl->table[i] == tId ) return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void
+f_psr_iTable_add(psr_iTable_t * pTbl,tg_id_t tId)
+{
+    if( pTbl->pos == pTbl->cap )
+    {
+        pTbl->cap = pTbl->cap *2;
+        pTbl->table = MEM_REALLOC(tg_id_t,pTbl->table,pTbl->cap);
+    }
+
+    pTbl->table[pTbl->pos++] = tId;
+}
+
+static void 
+f_psr_locScp_push(struct psr_params_s * pPsrParams)
+{
+    psr_localScope_t * pNewLocScp = MEM_ALLOC(psr_localScope_t);
+
+    pNewLocScp->prevScope = PSR_LOC_SCP;
+    pNewLocScp->typeDefs = f_psr_iTable_new(NULL);
+    pNewLocScp->args = f_psr_iTable_new(NULL);
+    pNewLocScp->vars = f_psr_iTable_new(NULL);
+
+    PSR_LOC_SCP = pNewLocScp;
+}
+
+static void 
+f_psr_locScp_pop(psr_params_t * pPsrParams)
+{
+    psr_localScope_t * pLocScp = PSR_LOC_SCP->prevScope; 
+    MEM_FREE(PSR_LOC_SCP->typeDefs);
+    MEM_FREE(PSR_LOC_SCP->args);
+    MEM_FREE(PSR_LOC_SCP->vars);
+    MEM_FREE(PSR_LOC_SCP);
+
+    PSR_LOC_SCP = pLocScp;
+}
+
+}// End of %code
 
 /* Keyword(Reserved Word) */
 %token
@@ -214,9 +303,9 @@ static void f_psr_initLexer(psr_params_t *);
  *****************************************************************************/
 
 /* Expressions */
-primaryExp: IDENTIFIER { $$ = f_psr_getNodeById($1); }
-        | tNUMBER
-        | tSTRING
+primaryExp: IDENTIFIER { $$ = F_PSR_GET_NODE($1); }
+        | tNUMBER   { $$ = F_ND_NEW_NUM($1); }
+        | tSTRING   { $$ = F_ND_NEW_STR($1); }
         | '(' exp ')' { $$ = $2; }
 ;
 

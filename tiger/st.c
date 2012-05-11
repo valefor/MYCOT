@@ -27,8 +27,6 @@
  *      st      <->     symbol table
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "tiger.h"
 
@@ -54,7 +52,7 @@ static const struct st_hashType_s cl_strHashType =
 };
 
 /*
- * MINSIZE is the minimum size of a dictionary.
+ * ST_TABLE_MINSIZE is the minimum size of a dictionary.
  */
 
 #define ST_TABLE_MINSIZE 8

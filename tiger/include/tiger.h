@@ -151,6 +151,8 @@
  *
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
+#include <stdio.h>
+#include <stdlib.h>
 #include "stdtypes.h"
 #include "utils.h"
 #include "config.h"

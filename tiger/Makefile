@@ -53,7 +53,7 @@ GEN_SRC = tiger_parser.c tiger_lexer.c
 GEN_HDR = $(GEN_SRC:.c=.h)
 HEADERS = $(HDR_DIR)*.h
 
-OBJS = $(GEN_SRC:.c=.o) hash.o st.o
+OBJS = $(GEN_SRC:.c=.o) hash.o st.o node.o
 
 $(OBJS): $(GEN_SRC) $(HEADERS)
 

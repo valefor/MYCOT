@@ -1,7 +1,7 @@
 /*
  * @Proj:Tiger Compiler
  *
- * @FileDesc:{ /$ Syntax Tree Header File$\ }
+ * @FileDesc:{ /$ Syntax Tree - Node Header File$\ }
  * 
  * @Author:{
  *  Name  : Adrian Hu
@@ -25,8 +25,17 @@
  *
  *  x. Abbreviations:
  *      tg      <->     tiger
+ *      nd      <->     node
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
+#define F_ND_NEW(t,v1,v2,v3) f_nd_new((t),\
+    (tg_value_t)(v1),\
+    (tg_value_t)(v2),\
+    (tg_value_t)(v3)\
+)
+
+#define F_ND_NEW_NUM(num) F_ND_NEW(E_NODE_TYPE_NUM,num,0,0)
+#define F_ND_NEW_STR(str) F_ND_NEW(E_NODE_TYPE_STR,str,0,0)
 
 typedef enum tg_nodeType_e tg_nodeType_t;
 
@@ -48,6 +57,8 @@ enum tg_nodeType_e
     E_NODE_TYPE_ARRAY_OF,
     E_NODE_TYPE_OF,
     E_NODE_TYPE_END,
+    E_NODE_TYPE_NUM,
+    E_NODE_TYPE_STR,
     E_NODE_TYPE_LAST
 };
 
@@ -75,21 +86,24 @@ struct tg_node_s{
     tg_nodeType_t nodeType;
     unsigned long lineNbr;
     union {
-        tg_id_t * id;
+        tg_id_t id;
         tg_node_t * node;
-        tg_value_t * value;
+        tg_value_t value;
     } u1;
     union {
-        tg_id_t * id;
+        tg_id_t id;
         tg_node_t * node;
-        tg_value_t * value;
+        tg_value_t value;
     } u2;
     union {
-        tg_id_t * id;
+        tg_id_t id;
         tg_node_t * node;
-        tg_value_t * value;
+        tg_value_t value;
     } u3;
 };
+
+tg_node_t * f_nd_new(tg_nodeType_t,tg_value_t,tg_value_t,tg_value_t);
+
 
 
 

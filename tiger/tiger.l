@@ -55,11 +55,12 @@ void f_lxr_count(yyscan_t,psr_params_t *);
 bool f_tg_symbolExisted(const char * ,tg_symbols_t *,tg_id_t *);
 tg_id_t f_tg_regToSymbolTable(const char * ,tg_symbols_t *);
 
+/* The following Macros follow the YACC&LEX Macro Def Stype:yyxxxx */
 #define yylloc pPsrParams->psr_yylloc
 #define yylval pPsrParams->psr_yylval
 #define yysymb pPsrParams->psr_tgSymbols
-#define COUNT  f_lxr_count(yyscanner,pPsrParams)
 
+#define COUNT  f_lxr_count(yyscanner,pPsrParams)
 #define LEX_CURR_LINE_BUFF_SIZE 160
 
 %}
