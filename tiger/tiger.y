@@ -155,8 +155,14 @@ static void f_psr_initLexer(psr_params_t *);
 /* Local Definitions */
 %code {
 tg_node_t * f_psr_getNodeById(psr_params_t *,tg_id_t);
+
+#define PSR_ROOT_SCP ffffffff0x
 #define PSR_LOC_SCP pPsrParams->psr_locScp
+
 #define F_PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
+
+/* internal macro for temporarily use */
+#define f_psr_extDecAppend(h,t) _f_psr_extDecAppend(pPsrParams,h,t)
 
 /******************************************************************************
  *
@@ -465,8 +471,16 @@ extDec  : dec
         | stmt
 ;
 
-prog    : extDec 
-        | prog extDec
+prog    : {
+        f_psr_locScp_push(PSR_ROOT_SCP);// the top level scope
+        } 
+        extDec {
+        $$ = $2;
+        f_psr_locScp_pop();
+        }
+        | prog extDec {
+        $$ = f_psr_extDecAppend($1,$2);
+        }
 ;
 
 /* End of grammar. */
@@ -601,6 +615,17 @@ yylex(void *p)
 tg_node_t *
 f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
 {
+    return NULL;
+}
+
+tg_node_t *
+_f_psr_extDecAppend(psr_params_t *pPsrParams,tg_node_t * head,tg_node_t * tail)
+{
+    tg_node_t * h = head,*nd;
+
+    if(NULL==tail) return head;
+
+    if(NULL==h) return tail;
     return NULL;
 }
 
