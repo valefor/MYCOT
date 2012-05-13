@@ -154,15 +154,34 @@ static void f_psr_initLexer(psr_params_t *);
 
 /* Local Definitions */
 %code {
+typedef enum psr_dbgLevel_e psr_dbgLevel_t
+enum psr_dbgLevel_e
+{
+    E_PSR_DBG_FATAL,    // Top level,unrecoverable fault
+    E_PSR_DBG_ERROR,    // Parse error
+    E_PSR_DBG_WARN,     // Kindly warning
+    E_PSR_DBG_INFO,     // Useful debug information 
+    E_PSR_DBG_MURMUR    // Some murmurs,ignore it as you like 
+}
+
 tg_node_t * f_psr_getNodeById(psr_params_t *,tg_id_t);
 
 #define PSR_ROOT_SCP ffffffff0x
 #define PSR_LOC_SCP pPsrParams->psr_locScp
-
-#define F_PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
+#define PSR_LOG_ERROR(errorMsg) f_psr_log(E_PSR_DBG_ERROR,pPsrParams,errorMsg)
+#define PSR_LOG_WARNING(errorMsg) f_psr_log(E_PSR_DBG_WARN,pPsrParams,errorMsg)
+#define PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
 
 /* internal macro for temporarily use */
+static void _f_psr_locScp_push(psr_params_t *);
+static void _f_psr_locScp_pop(psr_params_t *);
+static tg_node_t * _f_psr_condExpCheck(psr_params_t *,tg_node_t *);
+static tg_node_t * _f_psr_genAppend(psr_params_t *,tg_node_t *,tg_node_t *)
 #define f_psr_extDecAppend(h,t) _f_psr_extDecAppend(pPsrParams,h,t)
+#define f_psr_genAppend(h,t) _f_psr_genAppend(pPsrParams,h,t)
+#define f_psr_locScp_push() _f_psr_locScp_push(pPsrParams)
+#define f_psr_locScp_pop() _f_psr_locScp_pop(pPsrParams)
+#define f_psr_condExpCheck(node) _f_psr_condExpCheck(pPsrParams,node)
 
 /******************************************************************************
  *
@@ -206,30 +225,6 @@ f_psr_iTable_add(psr_iTable_t * pTbl,tg_id_t tId)
     pTbl->table[pTbl->pos++] = tId;
 }
 
-static void 
-f_psr_locScp_push(struct psr_params_s * pPsrParams)
-{
-    psr_localScope_t * pNewLocScp = MEM_ALLOC(psr_localScope_t);
-
-    pNewLocScp->prevScope = PSR_LOC_SCP;
-    pNewLocScp->typeDefs = f_psr_iTable_new(NULL);
-    pNewLocScp->args = f_psr_iTable_new(NULL);
-    pNewLocScp->vars = f_psr_iTable_new(NULL);
-
-    PSR_LOC_SCP = pNewLocScp;
-}
-
-static void 
-f_psr_locScp_pop(psr_params_t * pPsrParams)
-{
-    psr_localScope_t * pLocScp = PSR_LOC_SCP->prevScope; 
-    MEM_FREE(PSR_LOC_SCP->typeDefs);
-    MEM_FREE(PSR_LOC_SCP->args);
-    MEM_FREE(PSR_LOC_SCP->vars);
-    MEM_FREE(PSR_LOC_SCP);
-
-    PSR_LOC_SCP = pLocScp;
-}
 
 }// End of %code
 
@@ -273,6 +268,11 @@ f_psr_locScp_pop(psr_params_t * pPsrParams)
 %token <num>    tNUMBER
 %type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
+%type  <node>   stmts stmt decs dec
+%type  <node>   expStmts compoundStmt selectionStmt iterationStmt jumpStmt 
+%type  <node>   letStmt
+%type  <node>   typeDec varDec funcDef typeDef
+%type  <node>   type typeFields typeField 
 %type  <node>   none
 
 // Last ID,Don't use it in this file
@@ -309,9 +309,9 @@ f_psr_locScp_pop(psr_params_t * pPsrParams)
  *****************************************************************************/
 
 /* Expressions */
-primaryExp: IDENTIFIER { $$ = F_PSR_GET_NODE($1); }
-        | tNUMBER   { $$ = F_ND_NEW_NUM($1); }
-        | tSTRING   { $$ = F_ND_NEW_STR($1); }
+primaryExp: IDENTIFIER { $$ = PSR_GET_NODE($1); }
+        | tNUMBER   { $$ = ND_NEW_NUM($1); }
+        | tSTRING   { $$ = ND_NEW_STR($1); }
         | '(' exp ')' { $$ = $2; }
 ;
 
@@ -375,7 +375,7 @@ assignOp: tASSIGN
 
 /* Delarations */
 decs    : dec
-        | decs dec
+        | decs dec { $$ = f_psr_genAppend($1,$2); }
 ;
 
 dec     : typeDec terms
@@ -383,25 +383,28 @@ dec     : typeDec terms
         | funcDef terms
 ;
 
-typeDec : KW_TYPE IDENTIFIER '=' typeDef { /* if typeDef is not defined yet,through out an parse error*/ }
+typeDec : KW_TYPE IDENTIFIER '=' typeDef 
+        {
+        $$ = ND_NEW_TYPEDEC( $2,$4 );
+        }
 ;
 
 typeDef : type 
-        | KW_TYPE_INT
-        | KW_TYPE_STR
+        | KW_TYPE_INT { $$ = 0; }
+        | KW_TYPE_STR { $$ = 0; }
 ;
 
-type    : IDENTIFIER
-        | '{' typeFields '}'
-        | KW_ARRAY_OF typeDef
+type    : IDENTIFIER { $$ = PSR_GET_NODE($1); }
+        | '{' typeFields '}' { $$ = $2; }
+        | KW_ARRAY_OF typeDef { $$ = ND_NEW_ARYOF($2); }
 ;
 
 typeFields  : typeField
-        | typeFields ',' typeField
+        | typeFields ',' typeField { $$ = f_psr_genAppend($1,$3); }
 ;
 
 typeField   : none
-        | IDENTIFIER ':' typeDef
+        | IDENTIFIER ':' typeDef { $$ = ND_NEW_TFEILD($1,$3); }
 ;
 
 varDec  : KW_VAR IDENTIFIER assignOp unaryExp
@@ -439,15 +442,27 @@ expStmts: exp
 
 
 
-selectionStmt: KW_IF exp KW_THEN stmt
+selectionStmt: KW_IF exp KW_THEN stmt 
+        { 
+        $$ = ND_NEW_IF( f_psr_condExpCheck($2),$4,NULL );
+        }
         | KW_IF exp KW_THEN stmt KW_ELSE stmt
+        {
+        $$ = ND_NEW_IF( f_psr_condExpCheck($2),$4,$6 );
+        }
 ;
 
 iterationStmt: KW_WHILE exp KW_DO stmt
+        { 
+        $$ = ND_NEW_WHILE( f_psr_condExpCheck($2),$4 );
+        }
         | KW_FOR IDENTIFIER tASSIGN exp KW_TO exp KW_DO stmt
 ;
 
 jumpStmt: KW_BREAK
+        { 
+        $$ = ND_NEW_BREAK( NULL );
+        }
 ;
 
 letStmt: KW_LET decs KW_IN stmt KW_END
@@ -472,14 +487,14 @@ extDec  : dec
 ;
 
 prog    : {
-        f_psr_locScp_push(PSR_ROOT_SCP);// the top level scope
+        f_psr_locScp_push();// the top level scope
         } 
         extDec {
-        $$ = $2;
+        //$$ = $2;
         f_psr_locScp_pop();
         }
         | prog extDec {
-        $$ = f_psr_extDecAppend($1,$2);
+        //$$ = f_psr_extDecAppend($1,$2);
         }
 ;
 
@@ -618,7 +633,34 @@ f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
     return NULL;
 }
 
-tg_node_t *
+/* ^Hidden _Funtion!Don't call it explicitly! */
+static void 
+_f_psr_locScp_push(struct psr_params_s * pPsrParams)
+{
+    psr_localScope_t * pNewLocScp = MEM_ALLOC(psr_localScope_t);
+
+    pNewLocScp->prevScope = PSR_LOC_SCP;
+    pNewLocScp->typeDefs = f_psr_iTable_new(NULL);
+    pNewLocScp->args = f_psr_iTable_new(NULL);
+    pNewLocScp->vars = f_psr_iTable_new(NULL);
+
+    PSR_LOC_SCP = pNewLocScp;
+}
+
+static void 
+_f_psr_locScp_pop(psr_params_t * pPsrParams)
+{
+    psr_localScope_t * pLocScp = PSR_LOC_SCP->prevScope; 
+    MEM_FREE(PSR_LOC_SCP->typeDefs);
+    MEM_FREE(PSR_LOC_SCP->args);
+    MEM_FREE(PSR_LOC_SCP->vars);
+    MEM_FREE(PSR_LOC_SCP);
+
+    PSR_LOC_SCP = pLocScp;
+}
+
+// NOT IMPLEMENTED YET
+static tg_node_t *
 _f_psr_extDecAppend(psr_params_t *pPsrParams,tg_node_t * head,tg_node_t * tail)
 {
     tg_node_t * h = head,*nd;
@@ -628,6 +670,38 @@ _f_psr_extDecAppend(psr_params_t *pPsrParams,tg_node_t * head,tg_node_t * tail)
     if(NULL==h) return tail;
     return NULL;
 }
+
+// NOT IMPLEMENTED YET
+static tg_node_t *
+_f_psr_genAppend(psr_params_t *pPsrParams,tg_node_t * head,tg_node_t * tail)
+{
+    tg_node_t * h = head,*nd;
+
+    if(NULL==tail) return head;
+
+    if(NULL==h) return tail;
+    return NULL;
+}
+
+// Condition expression check
+static tg_node_t *
+_f_psr_condExpCheck(psr_params_t *pPsrParams,tg_node_t * pNode)
+{
+    if(NULL == pNode) return 0;
+
+    switch( ND_GET_TYPE(pNode) ){
+
+        case E_NODE_TYPE_STR:
+            PSR_LOG_WARNING("Condition can't be a string!");
+
+        default:
+            break;
+    }
+
+    return pNode;
+
+}
+/* $Hidden _Funtion!Don't call it explicitly! */
 
 static void 
 f_psr_initLexer(psr_params_t *pPsrParams)
@@ -677,6 +751,17 @@ f_psr_new(void)
 
     f_psr_initPsrParams(pPsrParams);
     return pPsrParams;
+}
+
+void
+f_psr_log(
+    psr_dbgLevel_t pDbgLevel,
+    psr_params_t * pPsrParams,
+    char const * errorMsg
+)
+{
+    // Implement this funtion fully later
+    yyerror(pPsrParams,errorMsg);
 }
 
 void 

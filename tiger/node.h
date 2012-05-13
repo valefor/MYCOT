@@ -28,28 +28,34 @@
  *      nd      <->     node
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
-#define F_ND_NEW(t,v1,v2,v3) f_nd_new((t),\
+#define ND_NEW(t,v1,v2,v3) f_nd_new((t),\
     (tg_value_t)(v1),\
     (tg_value_t)(v2),\
     (tg_value_t)(v3)\
 )
 
-#define F_ND_NEW_NUM(num) F_ND_NEW(E_NODE_TYPE_NUM,num,0,0)
-#define F_ND_NEW_STR(str) F_ND_NEW(E_NODE_TYPE_STR,str,0,0)
+#define ND_NEW_NUM(num) ND_NEW(E_NODE_TYPE_NUM,num,0,0)
+#define ND_NEW_STR(str) ND_NEW(E_NODE_TYPE_STR,str,0,0)
+#define ND_NEW_IF(c,t,e) ND_NEW(E_NODE_TYPE_IF,c,t,e)
+#define ND_NEW_WHILE(c,d) ND_NEW(E_NODE_TYPE_WHILE,c,d,0)
+#define ND_NEW_BREAK(s) ND_NEW(E_NODE_TYPE_BREAK,s,0,0)
+#define ND_NEW_ARYOF(t) ND_NEW(E_NODE_TYPE_ARRAY_OF,t,0,0)
+#define ND_NEW_TFEILD(i,t) ND_NEW(E_NODE_TYPE_TFEILD,i,t,0)
+#define ND_NEW_TYPEDEC(i,d) ND_NEW(E_NODE_TYPE_TYPEDEC,i,d,0)
+
+#define ND_GET_TYPE(node) (node)->nodeType
+#define ND_SET_TYPE(node,type) (node)->nodeType = (type)
 
 typedef enum tg_nodeType_e tg_nodeType_t;
 
 enum tg_nodeType_e
 {
     E_NODE_TYPE_IF,
-    E_NODE_TYPE_THEN,
-    E_NODE_TYPE_ELSE,
     E_NODE_TYPE_WHILE,
-    E_NODE_TYPE_DO,
     E_NODE_TYPE_FOR,
     E_NODE_TYPE_BREAK,
-    E_NODE_TYPE_TO,
-    E_NODE_TYPE_IN,
+    E_NODE_TYPE_TFEILD,
+    E_NODE_TYPE_TYPEDEC,
     E_NODE_TYPE_LET,
     E_NODE_TYPE_LVAR,
     E_NODE_TYPE_NIL,
