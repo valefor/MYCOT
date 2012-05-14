@@ -42,6 +42,11 @@
 #define ND_NEW_ARYOF(t) ND_NEW(E_NODE_TYPE_ARRAY_OF,t,0,0)
 #define ND_NEW_TFEILD(i,t) ND_NEW(E_NODE_TYPE_TFEILD,i,t,0)
 #define ND_NEW_TYPEDEC(i,d) ND_NEW(E_NODE_TYPE_TYPEDEC,i,d,0)
+#define ND_NEW_FUNCDEF(i,a,s) ND_NEW(E_NODE_TYPE_FUNCDEF,i,a,s)
+#define ND_NEW_LET(d,e) ND_NEW(E_NODE_TYPE_LET,d,e,0)
+#define ND_NEW_FOR(f,t,s) ND_NEW(E_NODE_TYPE_FOR,f,t,s)
+#define ND_NEW_ASSIGN(i,v) ND_NEW(E_NODE_TYPE_ASSIGN,i,v,0)
+#define ND_NEW_SCOPE(l,a,b) ND_NEW(E_NODE_TYPE_SCOPE,l,b,a)
 
 #define ND_GET_TYPE(node) (node)->nodeType
 #define ND_SET_TYPE(node,type) (node)->nodeType = (type)
@@ -56,7 +61,10 @@ enum tg_nodeType_e
     E_NODE_TYPE_BREAK,
     E_NODE_TYPE_TFEILD,
     E_NODE_TYPE_TYPEDEC,
+    E_NODE_TYPE_FUNCDEF,
     E_NODE_TYPE_LET,
+    E_NODE_TYPE_ASSIGN,
+    E_NODE_TYPE_SCOPE,
     E_NODE_TYPE_LVAR,
     E_NODE_TYPE_NIL,
     E_NODE_TYPE_FUNC,
@@ -100,6 +108,7 @@ struct tg_node_s{
         tg_id_t id;
         tg_node_t * node;
         tg_value_t value;
+        long argc;
     } u2;
     union {
         tg_id_t id;
