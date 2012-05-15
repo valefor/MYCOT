@@ -52,8 +52,6 @@
 #include "tiger_parser.h"
 
 void f_lxr_count(yyscan_t,psr_params_t *);
-bool f_tg_symbolExisted(const char * ,tg_symbols_t *,tg_id_t *);
-tg_id_t f_tg_regToSymbolTable(const char * ,tg_symbols_t *);
 
 /* The following Macros follow the YACC&LEX Macro Def Stype:yyxxxx */
 #define yylloc pPsrParams->psr_yylloc
@@ -113,8 +111,8 @@ of      { COUNT; return KW_OF; }
 type    { COUNT; return KW_TYPE; }
 nil     { COUNT; return KW_NIL; }
 var     { COUNT; return KW_VAR; }
-int     { COUNT; return KW_TYPE_INT; }
-string  { COUNT; return KW_TYPE_STR; }
+int     { COUNT; return KW_INT; }
+string  { COUNT; return KW_STR; }
 function { COUNT; return KW_FUNC; }
 
 "=="    { COUNT; return tEQ; }
@@ -145,15 +143,6 @@ function { COUNT; return KW_FUNC; }
 /*********************
  * User code section *
  *********************/
-bool 
-f_tg_symbolExisted(
-    const char * pYyText,
-    tg_symbols_t *pTgSymbols,
-    tg_id_t * pId
-)
-{
-    return f_st_lookup(pTgSymbols->str2idTbl,pYyText,pId);
-}
 
 bool
 f_lxr_createClBuffer(char ** pBuffRef,int * sizeRef)
@@ -239,22 +228,6 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
     printf("yytext=%s\n",yyget_text(scanner));
     */
 }
-
-tg_id_t 
-f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
-{
-    tg_id_t tId = ++pTgSymbols->lastId;
-    int iStrLen = strlen(pYyText);
-    char * pStr = MEM_CALLOC(0,iStrLen+1);
-    MEM_COPY(pStr,pYyText,char,iStrLen);
-    pStr[iStrLen] = '\0';
-
-    f_st_add(pTgSymbols->str2idTbl,pStr,tId);
-    f_st_add(pTgSymbols->id2strTbl,tId,pStr);
-
-    return tId;
-}
-
 
 #if TG_LEX_DEBUG > 0
 int 

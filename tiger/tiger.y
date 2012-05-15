@@ -40,6 +40,10 @@
  *      psr     <->     parser
  *      param   <->     parameter
  *
+ * ------------------------------------
+ * Keyword ID Name Pair --- KINP
+ *
+ *
  * }
  ****** THIS LINE IS 80 CHARACTERS WIDE - DO *NOT* EXCEED 80 CHARACTERS! ******/
 
@@ -110,11 +114,8 @@ typedef struct psr_params_s psr_params_t;
 
 }
 
-
-
 /* Bison Options */
 %debug
-%error-verbose
 %pure_parser
 %parse-param    { psr_params_t *pPsrParams }
 %lex-param      { psr_params_t *pPsrParams }
@@ -139,6 +140,10 @@ static void f_psr_initLexer(psr_params_t *);
 {
     int yyparse(psr_params_t * pPsrParams);
     psr_params_t * f_psr_new(void);
+
+    // provides to LEX program
+    bool f_tg_symbolExisted(const char * ,tg_symbols_t *,tg_id_t *);
+    tg_id_t f_tg_regToSymbolTable(const char *,tg_symbols_t *);
 }
 
 %initial-action
@@ -155,6 +160,7 @@ static void f_psr_initLexer(psr_params_t *);
 
 /* Local Definitions */
 %code {
+
 typedef enum psr_dbgLevel_e psr_dbgLevel_t;
 enum psr_dbgLevel_e
 {
@@ -178,6 +184,8 @@ tg_id_t f_psr_str2Id(psr_params_t *,const char *);
 /* internal macro for temporarily use */
 static void _f_psr_locScp_push(psr_params_t *);
 static void _f_psr_locScp_pop(psr_params_t *);
+static tg_node_t * _f_psr_binCall(psr_params_t*,tg_node_t*,tg_id_t,tg_node_t*);
+static tg_node_t * _f_psr_unaCall(psr_params_t*,tg_id_t,tg_node_t*);
 static tg_node_t * _f_psr_condExpCheck(psr_params_t *,tg_node_t *);
 static void _f_psr_typeConCheck(psr_params_t *,tg_node_t *,
     tg_node_t *,tg_node_t *);
@@ -186,6 +194,9 @@ static tg_id_t * _f_psr_locScp_whole(psr_params_t *);
 static tg_id_t * _f_psr_funcArgsRet(psr_params_t *,tg_node_t *,tg_node_t *);
 static tg_node_t * _f_psr_assignCheck(psr_params_t *,tg_id_t,
     tg_node_t *,tg_node_t *);
+
+#define f_psr_binCall(l,o,r) _f_psr_binCall(pPsrParams,l,o,r)
+#define f_psr_unaCall(o,e) _f_psr_unaCall(pPsrParams,o,e)
 #define f_psr_extDecAppend(h,t) _f_psr_extDecAppend(pPsrParams,h,t)
 #define f_psr_genAppend(h,t) _f_psr_genAppend(pPsrParams,h,t)
 #define f_psr_locScp_push() _f_psr_locScp_push(pPsrParams)
@@ -271,8 +282,8 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
     KW_VAR
     KW_NIL
     KW_TYPE
-    KW_TYPE_INT
-    KW_TYPE_STR
+    KW_INT
+    KW_STR
     KW_FUNC
     KW_ARRAY_OF
     KW_OF
@@ -345,55 +356,76 @@ primaryExp: IDENTIFIER { $$ = PSR_GET_NODE($1); }
 postfixExp: primaryExp
         | postfixExp '[' exp ']' 
         | postfixExp '[' exp ']' KW_OF exp
-        | postfixExp '(' ')' 
-        | postfixExp '(' argExpList ')'
+        | postfixExp '(' ')' { $$ = ND_NEW_FUNCALL($1,NULL); }
+        | postfixExp '(' argExpList ')' { $$ = ND_NEW_FUNCALL($1,$3); }
 ;
 
 argExpList: assignExp
         | argExpList ',' assignExp
+        {
+        $$ = f_psr_genAppend($1,$3);
+        }
 ;
 
 unaryExp: postfixExp
 ;
 
 arithExp: unaryExp
-        | arithExp '+' unaryExp
-        | arithExp '-' unaryExp
-        | arithExp '*' unaryExp
-        | arithExp '/' unaryExp
-        | '-' unaryExp %prec tUMINUS { $$ = $2; }
+        | arithExp '+' unaryExp { $$ = ND_NEW_ARITH($1,'+',$3); }
+        | arithExp '-' unaryExp { $$ = ND_NEW_ARITH($1,'-',$3); }
+        | arithExp '*' unaryExp { $$ = ND_NEW_ARITH($1,'*',$3); }
+        | arithExp '/' unaryExp { $$ = ND_NEW_ARITH($1,'/',$3); }
+        | '-' unaryExp %prec tUMINUS 
+        { 
+        $$ = ND_NEW_ARITH(NULL,'-',$2);
+        }
 ;
 
 relationExp: arithExp
-        | relationExp tLEQ arithExp
-        | relationExp tGEQ arithExp
-        | relationExp '<' arithExp
-        | relationExp '>' arithExp
+        | relationExp tLEQ arithExp { $$ = ND_NEW_RELAT($1,tLEQ,$3); }
+        | relationExp tGEQ arithExp { $$ = ND_NEW_RELAT($1,tLEQ,$3); }
+        | relationExp '<' arithExp { $$ = ND_NEW_RELAT($1,'<',$3); }
+        | relationExp '>' arithExp { $$ = ND_NEW_RELAT($1,'>',$3); }
 ;
 
 equalExp: relationExp
-        | equalExp tEQ relationExp
-        | equalExp tNEQ relationExp
+        | equalExp tEQ relationExp { $$ = ND_NEW_RELAT($1,tEQ,$3); }
+        | equalExp tNEQ relationExp { $$ = ND_NEW_RELAT($1,tNEQ,$3); }
 ;
 
 andExp  : equalExp
         | andExp '&' equalExp
+        { 
+        $$ = ND_NEW_LOGIC( $1,'&',$3 );
+        }
 ;
 
 orExp   : andExp
         | orExp '|' andExp
+        { 
+        $$ = ND_NEW_LOGIC( $1,'|',$3 );
+        }
 ;
 
 conditionalExp: orExp
         | orExp '?' exp ':' conditionalExp
+        { 
+        $$ = ND_NEW_CONDEXP( $1,$3,$5 );
+        }
 ;
 
 assignExp: conditionalExp
         | unaryExp assignOp unaryExp
+        { 
+        $$ = ND_NEW_ASSIGN( $1,$3 );
+        }
 ;
 
 exp     : assignExp
         | exp ',' assignExp 
+        {
+        $$ = f_psr_genAppend($1,$3);
+        }
 ;
 
 assignOp: tASSIGN
@@ -417,11 +449,11 @@ typeDec : KW_TYPE IDENTIFIER '=' typeDef
 ;
 
 typeDef : type 
-        | KW_TYPE_INT 
+        | KW_INT 
         { 
         $$ = ND_NEW_TYPEDEC(PSR_STR2ID("int"),NULL);
         }
-        | KW_TYPE_STR
+        | KW_STR
         { 
         $$ = ND_NEW_TYPEDEC(PSR_STR2ID("string"),NULL);
         }
@@ -511,7 +543,7 @@ iterationStmt: KW_WHILE exp KW_DO stmt
         }
         | KW_FOR assignExp KW_TO exp KW_DO stmt
         {
-        f_psr_typeConCheck(ND_NEW_TYPEDEC(PSR_STR2ID("int"),NULL),$2,$4);
+        //f_psr_typeConCheck(ND_NEW_TYPEDEC(PSR_STR2ID("int"),NULL),$2,$4);
         $$ = ND_NEW_FOR( $2,$4,$6 );
         }
 ;
@@ -562,80 +594,6 @@ prog    : {
 ;
 
 /* End of grammar. */
-/*
-assignExp: IDENTIFIER tASSIGN exp
-;
-
-compExp : exp compOp exp
-;
-
-compOp  : '>'
-        : '<'
-        | tEQ
-        | tLEQ
-        | tNEQ
-        | tGEQ
-;
-
-call: IDENTIFIER "(" argsX ')'
-;
-
-declaration
-        : decSpcfiers initDecList ';'
-;
-
-decSpcfiers
-        : typeSpcfier
-;
-
-typeSpcfier
-        : KW_TYPE
-;
-
-initDecList
-        : initDec
-        | initDecList ';' initDec
-;
-
-initDec
-        : declarator
-        | declarator assignOp initializer
-;
-
-initializer
-        : assignExp
-        | '{' initializerList '}'
-;
-
-initializerList
-        : initializer
-        | initializerList ',' initializer
-;
-
-declarator
-        : IDENTIFIER
-        | '(' declarator ')'
-;
-
-stmt: KW_IF compExp KW_THEN stmts optElse
-    | KW_WHILE compExp KW_DO stmts
-    | KW_FOR IDENTIFIER tASSIGN value KW_TO value KW_DO stmts
-    | KW_BREAK
-    | 
-    | dec
-    | exp
-    | '(' stmt ')'
-;
-
-optElse: none
-    |  nonNilStmts
-;
-
-nonNilStmts : stmt
-            | nonNilStmts term stmt
-;
-
-*/
 
 %%
 /*********************
@@ -647,6 +605,44 @@ nonNilStmts : stmt
  *  Tiger Level Related Funtions
  *
  *****************************************************************************/
+// KINP --- Keyword ID Name Pair
+static const struct tg_KINP_s {
+    tg_id_t id;
+    const char * name;
+} tTgKINP[] = {
+    { KW_IF,"if" },
+    { KW_THEN,"then" },
+    { KW_ELSE,"else" },
+    { KW_END,"end" },
+    { KW_WHILE,"while" },
+    { KW_DO,"do" },
+    { KW_FOR,"for" },
+    { KW_BREAK,"break" },
+    { KW_TO,"to" },
+    { KW_IN,"in" },
+    { KW_LET,"let" },
+    { KW_VAR,"var" },
+    { KW_NIL,"nil" },
+    { KW_TYPE,"type" },
+    { KW_INT,"int" },
+    { KW_STR,"string" },
+    { KW_FUNC,"func" },
+    { KW_ARRAY_OF,"array of" },
+    { KW_OF,"of" },
+    { 0,NULL }
+};
+
+static const char *
+f_tg_kw_id2str(tg_id_t id)
+{
+    const struct tg_KINP_s *tKINP;
+
+    for( tKINP = tTgKINP; tKINP->id; tKINP++ )
+        if ( tKINP->id == id ) return tKINP->name;
+
+    return NULL;
+}
+
 #define f_tg_strCmp strcmp
 static const st_hashType_t cl_tg_strHashType = { 
     f_tg_strCmp,
@@ -659,9 +655,41 @@ static const st_hashType_t cl_tg_numHashType = {
 };
 
 void
-f_tg_initSymbolTables()
+f_tg_initSymbolTables(tg_symbols_t * pTgSymbols)
 {
-    //gl_tigerSymbols.idTbl = f_st_initTable(&cl_tg_hashType,1000);
+    const struct tg_KINP_s *tKINP;
+
+    pTgSymbols->lastId = tLAST_ID;
+    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
+    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
+
+    for( tKINP = tTgKINP; tKINP->id; tKINP++ ) 
+        f_tg_regToSymbolTable(tKINP->name,pTgSymbols);
+}
+
+bool 
+f_tg_symbolExisted(
+    const char * pYyText,
+    tg_symbols_t *pTgSymbols,
+    tg_id_t * pId
+)
+{
+    return f_st_lookup(pTgSymbols->str2idTbl,pYyText,pId);
+}
+
+tg_id_t 
+f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
+{
+    tg_id_t tId = ++pTgSymbols->lastId;
+    int iStrLen = strlen(pYyText);
+    char * pStr = MEM_CALLOC(0,iStrLen+1);
+    MEM_COPY(pStr,pYyText,char,iStrLen);
+    pStr[iStrLen] = '\0';
+
+    f_st_add(pTgSymbols->str2idTbl,pStr,tId);
+    f_st_add(pTgSymbols->id2strTbl,tId,pStr);
+
+    return tId;
 }
 
 /******************************************************************************
@@ -701,7 +729,11 @@ f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
 tg_id_t 
 f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr)
 {
-    return 0;
+    tg_id_t *pId;
+    if( f_st_lookup(pPsrParams->psr_tgSymbols->str2idTbl,pStr,pId) )
+        return *pId;
+    else
+        return 0;
 }
 
 /* ^Hidden _Funtion!Don't call it explicitly! */
@@ -757,7 +789,6 @@ _f_psr_funcArgsRet(psr_params_t *pPsrParams,tg_node_t * args,tg_node_t * ret)
 {
     return NULL;
 }
-
 // NOT IMPLEMENTED YET
 static tg_node_t *
 _f_psr_extDecAppend(psr_params_t *pPsrParams,tg_node_t * head,tg_node_t * tail)
@@ -801,6 +832,29 @@ _f_psr_condExpCheck(psr_params_t *pPsrParams,tg_node_t * pNode)
 
 }
 
+static tg_node_t * 
+_f_psr_binCall(
+    psr_params_t *pPsrParams,
+    tg_node_t *pLeft,
+    tg_id_t tOp,
+    tg_node_t *pRight
+)
+{
+    return NULL;
+}
+
+/*
+static tg_node_t * 
+_f_psr_unaCall(
+    psr_params_t *pPsrParams,
+    tg_node_t *pExp,
+    tg_id_t tOp
+)
+{
+    return NULL;
+}
+*/
+
 static void 
 _f_psr_typeConCheck(
     psr_params_t *pPsrParams,
@@ -833,6 +887,12 @@ _f_psr_assignCheck(
 }
 /* $Hidden _Funtion!Don't call it explicitly! */
 
+/******************************************************************************
+ *
+ *  Parser initiation Funtions
+ *
+ *****************************************************************************/
+
 static void 
 f_psr_initLexer(psr_params_t *pPsrParams)
 {
@@ -864,9 +924,10 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     pYyLoc->currLineBuff = NULL;
     pYyLoc->buffSize = 0;
 
-    pTgSymbols->lastId = tLAST_ID;
-    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
-    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
+    f_tg_initSymbolTables(pTgSymbols);
+    //pTgSymbols->lastId = tLAST_ID;
+    //pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
+    //pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
 
     pPsrParams->psr_srcFileName = 0;
     pPsrParams->psr_yylval = pYyVal;

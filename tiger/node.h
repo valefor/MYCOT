@@ -43,13 +43,27 @@
 #define ND_NEW_TFEILD(i,t) ND_NEW(E_NODE_TYPE_TFEILD,i,t,0)
 #define ND_NEW_TYPEDEC(i,d) ND_NEW(E_NODE_TYPE_TYPEDEC,i,d,0)
 #define ND_NEW_FUNCDEF(i,a,s) ND_NEW(E_NODE_TYPE_FUNCDEF,i,a,s)
+#define ND_NEW_FUNCALL(i,args) ND_NEW(E_NODE_TYPE_FUNCALL,i,args,0)
 #define ND_NEW_LET(d,e) ND_NEW(E_NODE_TYPE_LET,d,e,0)
 #define ND_NEW_FOR(f,t,s) ND_NEW(E_NODE_TYPE_FOR,f,t,s)
 #define ND_NEW_ASSIGN(i,v) ND_NEW(E_NODE_TYPE_ASSIGN,i,v,0)
+#define ND_NEW_CONDEXP(c,e1,e2) ND_NEW(E_NODE_TYPE_CONDEXP,c,e1,e2)
+#define ND_NEW_ARITH(l,o,r) ND_NEW(E_NODE_TYPE_ARITH,l,o,r)
+#define ND_NEW_RELAT(l,o,r) ND_NEW(E_NODE_TYPE_RELAT,l,o,r)
+#define ND_NEW_LOGIC(l,o,r) ND_NEW(E_NODE_TYPE_LOGIC,l,o,r)
+#define ND_NEW_AND(l,r) ND_NEW(E_NODE_TYPE_AND,l,r,0)
+#define ND_NEW_OR(l,r) ND_NEW(E_NODE_TYPE_OR,l,r,0)
 #define ND_NEW_SCOPE(l,a,b) ND_NEW(E_NODE_TYPE_SCOPE,l,b,a)
 
 #define ND_GET_TYPE(node) (node)->nodeType
 #define ND_SET_TYPE(node,type) (node)->nodeType = (type)
+
+#define ND_MASK_LVALUE  (tg_value_t)1
+#define ND_MASK_RVALUE  ((tg_value_t)1<<1)
+#define ND_IS_LVALUE(node) ( (node)->flags & ND_MASK_LVALUE )
+#define ND_IS_RVALUE(node) ( (node)->flags & ND_MASK_RVALUE ) 
+#define ND_SET_LVALUE(node) ( (node)->flags |= ND_MASK_LVALUE )
+#define ND_SET_RVALUE(node) ( (node)->flags |= ND_MASK_RVALUE ) 
 
 typedef enum tg_nodeType_e tg_nodeType_t;
 
@@ -62,8 +76,15 @@ enum tg_nodeType_e
     E_NODE_TYPE_TFEILD,
     E_NODE_TYPE_TYPEDEC,
     E_NODE_TYPE_FUNCDEF,
+    E_NODE_TYPE_FUNCALL,
     E_NODE_TYPE_LET,
     E_NODE_TYPE_ASSIGN,
+    E_NODE_TYPE_CONDEXP,
+    E_NODE_TYPE_ARITH,
+    E_NODE_TYPE_RELAT,
+    E_NODE_TYPE_LOGIC,
+    E_NODE_TYPE_AND,
+    E_NODE_TYPE_OR,
     E_NODE_TYPE_SCOPE,
     E_NODE_TYPE_LVAR,
     E_NODE_TYPE_NIL,
@@ -96,7 +117,21 @@ struct tg_node_s{
     /* type 'nodeType' and 'lineNbr' to         */
     /* indicates node type and line number      */
     /********************************************/
-    //unsigned int flags;
+
+    /********************************************/
+    /*  The Tiger Flags intro:                  */
+    /*                                  L-Value */
+    /*                                 R-Value| */
+    /*                                       || */
+    /*  0000 0000 0000 0000 0000 0000 0000 0000 */
+    /********************************************/
+    /*              IS L-Value Mask             */
+    /*  0000 0000 0000 0000 0000 0000 0000 0001 */
+    /********************************************/
+    /*              IS R-Value Mask             */
+    /*  0000 0000 0000 0000 0000 0000 0000 0010 */
+    /********************************************/
+    unsigned int flags;
     tg_nodeType_t nodeType;
     unsigned long lineNbr;
     union {
@@ -117,6 +152,7 @@ struct tg_node_s{
     } u3;
 };
 
+void f_nd_setLRvalue(tg_node_t *,tg_nodeType_t);
 tg_node_t * f_nd_new(tg_nodeType_t,tg_value_t,tg_value_t,tg_value_t);
 
 

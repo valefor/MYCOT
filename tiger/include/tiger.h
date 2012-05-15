@@ -125,8 +125,10 @@
  *
  *      $4. temporary variables ain't forced to follow above rules,e.g i,j,...
  *
+ *      $5. abbrevs in Naming can be written in UPPERCASE,e.g tg_KINP_s
+ *
  *    #2 Definition:
- *      $1. MARCO : macro definitions with uppercase letters
+ *      $1. MARCO : macro definitions with UPPERCASE letters
  *      $2. f_<Module>_<funcName> : local variables 
  *      $3. s_<structName> : struct
  *      $4. e_<enumName> : enumeration,the identifiers in enumeration list should

@@ -45,5 +45,28 @@ tg_node_t * f_nd_new(
     pNewNode->u2.value = tV2;
     pNewNode->u3.value = tV3;
 
+    f_nd_setLRvalue(pNewNode,tNodeType);
     return pNewNode;
+}
+
+void f_nd_setLRvalue(tg_node_t *pNode,tg_nodeType_t tNodeType)
+{
+    pNode->flags = 0;
+    switch(tNodeType) {
+        case E_NODE_TYPE_TFEILD:
+        case E_NODE_TYPE_ARITH:
+        case E_NODE_TYPE_FUNCALL:
+        case E_NODE_TYPE_CONDEXP:
+        case E_NODE_TYPE_RELAT:
+        case E_NODE_TYPE_LOGIC:
+            ND_SET_RVALUE(pNode);
+            break;
+        case E_NODE_TYPE_TYPEDEC:
+        case E_NODE_TYPE_ASSIGN:
+            ND_SET_RVALUE(pNode);
+            ND_SET_LVALUE(pNode);
+            break;
+        default:
+            break;
+    }
 }
