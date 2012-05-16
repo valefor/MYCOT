@@ -52,11 +52,12 @@
 #include "tiger_parser.h"
 
 void f_lxr_count(yyscan_t,psr_params_t *);
+tg_id_t f_lxr_idCheck(psr_params_t *,const char *);
 
 /* The following Macros follow the YACC&LEX Macro Def Stype:yyxxxx */
 #define yylloc pPsrParams->psr_yylloc
 #define yylval pPsrParams->psr_yylval
-#define yysymb pPsrParams->psr_tgSymbols
+
 
 #define COUNT  f_lxr_count(yyscanner,pPsrParams)
 #define LEX_CURR_LINE_BUFF_SIZE 160
@@ -127,13 +128,7 @@ function { COUNT; return KW_FUNC; }
 
 {DIGITS}    { COUNT; return tNUMBER; }
 
-{IDENTIFIER} { COUNT; 
-        if( !f_tg_symbolExisted(yytext,yysymb,&(yylval->id)) )
-        {
-            yylval->id = f_tg_regToSymbolTable(yytext,yysymb);
-        }
-        return IDENTIFIER; 
-    }
+{IDENTIFIER} { COUNT; return f_lxr_idCheck(pPsrParams,yytext); }
 {LETTERS}?\"(\\.|[^\\"])*\" { COUNT; return tSTRING; }
 
 } 
@@ -144,6 +139,39 @@ function { COUNT; return KW_FUNC; }
  * User code section *
  *********************/
 
+tg_id_t
+f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
+{
+    tg_id_t tId = tERROR;
+    switch( yylexs ) {
+        case E_PSR_LS_VARDEC:
+        case E_PSR_LS_TYPEDEC:
+        case E_PSR_LS_TYPEFEILD:
+        case E_PSR_LS_FUNCDEC:
+            if( !f_tg_symbolExisted(pYyText,yysymb,&(yylval->id)) ) {
+                yylval->id = f_tg_regToSymbolTable(pYyText,yysymb);
+                tId = IDENTIFIER;
+            }
+            else {
+                yyerror(pPsrParams,"Duplicated identifier declaration!\n");
+                tId = tERROR;
+            }
+            yylexs = E_PSR_LS_UNDEF;
+            break;
+        case E_PSR_LS_UNDEF:
+            if( !f_tg_symbolExisted(pYyText,yysymb,&(yylval->id)) ) {
+                yyerror(pPsrParams,"Undeclared identifier!\n");
+                return tERROR;
+            }
+            else {
+                tId = IDENTIFIER;
+            }
+        default:
+            break;
+    }
+    return tId;
+}
+ 
 bool
 f_lxr_createClBuffer(char ** pBuffRef,int * sizeRef)
 {
@@ -228,6 +256,7 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
     printf("yytext=%s\n",yyget_text(scanner));
     */
 }
+
 
 #if TG_LEX_DEBUG > 0
 int 

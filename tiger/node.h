@@ -51,6 +51,7 @@
 #define ND_NEW_ARITH(l,o,r) ND_NEW(E_NODE_TYPE_ARITH,l,o,r)
 #define ND_NEW_RELAT(l,o,r) ND_NEW(E_NODE_TYPE_RELAT,l,o,r)
 #define ND_NEW_LOGIC(l,o,r) ND_NEW(E_NODE_TYPE_LOGIC,l,o,r)
+#define ND_NEW_VAR(i,t) ND_NEW(E_NODE_TYPE_VAR,i,t,0)
 #define ND_NEW_AND(l,r) ND_NEW(E_NODE_TYPE_AND,l,r,0)
 #define ND_NEW_OR(l,r) ND_NEW(E_NODE_TYPE_OR,l,r,0)
 #define ND_NEW_SCOPE(l,a,b) ND_NEW(E_NODE_TYPE_SCOPE,l,b,a)
@@ -83,10 +84,10 @@ enum tg_nodeType_e
     E_NODE_TYPE_ARITH,
     E_NODE_TYPE_RELAT,
     E_NODE_TYPE_LOGIC,
+    E_NODE_TYPE_VAR,
     E_NODE_TYPE_AND,
     E_NODE_TYPE_OR,
     E_NODE_TYPE_SCOPE,
-    E_NODE_TYPE_LVAR,
     E_NODE_TYPE_NIL,
     E_NODE_TYPE_FUNC,
     E_NODE_TYPE_ARRAY_OF,

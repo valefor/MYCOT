@@ -61,6 +61,17 @@
 /* Definitions that'll be used by other modules */
 %code provides
 {
+typedef enum psr_lexState_e psr_lexState_t;
+
+enum psr_lexState_e
+{
+    E_PSR_LS_VARDEC,
+    E_PSR_LS_TYPEDEC,
+    E_PSR_LS_TYPEFEILD,
+    E_PSR_LS_FUNCDEC,
+    E_PSR_LS_UNDEF
+};
+
 typedef struct psr_iTable_s psr_iTable_t;
 
 struct psr_iTable_s
@@ -104,10 +115,11 @@ struct psr_params_s
     YYLTYPE *psr_yylloc;
 
     /* Parser&Lexer dedicated parameters */
-    void * psr_scanner;
-    psr_localScope_t * psr_locScp;
     YYSTYPE *psr_yylval;
-    tg_symbols_t *psr_tgSymbols;
+    void    *psr_scanner;
+    psr_localScope_t * psr_locScp;
+    psr_lexState_t  psr_lexState;
+    tg_symbols_t    *psr_tgSymbols;
 };
 
 typedef struct psr_params_s psr_params_t;
@@ -138,6 +150,8 @@ static void f_psr_initLexer(psr_params_t *);
 /* External function declaration */
 %code provides
 {
+    #define yysymb pPsrParams->psr_tgSymbols
+    #define yylexs pPsrParams->psr_lexState
     int yyparse(psr_params_t * pPsrParams);
     psr_params_t * f_psr_new(void);
 
@@ -310,9 +324,11 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
 %type  <node>   expStmts compoundStmt selectionStmt iterationStmt jumpStmt 
 %type  <node>   letStmt
 %type  <node>   typeDec varDec funcDef typeDef
+%type  <node>   varDecInits varDecInit varId varType
 %type  <node>   type typeFields typeField funcArgsRet funcRet
 %type  <node>   none
 
+%token <id>     tERROR
 // Last ID,Don't use it in this file
 %token <id>     tLAST_ID
 /*
@@ -442,9 +458,13 @@ dec     : typeDec terms
         | funcDef terms
 ;
 
-typeDec : KW_TYPE IDENTIFIER '=' typeDef 
+typeDec : KW_TYPE
+        { 
+        yylexs = E_PSR_LS_TYPEDEC;
+        }
+        IDENTIFIER '=' typeDef 
         {
-        $$ = ND_NEW_TYPEDEC( $2,$4 );
+        $$ = ND_NEW_TYPEDEC( $3,$5 );
         }
 ;
 
@@ -469,25 +489,41 @@ typeFields  : typeField
 ;
 
 typeField   : none
-        | IDENTIFIER ':' typeDef { $$ = ND_NEW_TFEILD($1,$3); }
+        | { yylexs = E_PSR_LS_TYPEFEILD; } 
+        IDENTIFIER ':' typeDef { $$ = ND_NEW_TFEILD($2,$4); }
 ;
 
-varDec  : KW_VAR IDENTIFIER assignOp unaryExp 
+varDec  : KW_VAR varDecInits { $$ = $2; }
+;
+
+varDecInits: varDecInit
+        | varDecInits ',' varDecInit
         {
-        $$ = f_psr_assignCheck($2,NULL,$4);
-        }
-        | KW_VAR IDENTIFIER ':' typeDef assignOp unaryExp
-        {
-        $$ = f_psr_assignCheck($2,$4,$6);
+        $$ = f_psr_genAppend($1,$3);
         }
 ;
+
+varDecInit: varId
+        | varId assignOp unaryExp { ND_NEW_ASSIGN( $1,$3 ); }  
+;
+
+varId   : { yylexs = E_PSR_LS_VARDEC; } 
+        IDENTIFIER varType 
+        { $$ = ND_NEW_VAR($2,$3); }
+;
+
+varType :none
+        | ':' typeDef { $$ = $2; }
 
 /* Function Delaration & Definition */
-funcDef : KW_FUNC IDENTIFIER 
-        { f_psr_locScp_push(); }
-        funcArgsRet '=' compoundStmt
+funcDef : KW_FUNC 
+        { 
+        yylexs = E_PSR_LS_FUNCDEC;
+        f_psr_locScp_push(); 
+        }
+        IDENTIFIER funcArgsRet '=' compoundStmt
         {
-        $$ = ND_NEW_FUNCDEF($2,$4,$6);
+        $$ = ND_NEW_FUNCDEF($3,$4,$6);
         f_psr_locScp_pop(); 
         }
 ;
@@ -605,11 +641,18 @@ prog    : {
  *  Tiger Level Related Funtions
  *
  *****************************************************************************/
+
+#ifdef __cplusplus
+#   define ANYARGS ...
+#else
+#   define ANYARGS
+#endif
+
 // KINP --- Keyword ID Name Pair
 static const struct tg_KINP_s {
     tg_id_t id;
     const char * name;
-} tTgKINP[] = {
+} tTgKINPs[] = {
     { KW_IF,"if" },
     { KW_THEN,"then" },
     { KW_ELSE,"else" },
@@ -632,12 +675,22 @@ static const struct tg_KINP_s {
     { 0,NULL }
 };
 
+// BIF --- Built-In Function Index Table
+static const struct tg_BIF_s
+{
+    int (*bif)(ANYARGS);
+    const char * name;
+} tTgBIFIT[] = {
+    { printf,"print" },
+    { NULL,NULL}
+};
+
 static const char *
 f_tg_kw_id2str(tg_id_t id)
 {
     const struct tg_KINP_s *tKINP;
 
-    for( tKINP = tTgKINP; tKINP->id; tKINP++ )
+    for( tKINP = tTgKINPs; tKINP->id; tKINP++ )
         if ( tKINP->id == id ) return tKINP->name;
 
     return NULL;
@@ -658,13 +711,22 @@ void
 f_tg_initSymbolTables(tg_symbols_t * pTgSymbols)
 {
     const struct tg_KINP_s *tKINP;
+    const struct tg_BIF_s *tBIFIT;
 
     pTgSymbols->lastId = tLAST_ID;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
     pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
 
-    for( tKINP = tTgKINP; tKINP->id; tKINP++ ) 
-        f_tg_regToSymbolTable(tKINP->name,pTgSymbols);
+    // Add KINP to symbols
+    for( tKINP = tTgKINPs; tKINP->id; tKINP++ ) 
+    {
+        f_st_add(pTgSymbols->str2idTbl,tKINP->name,tKINP->id);
+        f_st_add(pTgSymbols->id2strTbl,tKINP->id,tKINP->name);
+        //f_tg_regToSymbolTable(tKINP->name,pTgSymbols);
+    }
+    // Add BIFIT to symbols
+    for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ ) 
+        f_tg_regToSymbolTable(tBIFIT->name,pTgSymbols);
 }
 
 bool 
@@ -932,6 +994,7 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     pPsrParams->psr_srcFileName = 0;
     pPsrParams->psr_yylval = pYyVal;
     pPsrParams->psr_yylloc = pYyLoc;
+    pPsrParams->psr_lexState = E_PSR_LS_UNDEF;
     pPsrParams->psr_tgSymbols = pTgSymbols;
 }
 
