@@ -491,7 +491,8 @@ typeFields  : typeField
         | typeFields ',' typeField { $$ = f_psr_genAppend($1,$3); }
 ;
 
-typeField   : { yylexs = E_PSR_LS_TYPEFEILD; } 
+typeField   : none
+        |{ yylexs = E_PSR_LS_TYPEFEILD; } 
         IDENTIFIER ':' typeDef { $$ = ND_NEW_TFEILD($2,$4); }
 ;
 
@@ -530,11 +531,12 @@ funcDef : KW_FUNC
         }
 ;
 
-funcArgsRet: '(' typeFields ')' funcRet
+funcArgsRet: '(' { yylexs = E_PSR_LS_TYPEFEILD; } 
+        typeFields { yylexs = E_PSR_LS_UNDEF; } ')'  
+        funcRet
         {
-        $$ = f_psr_funcArgsRet($2,$4);
+        $$ = f_psr_funcArgsRet($3,$6);
         }
-        | '(' none ')' { $$ = $2; }
 ;
 
 funcRet : none

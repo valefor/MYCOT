@@ -54,7 +54,7 @@
 void f_lxr_count(yyscan_t,psr_params_t *);
 tg_id_t f_lxr_idCheck(psr_params_t *,const char *);
 
-/* The following Macros follow the YACC&LEX Macro Def Stype:yyxxxx */
+/* The following Macros follow the YACC&LEX Macro Def Style:yyxxxx */
 #define yylloc pPsrParams->psr_yylloc
 #define yylval pPsrParams->psr_yylval
 

@@ -3,7 +3,7 @@
 
 let // line comments
 
-    var i,j;
+    var i,j,r;// temporary variable
     var N := 8;
 
     type intArray = array of int;
