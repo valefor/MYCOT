@@ -119,6 +119,7 @@ struct psr_params_s
     void    *psr_scanner;
     psr_localScope_t * psr_locScp;
     psr_lexState_t  psr_lexState;
+    //psr_lexState_t  *psr_lexStateStack;
     tg_symbols_t    *psr_tgSymbols;
 };
 
@@ -194,6 +195,8 @@ tg_id_t f_psr_str2Id(psr_params_t *,const char *);
 #define PSR_LOG_WARNING(errorMsg) f_psr_log(E_PSR_DBG_WARN,pPsrParams,errorMsg)
 #define PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
 #define PSR_STR2ID(str) f_psr_str2Id(pPsrParams,str)
+//#define PSR_LSS_PUSH() f_psr_lss_push(pPsrParams)
+//#define PSR_LSS_POP() f_psr_lss_pop(pPsrParams)
 
 /* internal macro for temporarily use */
 static void _f_psr_locScp_push(psr_params_t *);
@@ -454,7 +457,7 @@ decs    : dec
 ;
 
 dec     : typeDec terms
-        | varDec terms
+        | varDec  terms
         | funcDef terms
 ;
 
@@ -488,8 +491,7 @@ typeFields  : typeField
         | typeFields ',' typeField { $$ = f_psr_genAppend($1,$3); }
 ;
 
-typeField   : none
-        | { yylexs = E_PSR_LS_TYPEFEILD; } 
+typeField   : { yylexs = E_PSR_LS_TYPEFEILD; } 
         IDENTIFIER ':' typeDef { $$ = ND_NEW_TFEILD($2,$4); }
 ;
 
@@ -532,6 +534,7 @@ funcArgsRet: '(' typeFields ')' funcRet
         {
         $$ = f_psr_funcArgsRet($2,$4);
         }
+        | '(' none ')' { $$ = $2; }
 ;
 
 funcRet : none
