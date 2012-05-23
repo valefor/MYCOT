@@ -24,7 +24,7 @@ let // line comments
             print("\n")
         );
 
-    function try(c:int) = (
+    function try(c:m) = (
     if c==N
     then printboard()
     else for r:=0 to N-1

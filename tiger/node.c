@@ -23,7 +23,10 @@
  * 
  * @Doc:{
  *
- *  x. Abbreviations:
+ *
+ * }
+ *
+ * @Abbreviations:{
  *      tg      <->     tiger
  *      nd      <->     node
  * }

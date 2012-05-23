@@ -1,0 +1,27 @@
+%{
+struct tg_kws_s {const char *name; int id};
+const struct tg_kws_s *rb_reserved_word(const char *, unsigned int);
+%}
+
+struct tg_kws_s;
+%%
+if,KW_IF
+then,KW_THEN
+else,KW_ELSE
+end,KW_END
+while,KW_WHILE
+do,KW_DO
+for,KW_FOR
+break,KW_BREAK
+to,KW_TO
+in,KW_IN
+let,KW_LET
+var,KW_VAR
+nil,KW_NIL
+type,KW_TYPE
+int,KW_INT
+string,KW_STR
+function,KW_FUNC
+of,KW_OF
+%%
+

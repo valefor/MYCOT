@@ -28,7 +28,10 @@
  * 
  * @Doc:{
  *
- *  x. Abbreviations:
+ *
+ * }
+ *
+ * @Abbreviations:{
  *      tg      <->     tiger
  *      st      <->     symbol table
  *      lxr     <->     lexer
@@ -145,11 +148,10 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
     tg_id_t tId = tERROR;
     switch( yylexs ) {
         case E_PSR_LS_VARDEC:
-        case E_PSR_LS_TYPEDEC:
         case E_PSR_LS_TYPEFEILD:
         case E_PSR_LS_FUNCDEC:
-            if( !f_tg_symbolExisted(pYyText,yysymb,&(yylval->id)) ) {
-                yylval->id = f_tg_regToSymbolTable(pYyText,yysymb);
+            if( !f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) ) {
+                yylval->id = f_tg_regToSymbolTable(pYyText,yyvsymb);
                 tId = IDENTIFIER;
             }
             else {
@@ -158,14 +160,35 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
             }
             yylexs = E_PSR_LS_UNDEF;
             break;
+        case E_PSR_LS_TYPEDEC:
+            if( !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
+                yylval->id = f_tg_regToSymbolTable(pYyText,yytsymb);
+                tId = IDENTIFIER;
+            }
+            else {
+                yyerror(pPsrParams,"Duplicated type declaration!\n");
+                tId = tERROR;
+            }
+            yylexs = E_PSR_LS_UNDEF;
+            break;
+        case E_PSR_LS_TYPEREF:
+            if( !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
+                yyerror(pPsrParams,"Undeclared type!\n");
+                return tERROR;
+            }
+            else {
+                tId = IDENTIFIER;
+            }
+            break;
         case E_PSR_LS_UNDEF:
-            if( !f_tg_symbolExisted(pYyText,yysymb,&(yylval->id)) ) {
+            if( !f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) ) {
                 yyerror(pPsrParams,"Undeclared identifier!\n");
                 return tERROR;
             }
             else {
                 tId = IDENTIFIER;
             }
+            break;
         default:
             break;
     }

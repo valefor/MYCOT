@@ -23,7 +23,9 @@
  * 
  * @Doc:{
  *
- *  x. Abbreviations:
+ * }
+ *
+ * @Abbreviations:{
  *      tg      <->     tiger
  *      st      <->     symbol table
  * }

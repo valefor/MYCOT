@@ -143,7 +143,9 @@
  *  The Tiger specified header file which contained Tiger compiler dedicated
  *  definitions.
  *
- *  x. Abbreviations:
+ * }
+ *
+ * @Abbreviations:{
  *      tg      <->     tiger
  *      cli     <->     command line interface
  *      st      <->     symbol table
