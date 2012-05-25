@@ -68,6 +68,7 @@
 #include "tiger.h"
 #include "st.h"
 #include "node.h"
+#include "id.h"
 
 %}
 
@@ -170,12 +171,13 @@ static void f_psr_initLexer(psr_params_t *);
     #define yyvsymb pPsrParams->psr_tgVarSymbols
     #define yytsymb pPsrParams->psr_tgTypeSymbols
     #define yylexs pPsrParams->psr_lexState
+    #define yylscp pPsrParams->psr_locScp
     int yyparse(psr_params_t * pPsrParams);
     psr_params_t * f_psr_new(void);
 
     // provides to LEX program
     bool f_tg_symbolExisted(const char * ,tg_symbols_t *,tg_id_t *);
-    tg_id_t f_tg_regToSymbolTable(const char *,tg_symbols_t *);
+    tg_id_t f_tg_regToSymbolTable(const char *,int,tg_symbols_t *);
 }
 
 %initial-action
@@ -404,17 +406,11 @@ primaryExp: IDENTIFIER
 postfixExp: primaryExp
         | postfixExp '[' exp ']'
         | postfixExp '[' exp ']' KW_OF exp
-        | functionCall
+        | postfixExp '(' ')'
+        | postfixExp '(' argExpList ')'
 ;
 
-functionCall: IDENTIFIER '(' argExpList ')'
-            {
-            // is callable?
-            $$ = ND_NEW_FUNCALL($1,$3);
-            }
-
-argExpList: none 
-        | assignExp
+argExpList: assignExp
         | argExpList ',' assignExp
             {
             $$ = f_psr_genAppend($1,$3);
@@ -533,13 +529,9 @@ typeDef : KW_TYPE
             {
             yylexs = E_PSR_LS_TYPEDEC;
             }
-        IDENTIFIER '='
+        IDENTIFIER '=' typeRef
             {
-            yylexs = E_PSR_LS_TYPEREF;
-            }
-        typeRef
-            {
-            $$ = ND_NEW_TYPEDEC( $3,$6 );
+            $$ = ND_NEW_TYPEDEC( $3,$5 );
             }
 ;
 
@@ -562,13 +554,9 @@ type    : IDENTIFIER
             {
             $$ = $2;
             }
-        | KW_ARRAY_OF 
+        | KW_ARRAY_OF typeRef
             {
-            yylexs = E_PSR_LS_TYPEREF;
-            }
-        typeRef
-            {
-            $$ = ND_NEW_ARYOF($3);
+            $$ = ND_NEW_ARYOF($2);
             }
 ;
 
@@ -867,7 +855,6 @@ static const st_hashType_t cl_tg_numHashType = {
 void
 f_tg_initVarSymbolTables(tg_symbols_t * pTgSymbols)
 {
-    const struct tg_KINP_s *tKINP;
     const struct tg_BIF_s *tBIFIT;
 
     pTgSymbols->lastId = tLAST_ID;
@@ -876,14 +863,13 @@ f_tg_initVarSymbolTables(tg_symbols_t * pTgSymbols)
 
     // Add BIFIT to symbols
     for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ )
-        f_tg_regToSymbolTable(tBIFIT->name,pTgSymbols);
+        f_tg_regToSymbolTable(tBIFIT->name,ID_FUNC,pTgSymbols);
 }
 
 void
 f_tg_initTypeSymbolTables(tg_symbols_t * pTgSymbols)
 {
     const struct tg_KINP_s *tKINP;
-    const struct tg_BIF_s *tBIFIT;
 
     pTgSymbols->lastId = 0;
     pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,100);
@@ -892,14 +878,8 @@ f_tg_initTypeSymbolTables(tg_symbols_t * pTgSymbols)
     // Add BIT to type symbol table
     for( tKINP = tTgBITs; tKINP->id; tKINP++ )
     {
-        f_st_add(pTgSymbols->str2idTbl,tKINP->name,tKINP->id);
-        f_st_add(pTgSymbols->id2strTbl,tKINP->id,tKINP->name);
-        pTgSymbols->lastId++;
-        //f_tg_regToSymbolTable(tKINP->name,pTgSymbols);
+        f_tg_regToSymbolTable(tKINP->name,ID_TYPE,pTgSymbols);
     }
-    // Add BIFIT to symbols
-    for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ )
-        f_tg_regToSymbolTable(tBIFIT->name,pTgSymbols);
 }
 
 bool
@@ -913,9 +893,9 @@ f_tg_symbolExisted(
 }
 
 tg_id_t
-f_tg_regToSymbolTable(const char * pYyText,tg_symbols_t *pTgSymbols)
+f_tg_regToSymbolTable(const char * pYyText,int iIdType,tg_symbols_t *pTgSymbols)
 {
-    tg_id_t tId = ++pTgSymbols->lastId;
+    tg_id_t tId = iIdType | (++pTgSymbols->lastId << ID_SCOPE_SHIFT);
     int iStrLen = strlen(pYyText);
     char * pStr = MEM_CALLOC(0,iStrLen+1);
     MEM_COPY(pStr,pYyText,char,iStrLen);

@@ -52,6 +52,7 @@
 #include "tiger.h"
 #include "st.h"
 #include "node.h"
+#include "id.h"
 #include "tiger_parser.h"
 
 void f_lxr_count(yyscan_t,psr_params_t *);
@@ -146,20 +147,19 @@ tg_id_t
 f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
 {
     tg_id_t tId = tERROR;
+    int iType = ID_UNDEF;
     switch( yylexs ) {
         case E_PSR_LS_VARDEC:
         case E_PSR_LS_TYPEFEILD:
         case E_PSR_LS_FUNCDEC:
-            if( !f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) ) {
-                yylval->id = f_tg_regToSymbolTable(pYyText,yyvsymb);
-                tId = IDENTIFIER;
+            if( f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) ) {
+                yyerror(pPsrParams,"Duplicated identifier declaration!\n");
+                return tERROR;
             }
             else {
-                yyerror(pPsrParams,"Duplicated identifier declaration!\n");
-                tId = tERROR;
+                yylexs = E_PSR_LS_UNDEF;
+                break;
             }
-            yylexs = E_PSR_LS_UNDEF;
-            break;
         case E_PSR_LS_TYPEDEC:
             if( !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
                 yylval->id = f_tg_regToSymbolTable(pYyText,yytsymb);
@@ -171,17 +171,9 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
             }
             yylexs = E_PSR_LS_UNDEF;
             break;
-        case E_PSR_LS_TYPEREF:
-            if( !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
-                yyerror(pPsrParams,"Undeclared type!\n");
-                return tERROR;
-            }
-            else {
-                tId = IDENTIFIER;
-            }
-            break;
         case E_PSR_LS_UNDEF:
-            if( !f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) ) {
+            if( !f_tg_symbolExisted(pYyText,yyvsymb,&(yylval->id)) &&
+                !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
                 yyerror(pPsrParams,"Undeclared identifier!\n");
                 return tERROR;
             }
@@ -192,6 +184,8 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
         default:
             break;
     }
+    yylval->id = f_tg_regToSymbolTable(pYyText,yyvsymb);
+    tId = IDENTIFIER;
     return tId;
 }
  
