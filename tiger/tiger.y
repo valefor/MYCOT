@@ -137,7 +137,9 @@ struct psr_params_s
     psr_lexState_t  psr_lexState;
     //psr_lexState_t  *psr_lexStateStack;
     tg_symbols_t    *psr_tgVarSymbols;
+    tg_symbols_t    *psr_tgArgSymbols;
     tg_symbols_t    *psr_tgTypeSymbols;
+    tg_symbols_t    *psr_tgFuncSymbols;
 };
 
 typedef struct psr_params_s psr_params_t;
@@ -231,6 +233,7 @@ static tg_id_t * _f_psr_funcArgsRet(psr_params_t *,tg_node_t *,tg_node_t *);
 static tg_node_t * _f_psr_assignCheck(psr_params_t *,tg_id_t,
     tg_node_t *,tg_node_t *);
 
+#define f_psr_intern(e,i) _f_psr_intern(pPsrParams,e,i)
 #define f_psr_binCall(l,o,r) _f_psr_binCall(pPsrParams,l,o,r)
 #define f_psr_unaCall(o,e) _f_psr_unaCall(pPsrParams,o,e)
 #define f_psr_extDecAppend(h,t) _f_psr_extDecAppend(pPsrParams,h,t)
@@ -324,6 +327,11 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
     KW_ARRAY_OF
     KW_OF
 
+/* built-in const */
+%token
+    KW_LINE
+    KW_FILE
+
 /* Token */
 %token
     tLOWEST
@@ -338,7 +346,8 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
     tASSIGN
 
 // Const & Variable
-%token <id>     IDENTIFIER tSTRING
+%token <id>     tIDENTIFIER tSTRING
+%token <id>     ID
 %token <num>    tNUMBER
 %type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
@@ -384,8 +393,11 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
  *
  *****************************************************************************/
 
+/* transform tIDENTIFIER to internal ID */
+ID:     tIDENTIFIER 
+
 /* Expressions */
-primaryExp: IDENTIFIER
+primaryExp: ID
             {
             $$ = PSR_GET_NODE($1);
             }
@@ -529,7 +541,7 @@ typeDef : KW_TYPE
             {
             yylexs = E_PSR_LS_TYPEDEC;
             }
-        IDENTIFIER '=' typeRef
+        ID '=' typeRef
             {
             $$ = ND_NEW_TYPEDEC( $3,$5 );
             }
@@ -546,7 +558,7 @@ typeRef : type
             }
 ;
 
-type    : IDENTIFIER
+type    : ID
             {
             $$ = PSR_GET_NODE($1);
             }
@@ -572,7 +584,7 @@ typeField   : none
             {
             yylexs = E_PSR_LS_TYPEFEILD;
             }
-        IDENTIFIER ':' typeRef
+        ID ':' typeRef
             {
             $$ = ND_NEW_TFEILD($2,$4);
             }
@@ -602,7 +614,7 @@ varId   :
             {
             yylexs = E_PSR_LS_VARDEC;
             }
-        IDENTIFIER varType
+        ID varType
 
             {
             $$ = ND_NEW_VAR($2,$3);
@@ -621,8 +633,9 @@ funcDef : KW_FUNC
             yylexs = E_PSR_LS_FUNCDEC;
             f_psr_locScp_push();
             }
-        IDENTIFIER funcArgsRet '=' compoundStmt
+        ID funcArgsRet '=' compoundStmt
             {
+            $<id>3 = f_psr_intern($3,ID_FUNC);
             $$ = ND_NEW_FUNCDEF($3,$4,$6);
             f_psr_locScp_pop();
             }
@@ -690,8 +703,6 @@ expStmts: exp
             $$ = f_psr_genAppend($1,$3);
             }
 ;
-
-
 
 selectionStmt: KW_IF exp KW_THEN stmt
             {
@@ -811,6 +822,8 @@ static const struct tg_KINP_s {
     { KW_FUNC,"function" },
     { KW_ARRAY_OF,"array of" },
     { KW_OF,"of" },
+    { KW_LINE,"__LINE__" },
+    { KW_FILE,"__FILE__" },
     { 0,NULL }
 };
 
@@ -853,27 +866,41 @@ static const st_hashType_t cl_tg_numHashType = {
 };
 
 void
-f_tg_initVarSymbolTables(tg_symbols_t * pTgSymbols)
+f_tg_initSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
+{
+    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,pSize);
+    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,pSize);
+}
+
+void
+f_tg_initFuncSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
 {
     const struct tg_BIF_s *tBIFIT;
 
-    pTgSymbols->lastId = tLAST_ID;
-    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,1000);
-    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,1000);
+    pTgSymbols->lastId = 0;
+    f_tg_initSymbolTables(pTgSymbols,pSize);
 
-    // Add BIFIT to symbols
+    // Add BIFs to symbols
     for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ )
         f_tg_regToSymbolTable(tBIFIT->name,ID_FUNC,pTgSymbols);
 }
 
 void
-f_tg_initTypeSymbolTables(tg_symbols_t * pTgSymbols)
+f_tg_initVarSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
+{
+    const struct tg_BIF_s *tBIFIT;
+
+    pTgSymbols->lastId = tLAST_ID;
+    f_tg_initSymbolTables(pTgSymbols,pSize);
+}
+
+void
+f_tg_initTypeSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
 {
     const struct tg_KINP_s *tKINP;
 
     pTgSymbols->lastId = 0;
-    pTgSymbols->str2idTbl = f_st_initTable(&cl_tg_strHashType,100);
-    pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,100);
+    f_tg_initSymbolTables(pTgSymbols,pSize);
 
     // Add BIT to type symbol table
     for( tKINP = tTgBITs; tKINP->id; tKINP++ )
@@ -933,6 +960,7 @@ yylex(void *p)
     return t;
 }
 
+
 // NOT IMPLEMENTED YET
 tg_node_t *
 f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
@@ -952,6 +980,39 @@ f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr)
 }
 
 /* ^Hidden _Funtion!Don't call it explicitly! */
+static tg_id_t
+_f_psr_intern(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
+{
+    const char * pExtId = (char *)tExtId;
+    tg_id_t tId;
+    tg_symbols_t *pSymbols;
+
+    switch(iIdType)
+    {
+        case ID_VAR:
+            pSymbols = pPsrParams->psr_tgVarSymbols;
+            break;
+        case ID_ARG:
+            pSymbols = pPsrParams->psr_tgArgSymbols;
+            break;
+        case ID_TYPE:
+            pSymbols = pPsrParams->psr_tgTypeSymbols;
+            break;
+        case ID_FUNC:
+            pSymbols = pPsrParams->psr_tgFuncSymbols;
+            break;
+        case default:
+            break;
+    }
+
+    if( !f_tg_symbolExisted(pExtId,pSymbols,&tId) )
+    {
+        return f_tg_regToSymbolTable(pExtId,iIdType,pSymbols);
+    }
+
+    return tId;
+}
+
 static void
 _f_psr_locScp_push(psr_params_t * pPsrParams)
 {
@@ -1126,7 +1187,9 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
     YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
     tg_symbols_t * pTgVarSymbols = MEM_ALLOC(tg_symbols_t);
+    tg_symbols_t * pTgArgSymbols = MEM_ALLOC(tg_symbols_t);
     tg_symbols_t * pTgTypeSymbols = MEM_ALLOC(tg_symbols_t);
+    tg_symbols_t * pTgFuncSymbols = MEM_ALLOC(tg_symbols_t);
 
     pYyVal->id = 0;
     pYyVal->value = 0;
@@ -1140,15 +1203,23 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     pYyLoc->currLineBuff = NULL;
     pYyLoc->buffSize = 0;
 
-    f_tg_initVarSymbolTables(pTgVarSymbols);
-    f_tg_initTypeSymbolTables(pTgTypeSymbols);
+
+    f_tg_initVarSymbolTables(pTgVarSymbols,1000);
+    f_tg_initArgSymbolTables(pTgArgSymbols,10);
+    f_tg_initTypeSymbolTables(pTgTypeSymbols,100);
+    f_tg_initFuncSymbolTables(pTgFuncSymbols,100);
+
+    /*
+    */
 
     pPsrParams->psr_srcFileName = 0;
     pPsrParams->psr_yylval = pYyVal;
     pPsrParams->psr_yylloc = pYyLoc;
     pPsrParams->psr_lexState = E_PSR_LS_UNDEF;
-    pPsrParams->psr_tgVarSymbols = pTgVarSymbols;
+    pPsrParams->psr_tgVarSymbols  = pTgVarSymbols;
+    pPsrParams->psr_tgArgSymbols  = pTgArgSymbols;
     pPsrParams->psr_tgTypeSymbols = pTgTypeSymbols;
+    pPsrParams->psr_tgFuncSymbols = pTgFuncSymbols;
 }
 
 psr_params_t *

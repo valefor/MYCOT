@@ -146,6 +146,7 @@ function { COUNT; return KW_FUNC; }
 tg_id_t
 f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
 {
+    /*
     tg_id_t tId = tERROR;
     int iType = ID_UNDEF;
     switch( yylexs ) {
@@ -163,7 +164,7 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
         case E_PSR_LS_TYPEDEC:
             if( !f_tg_symbolExisted(pYyText,yytsymb,&(yylval->id)) ) {
                 yylval->id = f_tg_regToSymbolTable(pYyText,yytsymb);
-                tId = IDENTIFIER;
+                tId = tIDENTIFIER;
             }
             else {
                 yyerror(pPsrParams,"Duplicated type declaration!\n");
@@ -178,15 +179,17 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
                 return tERROR;
             }
             else {
-                tId = IDENTIFIER;
+                tId = tIDENTIFIER;
             }
             break;
         default:
             break;
     }
     yylval->id = f_tg_regToSymbolTable(pYyText,yyvsymb);
-    tId = IDENTIFIER;
-    return tId;
+    tId = tIDENTIFIER;
+    */
+    yylval->id = pYyText;
+    return tIDENTIFIER;
 }
  
 bool
