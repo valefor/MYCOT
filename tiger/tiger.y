@@ -82,6 +82,7 @@ enum psr_lexState_e
     E_PSR_LS_VARDEC,
     E_PSR_LS_TYPEDEC,
     E_PSR_LS_TYPEFEILD,
+    E_PSR_LS_ARGS,
     E_PSR_LS_FUNCDEC,
     E_PSR_LS_TYPEREF,
     E_PSR_LS_UNDEF
@@ -104,6 +105,7 @@ struct psr_localScope_s
     psr_iTable_t * typeDefs;
     psr_iTable_t * args;
     psr_iTable_t * vars;
+    psr_iTable_t * temp;
     psr_localScope_t * prevScope; // the previous scope
 };
 
@@ -347,8 +349,8 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
 
 // Const & Variable
 %token <id>     tIDENTIFIER tSTRING
-%token <id>     ID
 %token <num>    tNUMBER
+%type  <id>     ID
 %type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   stmts stmt decs dec
@@ -562,10 +564,16 @@ type    : ID
             {
             $$ = PSR_GET_NODE($1);
             }
-        | '{'typeFields '}'
+        | '{'
+            {
+            yylexs = E_PSR_LS_TYPEFEILD;
+            }
+        typeFields
             {
             $$ = $2;
+            yylexs = E_PSR_LS_UNDEF;
             }
+        '}'
         | KW_ARRAY_OF typeRef
             {
             $$ = ND_NEW_ARYOF($2);
@@ -610,14 +618,10 @@ varDecInit: varId
             }
 ;
 
-varId   :
+varId   : ID varType
             {
-            yylexs = E_PSR_LS_VARDEC;
-            }
-        ID varType
-
-            {
-            $$ = ND_NEW_VAR($2,$3);
+            $<id>1 = f_psr_intern($1,ID_VAR);
+            $$ = ND_NEW_VAR($1,$2);
             }
 ;
 
@@ -628,22 +632,21 @@ varType :none
             }
 
 /* Function Delaration & Definition */
-funcDef : KW_FUNC
+funcDef : KW_FUNC ID 
             {
-            yylexs = E_PSR_LS_FUNCDEC;
             f_psr_locScp_push();
+            $<id>2 = f_psr_intern($2,ID_FUNC);
             }
-        ID funcArgsRet '=' compoundStmt
+        funcArgsRet '=' compoundStmt
             {
-            $<id>3 = f_psr_intern($3,ID_FUNC);
-            $$ = ND_NEW_FUNCDEF($3,$4,$6);
+            $$ = ND_NEW_FUNCDEF($2,$4,$6);
             f_psr_locScp_pop();
             }
 ;
 
 funcArgsRet: '('
             {
-            yylexs = E_PSR_LS_TYPEFEILD;
+            yylexs = E_PSR_LS_ARGS;
             }
         typeFields
             {
@@ -1215,6 +1218,7 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     pPsrParams->psr_srcFileName = 0;
     pPsrParams->psr_yylval = pYyVal;
     pPsrParams->psr_yylloc = pYyLoc;
+    pPsrParams->psr_locScp = NULL;
     pPsrParams->psr_lexState = E_PSR_LS_UNDEF;
     pPsrParams->psr_tgVarSymbols  = pTgVarSymbols;
     pPsrParams->psr_tgArgSymbols  = pTgArgSymbols;
