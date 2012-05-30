@@ -102,9 +102,10 @@ typedef struct psr_localScope_s psr_localScope_t;
 
 struct psr_localScope_s
 {
-    psr_iTable_t * typeDefs;
+    psr_iTable_t * types;
     psr_iTable_t * args;
     psr_iTable_t * vars;
+    psr_iTable_t * funcs;
     psr_iTable_t * temp;
     psr_localScope_t * prevScope; // the previous scope
 };
@@ -222,6 +223,10 @@ tg_id_t f_psr_str2Id(psr_params_t *,const char *);
 //#define PSR_LSS_POP() f_psr_lss_pop(pPsrParams)
 
 /* internal macro for temporarily use */
+static tg_id_t _f_psr_intern(psr_params_t *,const tg_id_t,int);
+static void _f_psr_addID2CurrScp(psr_params_t *,const tg_id_t,int);
+static bool _f_psr_isIDinCurrScp(psr_params_t *,const tg_id_t,int);
+static bool _f_psr_idDefined(psr_params_t *,const tg_id_t,int);
 static void _f_psr_locScp_push(psr_params_t *);
 static void _f_psr_locScp_pop(psr_params_t *);
 static tg_node_t * _f_psr_binCall(psr_params_t*,tg_node_t*,tg_id_t,tg_node_t*);
@@ -236,6 +241,9 @@ static tg_node_t * _f_psr_assignCheck(psr_params_t *,tg_id_t,
     tg_node_t *,tg_node_t *);
 
 #define f_psr_intern(e,i) _f_psr_intern(pPsrParams,e,i)
+#define f_psr_addID2CurrScp(i,t) _f_psr_addID2CurrScp(pPsrParams,i,t)
+#define f_psr_isIDinCurrScp(i,t) _f_psr_isIDinCurrScp(pPsrParams,i,t)
+#define f_psr_idDefined(i,t) _f_psr_idDefined(pPsrParams,i,t)
 #define f_psr_binCall(l,o,r) _f_psr_binCall(pPsrParams,l,o,r)
 #define f_psr_unaCall(o,e) _f_psr_unaCall(pPsrParams,o,e)
 #define f_psr_extDecAppend(h,t) _f_psr_extDecAppend(pPsrParams,h,t)
@@ -568,12 +576,11 @@ type    : ID
             {
             yylexs = E_PSR_LS_TYPEFEILD;
             }
-        typeFields
+        typeFields '}'
             {
-            $$ = $2;
+            $$ = $3;
             yylexs = E_PSR_LS_UNDEF;
             }
-        '}'
         | KW_ARRAY_OF typeRef
             {
             $$ = ND_NEW_ARYOF($2);
@@ -621,6 +628,7 @@ varDecInit: varId
 varId   : ID varType
             {
             $<id>1 = f_psr_intern($1,ID_VAR);
+            f_psr_addID2CurrScp($1,ID_VAR);
             $$ = ND_NEW_VAR($1,$2);
             }
 ;
@@ -636,6 +644,7 @@ funcDef : KW_FUNC ID
             {
             f_psr_locScp_push();
             $<id>2 = f_psr_intern($2,ID_FUNC);
+            f_psr_addID2CurrScp($2,ID_FUNC);
             }
         funcArgsRet '=' compoundStmt
             {
@@ -875,25 +884,19 @@ f_tg_initSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
     pTgSymbols->id2strTbl = f_st_initTable(&cl_tg_numHashType,pSize);
 }
 
-void
-f_tg_initFuncSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
-{
-    const struct tg_BIF_s *tBIFIT;
 
-    pTgSymbols->lastId = 0;
-    f_tg_initSymbolTables(pTgSymbols,pSize);
-
-    // Add BIFs to symbols
-    for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ )
-        f_tg_regToSymbolTable(tBIFIT->name,ID_FUNC,pTgSymbols);
-}
 
 void
 f_tg_initVarSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
 {
-    const struct tg_BIF_s *tBIFIT;
-
     pTgSymbols->lastId = tLAST_ID;
+    f_tg_initSymbolTables(pTgSymbols,pSize);
+}
+
+void
+f_tg_initArgSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
+{
+    pTgSymbols->lastId = 0;
     f_tg_initSymbolTables(pTgSymbols,pSize);
 }
 
@@ -910,6 +913,24 @@ f_tg_initTypeSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
     {
         f_tg_regToSymbolTable(tKINP->name,ID_TYPE,pTgSymbols);
     }
+}
+
+void
+f_tg_initFuncSymbolTables(tg_symbols_t * pTgSymbols,int pSize)
+{
+    const struct tg_BIF_s *tBIFIT;
+
+    pTgSymbols->lastId = 0;
+    f_tg_initSymbolTables(pTgSymbols,pSize);
+
+    // Add BIFs to symbols
+    for( tBIFIT = tTgBIFIT; tBIFIT->bif; tBIFIT++ )
+        f_tg_regToSymbolTable(tBIFIT->name,ID_FUNC,pTgSymbols);
+}
+
+void
+f_psr_initTopScope(psr_localScope_t *pLocScp)
+{
 }
 
 bool
@@ -983,6 +1004,8 @@ f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr)
 }
 
 /* ^Hidden _Funtion!Don't call it explicitly! */
+
+// transform external identifier to internal ID
 static tg_id_t
 _f_psr_intern(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
 {
@@ -993,18 +1016,21 @@ _f_psr_intern(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
     switch(iIdType)
     {
         case ID_VAR:
-            pSymbols = pPsrParams->psr_tgVarSymbols;
+            pSymbols= pPsrParams->psr_tgVarSymbols;
             break;
         case ID_ARG:
-            pSymbols = pPsrParams->psr_tgArgSymbols;
+            pSymbols= pPsrParams->psr_tgArgSymbols;
             break;
         case ID_TYPE:
-            pSymbols = pPsrParams->psr_tgTypeSymbols;
+            pSymbols= pPsrParams->psr_tgTypeSymbols;
             break;
-        case ID_FUNC:
-            pSymbols = pPsrParams->psr_tgFuncSymbols;
+        case ID_FIELD:
+            pSymbols= pPsrParams->psr_tgArgSymbols;
             break;
-        case default:
+        case ID_FUNC :
+            pSymbols= pPsrParams->psr_tgFuncSymbols;
+            break;
+        default :
             break;
     }
 
@@ -1016,15 +1042,115 @@ _f_psr_intern(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
     return tId;
 }
 
+// Add ID in current scope
+static void
+_f_psr_addID2CurrScp(psr_params_t *pPsrParams,const tg_id_t tId,int iIdType)
+{
+    psr_iTable_t *pTable;
+
+    switch(iIdType)
+    {
+        case ID_VAR:
+            pTable = pPsrParams->psr_locScp->vars;
+            break;
+        case ID_ARG:
+            pTable = pPsrParams->psr_locScp->args;
+            break;
+        case ID_TYPE:
+            pTable = pPsrParams->psr_locScp->types;
+            break;
+        case ID_FIELD:
+            pTable = pPsrParams->psr_locScp->temp;
+            break;
+        case ID_FUNC:
+            pTable = pPsrParams->psr_locScp->funcs;
+            break;
+        default:
+            break;
+    }
+
+    if( _f_psr_isIDinCurrScp(pPsrParams,tId,iIdType) )
+    {
+        yyerror(pPsrParams,"Duplicated identifier declaration!");
+    }
+    else f_psr_iTable_add(pTable,tId);
+}
+
+// Is ID in current scope?
+static bool
+_f_psr_isIDinCurrScp(psr_params_t *pPsrParams,const tg_id_t tId,int iIdType)
+{
+    psr_iTable_t *pTable;
+
+    switch(iIdType)
+    {
+        case ID_VAR:
+            pTable = pPsrParams->psr_locScp->vars;
+            break;
+        case ID_ARG:
+            pTable = pPsrParams->psr_locScp->args;
+            break;
+        case ID_TYPE:
+            pTable = pPsrParams->psr_locScp->types;
+            break;
+        case ID_FIELD:
+            pTable = pPsrParams->psr_locScp->temp;
+            break;
+        case ID_FUNC:
+            pTable = pPsrParams->psr_locScp->funcs;
+            break;
+        default:
+            break;
+    }
+
+    return f_psr_iTable_include(pTable,tId);
+}
+
+static bool
+_f_psr_idDefined(psr_params_t *pPsrParams,const tg_id_t tId,int iIdType)
+{
+    psr_iTable_t *pTable;
+
+    while( pPsrParams->psr_locScp )
+    {
+        switch(iIdType)
+        {
+            case ID_VAR:
+                pTable  = pPsrParams->psr_locScp->vars;
+                break;
+            case ID_ARG:
+                pTable = pPsrParams->psr_locScp->args;
+                break;
+            case ID_TYPE:
+                pTable = pPsrParams->psr_locScp->types;
+                break;
+            case ID_FIELD:
+                pTable = pPsrParams->psr_locScp->temp;
+                break;
+            case ID_FUNC:
+                pTable = pPsrParams->psr_locScp->funcs;
+                break;
+            default:
+                break;
+        }
+        if( f_psr_iTable_include(pTable,tId) ) return TRUE;
+        pPsrParams->psr_locScp = pPsrParams->psr_locScp->prevScope;
+    }
+
+    return FALSE;
+}
+
 static void
 _f_psr_locScp_push(psr_params_t * pPsrParams)
 {
     psr_localScope_t * pNewLocScp = MEM_ALLOC(psr_localScope_t);
 
     pNewLocScp->prevScope = PSR_LOC_SCP;
-    pNewLocScp->typeDefs = f_psr_iTable_new(NULL);
+    pNewLocScp->types= f_psr_iTable_new(NULL);
     pNewLocScp->args = f_psr_iTable_new(NULL);
     pNewLocScp->vars = f_psr_iTable_new(NULL);
+    pNewLocScp->temp = f_psr_iTable_new(NULL);
+    pNewLocScp->funcs= f_psr_iTable_new(NULL);
 
     PSR_LOC_SCP = pNewLocScp;
 }
@@ -1033,7 +1159,7 @@ static void
 _f_psr_locScp_pop(psr_params_t * pPsrParams)
 {
     psr_localScope_t * pLocScp = PSR_LOC_SCP->prevScope;
-    MEM_FREE(PSR_LOC_SCP->typeDefs);
+    MEM_FREE(PSR_LOC_SCP->types);
     MEM_FREE(PSR_LOC_SCP->args);
     MEM_FREE(PSR_LOC_SCP->vars);
     MEM_FREE(PSR_LOC_SCP);
@@ -1044,8 +1170,10 @@ _f_psr_locScp_pop(psr_params_t * pPsrParams)
 static tg_id_t *
 _f_psr_locScp_whole(psr_params_t * pPsrParams)
 {
-    int iCount = PST_ITBL_SIZE(PSR_LOC_SCP->typeDefs) +
+    int iCount = PST_ITBL_SIZE(PSR_LOC_SCP->types) +
                  PST_ITBL_SIZE(PSR_LOC_SCP->args) +
+                 PST_ITBL_SIZE(PSR_LOC_SCP->temp) +
+                 PST_ITBL_SIZE(PSR_LOC_SCP->funcs) +
                  PST_ITBL_SIZE(PSR_LOC_SCP->vars);
     tg_id_t * pBuf;
 
@@ -1053,9 +1181,11 @@ _f_psr_locScp_whole(psr_params_t * pPsrParams)
 
     pBuf = MEM_ALLOCN(tg_id_t,iCount + 1);
 
-    f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->typeDefs);
+    f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->types);
     f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->args);
     f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->vars);
+    f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->funcs);
+    f_psr_iTable_idCopy(pBuf,PSR_LOC_SCP->temp);
 
     // set buf size
     pBuf[0] = iCount;
@@ -1189,10 +1319,13 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
 {
     YYSTYPE * pYyVal = MEM_ALLOC(YYSTYPE);
     YYLTYPE * pYyLoc = MEM_ALLOC(YYLTYPE);
+
     tg_symbols_t * pTgVarSymbols = MEM_ALLOC(tg_symbols_t);
     tg_symbols_t * pTgArgSymbols = MEM_ALLOC(tg_symbols_t);
     tg_symbols_t * pTgTypeSymbols = MEM_ALLOC(tg_symbols_t);
     tg_symbols_t * pTgFuncSymbols = MEM_ALLOC(tg_symbols_t);
+
+    psr_localScope_t * pLocalScope = MEM_ALLOC(psr_localScope_t);
 
     pYyVal->id = 0;
     pYyVal->value = 0;
@@ -1212,13 +1345,15 @@ f_psr_initPsrParams(psr_params_t *pPsrParams)
     f_tg_initTypeSymbolTables(pTgTypeSymbols,100);
     f_tg_initFuncSymbolTables(pTgFuncSymbols,100);
 
+    f_psr_initTopScope(pLocalScope);
+
     /*
     */
 
     pPsrParams->psr_srcFileName = 0;
     pPsrParams->psr_yylval = pYyVal;
     pPsrParams->psr_yylloc = pYyLoc;
-    pPsrParams->psr_locScp = NULL;
+    pPsrParams->psr_locScp = pLocalScope;
     pPsrParams->psr_lexState = E_PSR_LS_UNDEF;
     pPsrParams->psr_tgVarSymbols  = pTgVarSymbols;
     pPsrParams->psr_tgArgSymbols  = pTgArgSymbols;
