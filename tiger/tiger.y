@@ -365,7 +365,8 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
 %token <id>     tIDENTIFIER tSTRING
 %token <num>    tNUMBER
 %type  <id>     ID
-%type  <node>   exp primaryExp postfixExp unaryExp arithExp argExpList
+%type  <node>   exp primaryExp postfixExp iterativeExp callativeExp
+%type  <node>   unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   stmts stmt decs dec
 %type  <node>   expStmts compoundStmt selectionStmt iterationStmt jumpStmt
@@ -415,10 +416,7 @@ ID:     tIDENTIFIER
 /* Expressions */
 primaryExp: ID
             {
-            $<id>1 = f_psr_intern($1,ID_VAR);
-            if( f_psr_idDefined($1,ID_VAR) ){
-            $$ = PSR_GET_NODE($1);
-            }
+            $$ = ND_NEW_ID($1);
             }
         | tNUMBER
             {
@@ -435,13 +433,41 @@ primaryExp: ID
 ;
 
 postfixExp: primaryExp
-        | postfixExp '[' exp ']'
-        | postfixExp '[' exp ']' KW_OF exp
-        | postfixExp '(' ')'
-        | postfixExp '(' argExpList ')'
+            {
+            if( ND_GET_TYPE($1) == E_NODE_TYPE_ID )
+            {
+                $<node>1->u1.id = f_psr_intern($<node>1->u1.id,ID_VAR);
+                if( !f_psr_idDefined( $<node>1->u1.id,ID_VAR) )
+                    $$ = NULL;
+            } 
+            }
+        | iterativeExp
+        | callativeExp
 ;
 
-argExpList: assignExp
+iterativeExp: ID '[' exp ']' optInitTail
+            {
+                $1 = f_psr_intern($1,ID_TYPE);
+                if( !f_psr_idDefined( $1,ID_TYPE) )
+                    $$ = NULL;
+            }
+;
+
+optInitTail : none
+        | KW_OF exp
+;
+
+callativeExp: ID '(' argExpList ')'
+            {
+                $1 = f_psr_intern($1,ID_FUNC);
+                if( !f_psr_idDefined( $1,ID_FUNC) )
+                    $$ = NULL;
+            }
+;
+
+
+argExpList:none 
+        | assignExp
         | argExpList ',' assignExp
             {
             $$ = f_psr_genAppend($1,$3);
