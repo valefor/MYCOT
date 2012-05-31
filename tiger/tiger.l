@@ -143,6 +143,17 @@ function { COUNT; return KW_FUNC; }
  * User code section *
  *********************/
 
+char *
+f_lxr_arrest(const char * pYyText)
+{
+    int iStrLen = strlen(pYyText);
+    char * pStr = MEM_CALLOC(0,iStrLen+1);
+    MEM_COPY(pStr,pYyText,char,iStrLen);
+    pStr[iStrLen] = '\0';
+
+    return pStr;
+}
+
 tg_id_t
 f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
 {
@@ -188,10 +199,10 @@ f_lxr_idCheck(psr_params_t *pPsrParams,const char * pYyText)
     yylval->id = f_tg_regToSymbolTable(pYyText,yyvsymb);
     tId = tIDENTIFIER;
     */
-    yylval->id = pYyText;
+    yylval->id = f_lxr_arrest(pYyText);
     return tIDENTIFIER;
 }
- 
+
 bool
 f_lxr_createClBuffer(char ** pBuffRef,int * sizeRef)
 {
@@ -263,12 +274,12 @@ f_lxr_count(yyscan_t scanner,psr_params_t *pPsrParams)
 
     yylloc->currLineBuff[yylloc->lastColumn] = '\0';
 
+    /*
     printf("[%d:%d]yytext=%s\n",
         yylloc->lastLine,
         yylloc->lastColumn,
         yyget_text(scanner)
     );
-    /*
     // Must redefine yyg
     struct yyguts_t * yyg = (struct yyguts_t*)scanner;
     ECHO;

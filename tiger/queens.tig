@@ -3,12 +3,15 @@
 
 let // line comments
 
-    var i,j,r;// temporary variable
+    var i,j:=m,r;// temporary variable
+    var N := 8;
     var N := 8;
 
     type intArray = array of int;
+    type i = array of int;
+    type j = int;
+    type record = { name:string, count:int };
 
-    var row := intArray [ N ] of 0;
     var row := intArray [ N ] of 0;
     var col := intArray [ N ] of 0;
     var diag1 := intArray [ N+N-1 ] of 0;
@@ -43,6 +46,8 @@ let // line comments
                 diag2[r+7-c] := 0
                 )
     );
+
+    function try() = ();
 
     in try(0)
 end
