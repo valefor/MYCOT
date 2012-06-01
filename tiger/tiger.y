@@ -88,11 +88,20 @@ enum psr_lexState_e
     E_PSR_LS_UNDEF
 };
 
+
+
+typedef struct tg_bindId_s tg_bindId_t;
+
+struct tg_bindId_s{
+    tg_id_t id;
+    tg_id_t type;
+};
+
 typedef struct psr_iTable_s psr_iTable_t;
 
 struct psr_iTable_s
 {
-    tg_id_t * table;
+    tg_bindId_t **table;
     int pos; // the last id's position
     int cap; // the capacity of table
     psr_iTable_t * prevTbl; // the previous id table
@@ -269,6 +278,15 @@ static tg_node_t * _f_psr_assignCheck(psr_params_t *,tg_id_t,
  *
  *****************************************************************************/
 
+static tg_bindId_t *
+f_tg_bindId_new(tg_id_t id,tg_id_t type)
+{
+    tg_bindId_t * pBindId = MEM_ALLOC(tg_bindId_t);
+    pBindId->id = id;
+
+    return pBindId;
+}
+
 #define PSR_ITBL_SIZE(table) table->pos
 static psr_iTable_t *
 f_psr_iTable_new(psr_iTable_t * pPrevTbl)
@@ -276,7 +294,7 @@ f_psr_iTable_new(psr_iTable_t * pPrevTbl)
     psr_iTable_t * pNewTbl = MEM_ALLOC(psr_iTable_t);
     pNewTbl->pos = 0;
     pNewTbl->cap = 10;
-    pNewTbl->table = MEM_ALLOCN(tg_id_t,pNewTbl->cap);
+    pNewTbl->table = MEM_ALLOCN(tg_bindId_t*,pNewTbl->cap);
     pNewTbl->prevTbl = pPrevTbl;
 
     return pNewTbl;
@@ -288,26 +306,38 @@ f_psr_iTable_include(const psr_iTable_t * pTbl,tg_id_t tId)
     int i;
     for(i = 0; i < pTbl->pos ; i++ )
     {
-        if( pTbl->table[i] == tId ) return TRUE;
+        if( pTbl->table[i]->id == tId ) return TRUE;
     }
 
     return FALSE;
 }
 
+static tg_bindId_t *
+f_psr_iTable_getBindId(const psr_iTable_t * pTbl,tg_id_t tId)
+{
+    int i;
+    for(i = 0; i < pTbl->pos ; i++ )
+    {
+        if( pTbl->table[i]->id == tId ) return pTbl->table[i];
+    }
+
+    return NULL;
+}
+
 static void
-f_psr_iTable_add(psr_iTable_t * pTbl,tg_id_t tId)
+f_psr_iTable_add(psr_iTable_t * pTbl,tg_bindId_t * tBindId)
 {
     if( pTbl->pos == pTbl->cap )
     {
         pTbl->cap = pTbl->cap *2;
-        pTbl->table = MEM_REALLOC(tg_id_t,pTbl->table,pTbl->cap);
+        pTbl->table = MEM_REALLOC(tg_bindId_t*,pTbl->table,pTbl->cap);
     }
 
-    pTbl->table[pTbl->pos++] = tId;
+    pTbl->table[pTbl->pos++] = tBindId;
 }
 
-static tg_id_t *
-f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
+static tg_bindId_t **
+f_psr_iTable_idCopy(tg_bindId_t ** pDst,const psr_iTable_t * pSrcTbl)
 {
     int i,iCount = PSR_ITBL_SIZE(pSrcTbl);
 
@@ -365,7 +395,7 @@ f_psr_iTable_idCopy(tg_id_t * pDst,const psr_iTable_t * pSrcTbl)
 %token <id>     tIDENTIFIER tSTRING
 %token <num>    tNUMBER
 %type  <id>     ID
-%type  <node>   exp primaryExp postfixExp iterativeExp callativeExp
+%type  <node>   exp primaryExp postfixExp iterativeExp callativeExp optInitTail
 %type  <node>   unaryExp arithExp argExpList
 %type  <node>   relationExp equalExp andExp orExp conditionalExp assignExp
 %type  <node>   stmts stmt decs dec
@@ -447,21 +477,26 @@ postfixExp: primaryExp
 
 iterativeExp: ID '[' exp ']' optInitTail
             {
-                $1 = f_psr_intern($1,ID_TYPE);
-                if( !f_psr_idDefined( $1,ID_TYPE) )
-                    $$ = NULL;
+            $$ = ND_NEW_ITER($1,$3,$5);
+            //    $1 = f_psr_intern($1,ID_TYPE);
+            //    if( !f_psr_idDefined( $1,ID_TYPE) )
+            //        $$ = NULL;
             }
 ;
 
 optInitTail : none
         | KW_OF exp
+            {
+            $$ = $2;
+            }
 ;
 
 callativeExp: ID '(' argExpList ')'
             {
-                $1 = f_psr_intern($1,ID_FUNC);
-                if( !f_psr_idDefined( $1,ID_FUNC) )
-                    $$ = NULL;
+            $$ = ND_NEW_CALL($1,$3);
+            //    $1 = f_psr_intern($1,ID_FUNC);
+            //    if( !f_psr_idDefined( $1,ID_FUNC) )
+            //        $$ = NULL;
             }
 ;
 
@@ -1121,7 +1156,14 @@ _f_psr_addID2CurrScp(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
     {
         yyerror(pPsrParams,errorMsg);
     }
-    else f_psr_iTable_add(pTable,tId);
+    else
+    {
+        if( (ID_VAR == iIdType) &&
+            _f_psr_isIDinCurrScp(PSR_LOC_SCP,ID_TRAN(tId,ID_ARG),ID_ARG) 
+        ) yyerror(pPsrParams,"The identifier has declared as an argument!");
+
+        f_psr_iTable_add( pTable,f_tg_bindId_new(tId,NULL) );
+    }
 
     return tId;
 }

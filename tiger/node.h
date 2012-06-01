@@ -38,6 +38,8 @@
 )
 
 #define ND_NEW_ID(id) ND_NEW(E_NODE_TYPE_ID,id,0,0)
+#define ND_NEW_ITER(i,e,o) ND_NEW(E_NODE_TYPE_ITER,i,e,o)
+#define ND_NEW_CALL(id,args) ND_NEW(E_NODE_TYPE_CALL,id,args,0)
 #define ND_NEW_NUM(num) ND_NEW(E_NODE_TYPE_NUM,num,0,0)
 #define ND_NEW_STR(str) ND_NEW(E_NODE_TYPE_STR,str,0,0)
 #define ND_NEW_IF(c,t,e) ND_NEW(E_NODE_TYPE_IF,c,t,e)
@@ -98,6 +100,8 @@ enum tg_nodeType_e
     E_NODE_TYPE_OF,
     E_NODE_TYPE_END,
     E_NODE_TYPE_ID,
+    E_NODE_TYPE_ITER,
+    E_NODE_TYPE_CALL,
     E_NODE_TYPE_NUM,
     E_NODE_TYPE_STR,
     E_NODE_TYPE_LAST

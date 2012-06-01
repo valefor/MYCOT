@@ -10,7 +10,7 @@ let // line comments
     type intArray = array of int;
     type i = array of int;
     type j = int;
-    type record = { name:string, count:int };
+    type record = { name:string, count:int, r:intArray };
 
     var row := intArray [ N ] of 0;
     var col := intArray [ N ] of 0;
@@ -29,6 +29,7 @@ let // line comments
         );
 
     function try(c:m) = (
+    var c;
     if c==N
     then printboard()
     else for r:=0 to N-1
