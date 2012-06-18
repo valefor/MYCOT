@@ -220,14 +220,16 @@ enum psr_dbgLevel_e
 };
 
 tg_node_t * f_psr_getNodeById(psr_params_t *,tg_id_t);
-tg_id_t f_psr_str2Id(psr_params_t *,const char *);
+tg_id_t f_psr_str2Id(psr_params_t *,const char *,int);
+char * f_psr_id2str(psr_params_t *,tg_id_t,int);
 
 #define PSR_ROOT_SCP ffffffff0x
 #define PSR_LOC_SCP pPsrParams->psr_locScp
 #define PSR_LOG_ERROR(errorMsg) f_psr_log(E_PSR_DBG_ERROR,pPsrParams,errorMsg)
 #define PSR_LOG_WARNING(errorMsg) f_psr_log(E_PSR_DBG_WARN,pPsrParams,errorMsg)
 #define PSR_GET_NODE(id) f_psr_getNodeById(pPsrParams,id)
-#define PSR_STR2ID(str) f_psr_str2Id(pPsrParams,str)
+#define PSR_VAR2ID(str) f_psr_str2Id(pPsrParams,str,ID_VAR)
+#define PSR_TYPE2ID(str) f_psr_str2Id(pPsrParams,str,ID_TYPE)
 //#define PSR_LSS_PUSH() f_psr_lss_push(pPsrParams)
 //#define PSR_LSS_POP() f_psr_lss_pop(pPsrParams)
 
@@ -628,11 +630,11 @@ typeDef : KW_TYPE
 typeRef : type
         | KW_INT
             {
-            $$ = ND_NEW_TYPEDEC(PSR_STR2ID("int"),NULL);
+            $$ = ND_NEW_TYPEDEC(PSR_TYPE2ID("int"),NULL);
             }
         | KW_STR
             {
-            $$ = ND_NEW_TYPEDEC(PSR_STR2ID("string"),NULL);
+            $$ = ND_NEW_TYPEDEC(PSR_TYPE2ID("string"),NULL);
             }
 ;
 
@@ -672,7 +674,11 @@ typeField   : none
         |
         ID ':' typeRef
             {
-            $<id>1 = f_psr_addID2CurrScp($1,ID_FIELD);
+            if( yylexs == E_PSR_LS_ARGS )
+                $<id>1 = f_psr_addID2CurrScp($1,ID_ARG);
+            else if (  yylexs == E_PSR_LS_TYPEFEILD )
+                $<id>1 = f_psr_addID2CurrScp($1,ID_FIELD);
+            else yyerror(pPsrParams,"FATAL ERROR OCCURED!");
             $$ = ND_NEW_TFEILD($1,$3);
             }
 ;
@@ -731,6 +737,17 @@ funcArgsRet: '('
             }
         typeFields
             {
+            int i = 0;
+            for(;i < pPsrParams->psr_locScp->args->cap; i++)
+            {
+                char * pStr = f_psr_id2str(
+                        pPsrParams,
+                        pPsrParams->psr_locScp->args->table[i]->id,
+                        ID_ARG
+                    );
+                // move arg to var
+                f_psr_addID2CurrScp(pStr,ID_VAR);
+            }
             yylexs = E_PSR_LS_UNDEF;
             }
         ')'
@@ -1070,13 +1087,68 @@ f_psr_getNodeById(psr_params_t *pPsrParams,tg_id_t id)
 
 // NOT IMPLEMENTED YET
 tg_id_t
-f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr)
+f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr,int iIdType)
 {
     tg_id_t *pId;
-    if( f_st_lookup(pPsrParams->psr_tgVarSymbols->str2idTbl,pStr,pId) )
+    tg_symbols_t *pSymbols;
+    switch(iIdType)
+    {
+        case ID_VAR:
+            pSymbols= pPsrParams->psr_tgVarSymbols;
+            break;
+        case ID_ARG:
+            pSymbols= pPsrParams->psr_tgArgSymbols;
+            break;
+        case ID_TYPE:
+            pSymbols= pPsrParams->psr_tgTypeSymbols;
+            break;
+        case ID_FIELD:
+            pSymbols= pPsrParams->psr_tgArgSymbols;
+            break;
+        case ID_FUNC :
+            pSymbols= pPsrParams->psr_tgFuncSymbols;
+            break;
+        default :
+            // unreachable!
+            return NULL;
+    }
+    if( f_st_lookup(pSymbols->str2idTbl,pStr,pId) )
         return *pId;
     else
-        return 0;
+        return NULL;
+}
+
+char *
+f_psr_id2str(psr_params_t *pPsrParams,tg_id_t tId,int iIdType)
+{
+    char ** pStr;
+    tg_symbols_t *pSymbols;
+    switch(iIdType)
+    {
+        case ID_VAR:
+            pSymbols= pPsrParams->psr_tgVarSymbols;
+            break;
+        case ID_ARG:
+            pSymbols= pPsrParams->psr_tgArgSymbols;
+            break;
+        case ID_TYPE:
+            pSymbols= pPsrParams->psr_tgTypeSymbols;
+            break;
+        case ID_FIELD:
+            pSymbols= pPsrParams->psr_tgArgSymbols;
+            break;
+        case ID_FUNC :
+            pSymbols= pPsrParams->psr_tgFuncSymbols;
+            break;
+        default :
+            // unreachable!
+            return NULL;
+    }
+    if( f_st_lookup(pSymbols->str2idTbl,tId,pStr) )
+        return *pStr;
+    else
+        return NULL;
+
 }
 
 /* ^Hidden _Funtion!Don't call it explicitly! */
@@ -1107,7 +1179,8 @@ _f_psr_intern(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
             pSymbols= pPsrParams->psr_tgFuncSymbols;
             break;
         default :
-            break;
+            // unreachable!
+            return NULL;
     }
 
     if( !f_tg_symbolExisted(pExtId,pSymbols,&tId) )
@@ -1158,10 +1231,16 @@ _f_psr_addID2CurrScp(psr_params_t *pPsrParams,const tg_id_t tExtId,int iIdType)
     }
     else
     {
+    /*
         if( (ID_VAR == iIdType) &&
-            _f_psr_isIDinCurrScp(PSR_LOC_SCP,ID_TRAN(tId,ID_ARG),ID_ARG) 
+            _f_psr_isIDinCurrScp(
+                PSR_LOC_SCP,
+                f_psr_str2Id(pPsrParams,(char *)tExtId,ID_ARG),
+                ID_ARG
+            ) 
         ) yyerror(pPsrParams,"The identifier has declared as an argument!");
-
+        else
+    */
         f_psr_iTable_add( pTable,f_tg_bindId_new(tId,NULL) );
     }
 
