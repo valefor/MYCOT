@@ -29,7 +29,7 @@ let // line comments
         );
 
     function try(c:m) = (
-    var c;
+    //var c;
     if c==N
     then printboard()
     else for r:=0 to N-1

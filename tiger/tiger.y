@@ -221,7 +221,7 @@ enum psr_dbgLevel_e
 
 tg_node_t * f_psr_getNodeById(psr_params_t *,tg_id_t);
 tg_id_t f_psr_str2Id(psr_params_t *,const char *,int);
-char * f_psr_id2str(psr_params_t *,tg_id_t,int);
+char * f_psr_id2Str(psr_params_t *,tg_id_t,int);
 
 #define PSR_ROOT_SCP ffffffff0x
 #define PSR_LOC_SCP pPsrParams->psr_locScp
@@ -738,9 +738,9 @@ funcArgsRet: '('
         typeFields
             {
             int i = 0;
-            for(;i < pPsrParams->psr_locScp->args->cap; i++)
+            for(;i < pPsrParams->psr_locScp->args->pos; i++)
             {
-                char * pStr = f_psr_id2str(
+                char * pStr = f_psr_id2Str(
                         pPsrParams,
                         pPsrParams->psr_locScp->args->table[i]->id,
                         ID_ARG
@@ -1119,9 +1119,10 @@ f_psr_str2Id(psr_params_t *pPsrParams,const char * pStr,int iIdType)
 }
 
 char *
-f_psr_id2str(psr_params_t *pPsrParams,tg_id_t tId,int iIdType)
+f_psr_id2Str(psr_params_t *pPsrParams,tg_id_t tId,int iIdType)
 {
-    char ** pStr;
+    char * pStr;
+    int i = 0;
     tg_symbols_t *pSymbols;
     switch(iIdType)
     {
@@ -1144,10 +1145,14 @@ f_psr_id2str(psr_params_t *pPsrParams,tg_id_t tId,int iIdType)
             // unreachable!
             return NULL;
     }
-    if( f_st_lookup(pSymbols->str2idTbl,tId,pStr) )
-        return *pStr;
+    if( i = f_st_lookup(pSymbols->id2strTbl,tId,&pStr) )
+    {
+        return pStr;
+    }
     else
+    {
         return NULL;
+    }
 
 }
 
