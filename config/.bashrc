@@ -111,8 +111,7 @@ unset TEMP
 # Misc :)
 # alias less='less -r'                          # raw control characters
 # alias whence='type -a'                        # where, of a sort
-alias grep='grep --color'                     # show differences in colour
-PATH='~/bin/':$PATH
+# alias grep='grep --color'                     # show differences in colour
 
 # Some shortcuts for different directory listings
 alias ls='ls -hF --color=tty'                 # classify files in colour
@@ -121,15 +120,25 @@ alias ls='ls -hF --color=tty'                 # classify files in colour
 alias ll='ls -l'                              # long list
 # alias la='ls -A'                              # all but . and ..
 # alias l='ls -CF'                              #
-alias rbin='cd ~/script/ruby/'
-alias cbin='cd ~/c'
-alias jbin='cd ~/java'
-alias rabin='cd /cygdrive/c/InstantRails-2.0-win/'
-alias sshg='ssh -T git@github.com'
 
 # Functions
 # #########
 
 # Some example functions
 # function settitle() { echo -ne "\e]2;$@\a\e]1;$@\a"; }
+
+#start gdb
+#export CYGWIN="$CYGWIN error_start=gdb -nw %1 %2"
+# generate core dump
+#export CYGWIN="$CYGWIN error_start=dumper.exe -d %1 %2"
+
+# customized ALIAS
+alias sshg='ssh -T git@github.com'
+alias vi='gvim'
+alias ls='/bin/ls --show-control-chars'
+
+# For QT
+QTDIR=/usr/lib/qt4
+export PATH=$PATH':/usr/lib/qt4/bin'
+
 
