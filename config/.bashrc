@@ -120,6 +120,11 @@ alias ls='ls -hF --color=tty'                 # classify files in colour
 alias ll='ls -l'                              # long list
 # alias la='ls -A'                              # all but . and ..
 # alias l='ls -CF'                              #
+alias rbin='cd ~/script/ruby/'
+alias cbin='cd ~/c'
+alias jbin='cd ~/java'
+alias rabin='cd /cygdrive/c/InstantRails-2.0-win/'
+alias sshg='ssh -T git@github.com'
 
 # Functions
 # #########
@@ -135,7 +140,17 @@ alias ll='ls -l'                              # long list
 # customized ALIAS
 alias sshg='ssh -T git@github.com'
 alias vi='gvim'
+
+# Support Chinese Chars
+export XMODIFIERS="@im=Chinput"3
+export LC_CTYPE=zh_CN.gbk
+export CHARSET=GBK
 alias ls='/bin/ls --show-control-chars'
+
+#Go Env
+export GOROOT=/cygdrive/c/Go/
+export GOPATH=/cygdrive/c/Go/
+PATH=$GOROOT/bin:$PATH
 
 # For QT
 QTDIR=/usr/lib/qt4
