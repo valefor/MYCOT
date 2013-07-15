@@ -3,8 +3,7 @@
 
 let // line comments
 
-    var i,j:=m,r;// temporary variable
-    var N := 8;
+    var i,j:=i,r;// temporary variable
     var N := 8;
 
     type intArray = array of int;
@@ -28,8 +27,8 @@ let // line comments
             print("\n")
         );
 
-    function try(c:m) = (
-    //var c;
+    function try(c:int) = (
+    var c;
     if c==N
     then printboard()
     else for r:=0 to N-1
@@ -48,8 +47,6 @@ let // line comments
                 )
     );
 
-    function try() = ();
-
-    in try(0)
+    in tr(0)
 end
 
