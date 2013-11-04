@@ -156,4 +156,8 @@ PATH=$GOROOT/bin:$PATH
 QTDIR=/usr/lib/qt4
 export PATH=$PATH':/usr/lib/qt4/bin'
 
+# For dmalloc
+# Then use this cli: dmalloc -l logfile -i 100 low
+# When compile c or c++ file: gcc -DDMALLOC -DDMALLOC_FUNC_CHECK test.c
+function dmalloc { eval `command dmalloc -b $*`; }
 
