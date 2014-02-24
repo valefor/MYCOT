@@ -111,7 +111,9 @@ unset TEMP
 # Misc :)
 # alias less='less -r'                          # raw control characters
 # alias whence='type -a'                        # where, of a sort
-# alias grep='grep --color'                     # show differences in colour
+alias grep='grep --color'                     # show differences in colour
+PATH='~/bin/':$PATH
+TTCN3_LICENSE_FILE=C:\cygwin\home\ehuufei\ttcn3-1.8.pl6\license\license.dat
 
 # Some shortcuts for different directory listings
 alias ls='ls -hF --color=tty'                 # classify files in colour
@@ -132,20 +134,25 @@ alias sshg='ssh -T git@github.com'
 # Some example functions
 # function settitle() { echo -ne "\e]2;$@\a\e]1;$@\a"; }
 
+export TTCN3_LICENSE_FILE
+
 #start gdb
-#export CYGWIN="$CYGWIN error_start=gdb -nw %1 %2"
+export CYGWIN="$CYGWIN error_start=gdb -nw %1 %2"
 # generate core dump
 #export CYGWIN="$CYGWIN error_start=dumper.exe -d %1 %2"
 
-# customized ALIAS
-alias sshg='ssh -T git@github.com'
+# Shared Memory
+export CYGWIN="$CYGWIN sever X"
+
+# Display remote, so we can invoke graphic app in shell
+export DISPLAY=:0.0
+
 alias vi='gvim'
 
 # Support Chinese Chars
-export XMODIFIERS="@im=Chinput"3
-export LC_CTYPE=zh_CN.gbk
-export CHARSET=GBK
-alias ls='/bin/ls --show-control-chars'
+#export LC_CTYPE=zh_CN.gbk
+#export CHARSET=GBK
+alias ls='/bin/ls --color --show-control-chars'
 
 #Go Env
 export GOROOT=/cygdrive/c/Go/
@@ -153,11 +160,8 @@ export GOPATH=/cygdrive/c/Go/
 PATH=$GOROOT/bin:$PATH
 
 # For QT
-QTDIR=/usr/lib/qt4
-export PATH=$PATH':/usr/lib/qt4/bin'
+#QTDIR=/usr/lib/qt4
+#export PATH=$PATH':/usr/lib/qt4/bin'
 
 # For dmalloc
-# Then use this cli: dmalloc -l logfile -i 100 low
-# When compile c or c++ file: gcc -DDMALLOC -DDMALLOC_FUNC_CHECK test.c
 function dmalloc { eval `command dmalloc -b $*`; }
-

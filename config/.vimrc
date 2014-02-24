@@ -72,19 +72,19 @@ imap <F4> <ESC>:set invnumber<CR>l5<C-w>hi
 
 " Refresh
 map <F6> :e!<CR>5<C-w>h
-imap <F6> <ESC>:e!<CR>l5<C-w>hi  
+imap <F6> <ESC>:e!<CR>l5<C-w>hi
 
 "New Tab
 map <F10> :tabnew<CR>5<C-w>h
-imap <F10> <ESC>:tabnew<CR>l5<C-w>hi  
+imap <F10> <ESC>:tabnew<CR>l5<C-w>hi
 
 "previous Tab
 map <F11> :tabp<CR>5<C-w>h
-imap <F11> <ESC>:tabp<CR>l5<C-w>hi  
+imap <F11> <ESC>:tabp<CR>l5<C-w>hi
 
 "next Tab
 map <F12> :tabn<CR>5<C-w>h
-imap <F12> <ESC>:tabn<CR>l5<C-w>hi  
+imap <F12> <ESC>:tabn<CR>l5<C-w>hi
 
 map <MouseDown> :<C-Y>
 map <MouseUp> :<C-E>
@@ -95,7 +95,7 @@ map <MouseUp> :<C-E>
 "Upcase the first char of word in current line
 nmap gUu :.s/\([_\s]*\)\([0-9a-zA-Z]*\)/\=submatch(1).substitute(tolower(submatch(2)),'.*','\u&','g')/g<CR>
 
-nmap fu :set fileformat=unix<CR><F2> 
+nmap fu :set fileformat=unix<CR><F2>
 nmap fd :set fileformat=dos<CR><F2>
 "nmap cp :!cp -f % c:\cygwin\home\ehuufei\ttcn\quick_test<CR><ESC>
 " In unix erv
@@ -169,3 +169,16 @@ nmap ,at :!avpfmt % REPLACE <CR>
 nmap ,mt :!mfmt % <CR>
 " Super Module format
 nmap ,st :g/\(^\s*$\n\)*\(\/\/\s*\w*\n\)*import from.\n*/d<CR>:!mfmt % <CR>
+
+"==================================
+" C++ keywords highlights
+"==================================
+" !Install Syntastic first: https://github.com/scrooloose/syntastic
+execute pathogen#infect()
+" For g++
+nmap gpl :!g++ -std=c++11 % <CR>
+nmap cpl :!clang % <CR>
+let g:syntastic_cpp_compiler_options = ' -std=c++11'
+" For clang
+"let g:syntastic_cpp_compiler = 'clang++'
+"let g:syntastic_cpp_compiler_options = ' -std=c++11 -stdlib=libc++'
