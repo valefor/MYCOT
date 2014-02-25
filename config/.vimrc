@@ -106,6 +106,18 @@ nmap fd :set fileformat=dos<CR><F2>
 nmap ZC :.s/^\(.*\)$/\/\*\1\*\/<CR>:set nohlsearch<CR><ESC>j
 nmap Zc :.s/\/\*\(.*\)\*\//\1<CR>:set nohlsearch<CR><ESC>j
 
+"------------------------------------------------------------------------
+" Alucard's fast edit
+"------------------------------------------------------------------------
+nmap zy viwy
+nmap zp viwp
+
+"------------------------------------------------------------------------
+" Set options and add mapping such that Vim behaves a lot like MS-Windows
+"------------------------------------------------------------------------
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
 "==================================
 "The custom function
 "==================================
