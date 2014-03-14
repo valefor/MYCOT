@@ -1,0 +1,30 @@
+﻿"Name"             = 'TTCN-3 Compiler'
+"Version"          = '1.0'
+"Author"           = 'Adrian Hu'
+"About"            = 'TTCN-3 Compiler'
+
+"Case Sensitive"   = True
+"Start Symbol"     = <Calculations>
+
+Comment Start      = '/*'
+Comment End        = '*/'
+Comment Line       = '//'
+
+DecLiteral         = ([123456789]{Number}* | 0)
+
+
+<Calculations>   ::= <Calculate> <Calculations>
+                   |
+
+<Calculate>      ::= 'print' '(' <Expression> ')'
+
+<Expression>     ::= <MultiplyDivide> '+' <Expression>
+                   | <MultiplyDivide> '-' <Expression>
+                   | <MultiplyDivide>
+
+<MultiplyDivide> ::= <Value> '*' <MultiplyDivide>
+                   | <Value> '/' <MultiplyDivide>
+                   | <Value>
+
+<Value>          ::= DecLiteral
+                   | '(' <Expression> ')'

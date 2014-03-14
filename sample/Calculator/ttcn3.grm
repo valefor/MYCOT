@@ -1,0 +1,954 @@
+"Name"             = 'TTCN-3 Compiler'
+"Version"          = '1.0'
+"Author"           = 'Adrian Hu'
+"About"            = 'TTCN-3 Compiler'
+
+"Case Sensitive"   = True
+"Start Symbol"     = <TTCN3Module>
+
+Comment Start      = '/*'
+Comment End        = '*/'
+Comment Line       = '//'
+
+DecLiteral         = ([123456789]{Number}* | 0)
+
+! Gold Parser only support BNF
+
+<TTCN3Module> ::= <TTCN3ModuleKeyword> <TTCN3ModuleId> '{' <TTCN3ModuleBody> '}' <TTCN3ModuleTail>
+
+<TTCN3ModuleBody> ::= <ModuleDefinitionsPart> <ModuleControlPart>
+                  | <ModuleDefinitionsPart>
+                  | <ModuleControlPart>
+                  |
+                  
+<TTCN3ModuleTail> ::= <WithStatement> <SemiColon>
+                  | <WithStatement>
+                  | <SemiColon>
+                  |
+                  
+<TTCN3ModuleKeyword> ::= 'module'
+
+<TTCN3ModuleId> ::= <ModuleId>
+
+<ModuleId> ::= <GlobalModuleId>
+           | <GlobalModuleId> <LanguageSpec>
+
+
+<GlobalModuleId> ::= <ModuleIdentifier>
+<ModuleIdentifier> ::= <Identifier>
+<LanguageSpec> ::= <LanguageKeyword> <FreeText>
+<LanguageKeyword> ::= 'language'
+
+<ModuleDefinitionsPart> ::= <ModuleDefinitionsList>
+<ModuleDefinitionsList> ::= <ModuleDefinitionsElement> <ModuleDefinitionsList>
+<ModuleDefinitionsElement> ::= <ModuleDefinition> <SemiColon>
+<ModuleDefinition>         ::= <ModuleDefinitionVar>
+                           | <ModuleDefinitionVar> <WithStatement>
+                           
+<ModuleDefinitionVar>     ::= <TypeDef>
+                          | <ConstDef>
+                          | <TemplateDef>
+                          | <ModuleParDef>
+                          | <FunctionDef>
+                          | <SignatureDef>
+                          | <TestcaseDef>
+                          | <AltstepDef>
+                          | <ImportDef>
+                          | <GroupDef>
+                          | <ExtFunctionDef>
+                          | <ExtConstDef>
+
+<TypeDef> ::= <TypeDefKeyword> <TypeDefBody>
+<TypeDefBody> ::= <StructuredTypeDef> | <SubTypeDef>
+<TypeDefKeyword> ::= 'type'
+<StructuredTypeDef> ::= <RecordDef>
+                    | <UnionDef>
+                    | <SetDef>
+                    | <RecordOfDef>
+                    | <SetOfDef>
+                    | <EnumDef>
+                    | <PortDef>
+                    | <ComponentDef>
+                    
+<RecordDef> ::= <RecordKeyword> <StructDefBody>
+<RecordKeyword> ::= 'record'
+
+<StructDefBody> ::= (<StructTypeIdentifier> [<StructDefFormalParList>] | <AddressKeyword>)
+                      '{' [<StructFieldDef> {',' <StructFieldDef>}] '}'
+<StructTypeIdentifier> ::= <Identifier>
+<StructDefFormalParList> ::= '(' <StructDefFormalPar> {',' <StructDefFormalPar>} ')'
+<StructDefFormalPar> ::=  <FormalValuePar>
+<StructFieldDef> ::= (<Type> | <NestedTypeDef>) <StructFieldIdentifier> [<ArrayDef>] [<SubTypeSpec>]
+                       [<OptionalKeyword>]
+<NestedTypeDef> ::= <NestedRecordDef> |
+                      <NestedUnionDef> |
+                      <NestedSetDef> |
+                      <NestedRecordOfDef> |
+                      <NestedSetOfDef> |
+                      <NestedEnumDef>
+<NestedRecordDef> ::= <RecordKeyword> '{' [<StructFieldDef> {',' <StructFieldDef>}] '}'
+<NestedUnionDef> ::= <UnionKeyword> '{' <UnionFieldDef> {',' <UnionFieldDef>} '}'
+<NestedSetDef> ::= <SetKeyword> '{' [<StructFieldDef> {',' <StructFieldDef>}] '}'
+<NestedRecordOfDef> ::= <RecordKeyword> [<StringLength>] <OfKeyword> (<Type> | <NestedTypeDef>)
+<NestedSetOfDef> ::= <SetKeyword> [<StringLength>] <OfKeyword> (<Type> | <NestedTypeDef>)
+<NestedEnumDef> ::= <EnumKeyword> '{' <EnumerationList> '}'
+<StructFieldIdentifier> ::= <Identifier>
+<OptionalKeyword> ::= 'optional'
+<UnionDef> ::= <UnionKeyword> <UnionDefBody>
+<UnionKeyword> ::= 'union'
+<UnionDefBody> ::= (<StructTypeIdentifier> [<StructDefFormalParList>] | <AddressKeyword>)
+                     '{' <UnionFieldDef> {',' <UnionFieldDef>} '}'
+<UnionFieldDef> ::= (<Type> | <NestedTypeDef>) <StructFieldIdentifier> [<ArrayDef>] [<SubTypeSpec>]
+<SetDef> ::= <SetKeyword> <StructDefBody>
+<SetKeyword> ::= 'set'
+<RecordOfDef> ::= <RecordKeyword> [<StringLength>] <OfKeyword> <StructOfDefBody>
+<OfKeyword> ::= 'of'
+<StructOfDefBody> ::= (<Type> | <NestedTypeDef>) (<StructTypeIdentifier> | <AddressKeyword>) [<SubTypeSpec>]
+<SetOfDef> ::= <SetKeyword> [<StringLength>] <OfKeyword> <StructOfDefBody>
+<EnumDef> ::= <EnumKeyword> (<EnumTypeIdentifier> | <AddressKeyword>)
+                '{' <EnumerationList> '}'
+<EnumKeyword> ::= 'enumerated'
+
+<EnumTypeIdentifier> ::= <Identifier>
+<EnumerationList> ::= <Enumeration> {',' <Enumeration>}
+<Enumeration> ::= <EnumerationIdentifier> ['('[<Minus>] <Number> ')']
+<EnumerationIdentifier> ::= <Identifier>
+<SubTypeDef> ::= <Type> (<SubTypeIdentifier> | <AddressKeyword>)  [<ArrayDef>] [<SubTypeSpec>]
+<SubTypeIdentifier> ::= <Identifier>
+<SubTypeSpec> ::= <AllowedValues> [<StringLength>] | <StringLength>
+<AllowedValues> ::= '(' (<ValueOrRange> {',' <ValueOrRange>}) | <CharStringMatch> ')'
+<ValueOrRange> ::= <RangeDef> | <ConstantExpression>
+<RangeDef> ::= <LowerBound> '..' <UpperBound>
+<StringLength> ::= <LengthKeyword> '(' <SingleConstExpression> ['..' <UpperBound>] ')'
+<record> <of>. <SingleConstExpression> <and> <UpperBound> <shall> <evaluate> <to> <non>-<negative> <integer> <values> (<in>
+<LengthKeyword> ::= 'length'
+<PortType> ::= [<GlobalModuleId> <Dot>] <PortTypeIdentifier>
+<PortDef> ::= <PortKeyword> <PortDefBody>
+<PortDefBody> ::= <PortTypeIdentifier> <PortDefAttribs>
+<PortKeyword> ::= 'port'
+<PortTypeIdentifier> ::= <Identifier>
+<PortDefAttribs> ::= <MessageAttribs> | <ProcedureAttribs> | <MixedAttribs>
+<MessageAttribs> ::= <MessageKeyword>
+                       '{' {<MessageList> [<SemiColon>]}+ '}'
+<MessageList> ::= <Direction> <AllOrTypeList>
+<Direction> ::= <InParKeyword> | <OutParKeyword> | <InOutParKeyword>
+<MessageKeyword> ::= 'message'
+<AllOrTypeList> ::= <AllKeyword> | <TypeList>
+<AllKeyword> ::= 'all'
+<TypeList> ::= <Type> {',' <Type>}
+<ProcedureAttribs> ::= <ProcedureKeyword>
+                         '{' {<ProcedureList>  [<SemiColon>]}+ '}'
+<ProcedureKeyword> ::= 'procedure'
+<ProcedureList> ::= <Direction> <AllOrSignatureList>
+<AllOrSignatureList> ::= <AllKeyword> | <SignatureList>
+<SignatureList> ::= <Signature> {',' <Signature>}
+<MixedAttribs> ::= <MixedKeyword>
+                     '{' {<MixedList> [<SemiColon>]}+ '}'
+<MixedKeyword> ::= 'mixed'
+<MixedList> ::= <Direction> <ProcOrTypeList>
+<ProcOrTypeList> ::= <AllKeyword> | (<ProcOrType> {',' <ProcOrType>})
+<ProcOrType> ::= <Signature> | <Type>
+<ComponentDef> ::= <ComponentKeyword> <ComponentTypeIdentifier>
+                     [<ExtendsKeyword> <ComponentType> {',' <ComponentType>}]
+                     '{' [<ComponentDefList>] '}'
+<ComponentKeyword> ::= 'component'
+<ExtendsKeyword> ::= 'extends'
+<ComponentType> ::= [<GlobalModuleId> <Dot>] <ComponentTypeIdentifier>
+<ComponentTypeIdentifier> ::= <Identifier>
+<ComponentDefList> ::= {<ComponentElementDef> [<SemiColon>]}
+<ComponentElementDef> ::= <PortInstance> | <VarInstance> | <TimerInstance> | <ConstDef>
+<PortInstance> ::= <PortKeyword> <PortType> <PortElement> {',' <PortElement>}
+<PortElement> ::= <PortIdentifier> [<ArrayDef>]
+<PortIdentifier> ::= <Identifier>
+
+<ConstDef> ::= <ConstKeyword> <Type> <ConstList>
+<ConstList> ::= <SingleConstDef>  {',' <SingleConstDef>}
+<SingleConstDef> ::= <ConstIdentifier> [<ArrayDef>] <AssignmentChar> <ConstantExpression>
+<ConstKeyword> ::= 'const'
+<ConstIdentifier> ::= <Identifier>
+
+
+
+<TemplateDef> ::= <TemplateKeyword> <BaseTemplate>  [<DerivedDef>] <AssignmentChar> <TemplateBody>
+<BaseTemplate> ::= (<Type> | <Signature>) <TemplateIdentifier>  ['(' <TemplateFormalParList> ')']
+<TemplateKeyword> ::= 'template'
+<TemplateIdentifier> ::= <Identifier>
+<DerivedDef> ::= <ModifiesKeyword> <TemplateRef>
+<ModifiesKeyword> ::= 'modifies'
+<TemplateFormalParList> ::= <TemplateFormalPar> {',' <TemplateFormalPar>}
+<TemplateFormalPar> ::= <FormalValuePar> | <FormalTemplatePar>
+<TemplateBody> ::= (<SimpleSpec> | <FieldSpecList> | <ArrayValueOrAttrib>) | [<ExtraMatchingAttributes>]
+<SimpleSpec> ::= <SingleValueOrAttrib>
+<FieldSpecList> ::= '{'[<FieldSpec> {',' <FieldSpec>}] '}'
+<FieldSpec> ::= <FieldReference> <AssignmentChar> <TemplateBody>
+<FieldReference> ::= <StructFieldRef> | <ArrayOrBitRef> | <ParRef>
+<StructFieldRef> ::= <StructFieldIdentifier>| <PredefinedType> | <TypeReference>
+
+<ParRef> ::= <SignatureParIdentifier>
+<SignatureParIdentifier> ::= <ValueParIdentifier>
+<ArrayOrBitRef> ::= '[' <FieldOrBitNumber> ']'
+<SEQUENCE> <OF> <and> <TTCN>-<3> <record> <of> <and> <set> <of>. <The> <same> <notation> <can> <be> <used> <for> <a> <Bit> <reference>
+<FieldOrBitNumber> ::= <SingleExpression>
+<SingleValueOrAttrib> ::= <MatchingSymbol> |
+                             <SingleExpression> |
+                             <TemplateRefWithParList>
+<ArrayValueOrAttrib> ::= '{' <ArrayElementSpecList> '}'
+<ArrayElementSpecList> ::= <ArrayElementSpec> {',' <ArrayElementSpec>}
+<ArrayElementSpec> ::= <NotUsedSymbol> | <PermutationMatch> | <TemplateBody>
+<NotUsedSymbol> ::= <Dash>
+<MatchingSymbol> ::= <Complement> |
+                        <AnyValue> |
+                        <AnyOrOmit> |
+                        <ValueOrAttribList> |
+                        <Range> |
+                        <BitStringMatch> |
+                        <HexStringMatch> |
+                        <OctetStringMatch> |
+                        <CharStringMatch> |
+                        <SubsetMatch> |
+                        <SupersetMatch>
+<ExtraMatchingAttributes> ::= <LengthMatch> | <IfPresentMatch> | <LengthMatch>  <IfPresentMatch>
+<BitStringMatch> ::= $$' {<BinOrMatch>} $$' 'B'
+<BinOrMatch> ::= <Bin> | <AnyValue> | <AnyOrOmit>
+<HexStringMatch> ::= $$' {<HexOrMatch>} $$' 'H'
+<HexOrMatch> ::= <Hex> | <AnyValue> | <AnyOrOmit>
+<OctetStringMatch> ::= $$' {<OctOrMatch>} $$' 'O'
+<OctOrMatch> ::= <Oct> | <AnyValue> | <AnyOrOmit>
+<CharStringMatch> ::= <PatternKeyword> <Cstring>
+<PatternKeyword> ::= 'pattern'
+<Complement> ::= <ComplementKeyword> <ValueList>
+<ComplementKeyword> ::= 'complement'
+<ValueList> ::= '(' <ConstantExpression> {',' <ConstantExpression>} ')'
+<SubsetMatch> ::= <SubsetKeyword> <ValueList>
+<SubsetKeyword> ::= 'subset'
+<SupersetMatch> ::= <SupersetKeyword> <ValueList>
+<SupersetKeyword> ::= 'superset'
+<PermutationMatch> ::= <PermutationKeyword> <PermutationList>
+<PermutationKeyword> ::= 'permutation'
+<PermutationList> ::= '(' <TemplateBody> { ',' <TemplateBody> } ')'
+<AnyValue> ::= '?'
+<AnyOrOmit> ::= '*'
+
+<ValueOrAttribList> ::= '(' <TemplateBody> {',' <TemplateBody>}+ ')'
+<LengthMatch> ::= <StringLength>
+<IfPresentMatch> ::= <IfPresentKeyword>
+<IfPresentKeyword> ::= 'ifpresent'
+<Range> ::= '(' <LowerBound> '..' <UpperBound> ')'
+<LowerBound> ::= <SingleConstExpression> | <Minus> <InfinityKeyword>
+<UpperBound> ::= <SingleConstExpression> | <InfinityKeyword>
+<universal> <charstring> <or> <float>. <In> <case> <LowerBound> <or> <UpperBound> <evaluates> <to> <types> <charstring> <or>
+<InfinityKeyword> ::= 'infinity'
+<TemplateInstance> ::= <InLineTemplate>
+<TemplateRefWithParList> ::= [<GlobalModuleId> <Dot>] <TemplateIdentifier> [<TemplateActualParList>] |
+                                <TemplateParIdentifier>
+<TemplateRef> ::= [<GlobalModuleId> <Dot>] <TemplateIdentifier> | <TemplateParIdentifier>
+<InLineTemplate> ::= [(<Type> | <Signature>) <Colon>] [<DerivedRefWithParList> <AssignmentChar>]
+                        <TemplateBody>
+<DerivedRefWithParList> ::= <ModifiesKeyword> <TemplateRefWithParList>
+<TemplateActualParList> ::= '(' <TemplateActualPar> {',' <TemplateActualPar>} ')'
+<TemplateActualPar> ::= <TemplateInstance>
+<TemplateOps> ::= <MatchOp> | <ValueofOp>
+<MatchOp> ::= <MatchKeyword> '(' <Expression> ',' <TemplateInstance>')'
+<MatchKeyword> ::= 'match'
+<ValueofOp> ::= <ValueofKeyword> '(' <TemplateInstance>')'
+<ValueofKeyword> ::= 'valueof'
+
+<FunctionDef> ::= <FunctionKeyword> <FunctionIdentifier>
+                     '('[<FunctionFormalParList>] ')' [<RunsOnSpec>] [<ReturnType>]
+                     <StatementBlock>
+<FunctionKeyword> ::= 'function'
+<FunctionIdentifier> ::= <Identifier>
+<FunctionFormalParList> ::= <FunctionFormalPar> {',' <FunctionFormalPar>}
+<FunctionFormalPar> ::= <FormalValuePar> |
+                           <FormalTimerPar> |
+                           <FormalTemplatePar> |
+                           <FormalPortPar>
+<ReturnType> ::= <ReturnKeyword> [<TemplateKeyword>] <Type>
+<ReturnKeyword> ::= 'return'
+<RunsOnSpec> ::= <RunsKeyword> <OnKeyword> <ComponentType>
+<RunsKeyword> ::= 'runs'
+<OnKeyword> ::= 'on'
+<MTCKeyword> ::= 'mtc'
+<StatementBlock> ::= '{' [<FunctionStatementOrDefList>] '}'
+<FunctionStatementOrDefList> ::= {<FunctionStatementOrDef> [<SemiColon>]}+
+<FunctionStatementOrDef> ::= <FunctionLocalDef> |
+                                <FunctionLocalInst> |
+                                <FunctionStatement>
+<FunctionLocalInst> ::= <VarInstance> | <TimerInstance>
+<FunctionLocalDef> ::= <ConstDef> | <TemplateDef>
+<FunctionStatement> ::= <ConfigurationStatements> |
+                           <TimerStatements> |
+                           <CommunicationStatements> |
+                           <BasicStatements> |
+                           <BehaviourStatements> |
+                           <VerdictStatements> |
+                           <SUTStatements>
+<FunctionInstance> ::= <FunctionRef> '(' [<FunctionActualParList>] ')'
+<FunctionRef> ::= [<GlobalModuleId> <Dot>] (<FunctionIdentifier> | <ExtFunctionIdentifier> ) |
+                     <PreDefFunctionIdentifier>
+<PreDefFunctionIdentifier> ::= <Identifier>
+<FunctionActualParList> ::= <FunctionActualPar> {',' <FunctionActualPar>}
+<FunctionActualPar> ::= <TimerRef> |
+                           <TemplateInstance> |
+                           <Port> |
+                           <ComponentRef>
+
+
+<SignatureDef> ::= <SignatureKeyword> <SignatureIdentifier>
+                      '('[<SignatureFormalParList>] ')' [<ReturnType> | <NoBlockKeyword>]
+                      [<ExceptionSpec>]
+<SignatureKeyword> ::= 'signature'
+<SignatureIdentifier> ::= <Identifier>
+<SignatureFormalParList> ::= <SignatureFormalPar> {',' <SignatureFormalPar>}
+<SignatureFormalPar> ::=   <FormalValuePar>
+<ExceptionSpec> ::= <ExceptionKeyword> '(' <ExceptionTypeList> ')'
+<ExceptionKeyword> ::= 'exception'
+<ExceptionTypeList> ::= <Type> {',' <Type>}
+<NoBlockKeyword> ::= 'noblock'
+<Signature> ::= [<GlobalModuleId> <Dot>] <SignatureIdentifier>
+
+<TestcaseDef> ::= <TestcaseKeyword> <TestcaseIdentifier>
+                     '('[<TestcaseFormalParList>] ')' <ConfigSpec>
+                     <StatementBlock>
+<TestcaseKeyword> ::= 'testcase'
+<TestcaseIdentifier> ::= <Identifier>
+<TestcaseFormalParList> ::= <TestcaseFormalPar> {',' <TestcaseFormalPar>}
+<TestcaseFormalPar> ::= <FormalValuePar> |
+                           <FormalTemplatePar>
+<ConfigSpec> ::= <RunsOnSpec> [<SystemSpec>]
+<SystemSpec> ::= <SystemKeyword> <ComponentType>
+<SystemKeyword> ::= 'system'
+<TestcaseInstance> ::= <ExecuteKeyword> '(' <TestcaseRef> '(' [<TestcaseActualParList>] ')'
+                          [',' <TimerValue>] ')'
+<ExecuteKeyword> ::= 'execute'
+<TestcaseRef> ::= [<GlobalModuleId> <Dot>] <TestcaseIdentifier>
+<TestcaseActualParList> ::= <TestcaseActualPar> {',' <TestcaseActualPar>}
+<TestcaseActualPar> ::= <TemplateInstance>
+
+<AltstepDef> ::= <AltstepKeyword> <AltstepIdentifier>
+                    '('[<AltstepFormalParList>] ')' [<RunsOnSpec>]
+                    '{' <AltstepLocalDefList> <AltGuardList> '}'
+<AltstepKeyword> ::= 'altstep'
+<AltstepIdentifier> ::= <Identifier>
+<AltstepFormalParList> ::= <FunctionFormalParList>
+<AltstepLocalDefList> ::= {<AltstepLocalDef> [<SemiColon>]}
+<AltstepLocalDef> ::= <VarInstance> | <TimerInstance> | <ConstDef> | <TemplateDef>
+<AltstepInstance> ::= <AltstepRef> '(' [<FunctionActualParList>] ')'
+<AltstepRef> ::= [<GlobalModuleId> <Dot>] <AltstepIdentifier>
+
+
+<ImportDef> ::= <ImportKeyword> <ImportFromSpec> (<AllWithExcepts> | ('{' <ImportSpec> '}'))
+<ImportKeyword> ::= 'import'
+<AllWithExcepts> ::= <AllKeyword> [<ExceptsDef>]
+<ExceptsDef> ::= <ExceptKeyword> '{' <ExceptSpec> '}'
+<ExceptKeyword> ::= 'except'
+<ExceptSpec> ::= {<ExceptElement> [<SemiColon>]}
+<ExceptElement> ::= <ExceptGroupSpec> |
+                       <ExceptTypeDefSpec> |
+                       <ExceptTemplateSpec> |
+                       <ExceptConstSpec> |
+                       <ExceptTestcaseSpec> |
+                       <ExceptAltstepSpec> |
+                       <ExceptFunctionSpec> |
+                       <ExceptSignatureSpec> |
+                       <ExceptModuleParSpec>
+<ExceptGroupSpec> ::= <GroupKeyword> (<ExceptGroupRefList> | <AllKeyword>)
+<ExceptTypeDefSpec> ::= <TypeDefKeyword> (<TypeRefList> | <AllKeyword>)
+<ExceptTemplateSpec> ::= <TemplateKeyword> (<TemplateRefList> | <AllKeyword>)
+<ExceptConstSpec> ::= <ConstKeyword> (<ConstRefList> | <AllKeyword>)
+<ExceptTestcaseSpec> ::= <TestcaseKeyword> (<TestcaseRefList> | <AllKeyword>)
+<ExceptAltstepSpec> ::= <AltstepKeyword> (<AltstepRefList> | <AllKeyword>)
+<ExceptFunctionSpec> ::= <FunctionKeyword> (<FunctionRefList> | <AllKeyword>)
+<ExceptSignatureSpec> ::= <SignatureKeyword>  (<SignatureRefList> | <AllKeyword>)
+<ExceptModuleParSpec> ::= <ModuleParKeyword>  (<ModuleParRefList> | <AllKeyword>)
+<ImportSpec> ::= {<ImportElement> [<SemiColon>]}
+<ImportElement> ::= <ImportGroupSpec> |
+                       <ImportTypeDefSpec> |
+                       <ImportTemplateSpec> |
+                       <ImportConstSpec> |
+                       <ImportTestcaseSpec> |
+                       <ImportAltstepSpec> |
+                       <ImportFunctionSpec> |
+                       <ImportSignatureSpec> |
+                       <ImportModuleParSpec>
+<ImportFromSpec> ::= <FromKeyword> <ModuleId> [<RecursiveKeyword>]
+<RecursiveKeyword> ::= 'recursive'
+<ImportGroupSpec> ::= <GroupKeyword> (<GroupRefListWithExcept> | <AllGroupsWithExcept>)
+<GroupRefList> ::= <FullGroupIdentifier> {',' <FullGroupIdentifier>}
+<GroupRefListWithExcept> ::= <FullGroupIdentifierWithExcept> {',' <FullGroupIdentifierWithExcept>}
+<AllGroupsWithExcept> ::= <AllKeyword> [<ExceptKeyword> <GroupRefList>]
+<FullGroupIdentifier> ::= <GroupIdentifier> {<Dot> <GroupIdentifier>}
+<FullGroupIdentifierWithExcept> ::= <FullGroupIdentifier> [<ExceptsDef>]
+<ExceptGroupRefList> ::= <ExceptFullGroupIdentifier> {',' <ExceptFullGroupIdentifier>}
+<ExceptFullGroupIdentifier> ::= <FullGroupIdentifier>
+<ImportTypeDefSpec> ::= <TypeDefKeyword> (<TypeRefList> | <AllTypesWithExcept>)
+<TypeRefList> ::= <TypeDefIdentifier> {',' <TypeDefIdentifier>}
+<AllTypesWithExcept> ::= <AllKeyword> [<ExceptKeyword> <TypeRefList>]
+<TypeDefIdentifier> ::= <StructTypeIdentifier> |
+                           <EnumTypeIdentifier> |
+                           <PortTypeIdentifier> |
+                           <ComponentTypeIdentifier> |
+                           <SubTypeIdentifier>
+<ImportTemplateSpec> ::= <TemplateKeyword> (<TemplateRefList> | <AllTemplsWithExcept>)
+<TemplateRefList> ::= <TemplateIdentifier> {',' <TemplateIdentifier>}
+<AllTemplsWithExcept> ::= <AllKeyword> [<ExceptKeyword> <TemplateRefList>]
+<ImportConstSpec> ::= <ConstKeyword> (<ConstRefList> | <AllConstsWithExcept>)
+<ConstRefList> ::= <ConstIdentifier> {',' <ConstIdentifier>}
+<AllConstsWithExcept> ::= <AllKeyword> [<ExceptKeyword> <ConstRefList>]
+<ImportAltstepSpec> ::= <AltstepKeyword> (<AltstepRefList> | <AllAltstepsWithExcept>)
+<AltstepRefList> ::= <AltstepIdentifier> {',' <AltstepIdentifier>}
+<AllAltstepsWithExcept> ::= <AllKeyword> [<ExceptKeyword> <AltstepRefList>]
+<ImportTestcaseSpec> ::= <TestcaseKeyword> (<TestcaseRefList> | <AllTestcasesWithExcept>)
+<TestcaseRefList> ::= <TestcaseIdentifier> {',' <TestcaseIdentifier>}
+<AllTestcasesWithExcept> ::= <AllKeyword> [<ExceptKeyword> <TestcaseRefList>]
+<ImportFunctionSpec> ::= <FunctionKeyword> (<FunctionRefList> | <AllFunctionsWithExcept>)
+<FunctionRefList> ::= <FunctionIdentifier> {',' <FunctionIdentifier>}
+<AllFunctionsWithExcept> ::= <AllKeyword> [<ExceptKeyword> <FunctionRefList>]
+<ImportSignatureSpec> ::= <SignatureKeyword>  (<SignatureRefList> | <AllSignaturesWithExcept>)
+<SignatureRefList> ::= <SignatureIdentifier> {',' <SignatureIdentifier>}
+<AllSignaturesWithExcept> ::= <AllKeyword> [<ExceptKeyword> <SignatureRefList>]
+<ImportModuleParSpec> ::= <ModuleParKeyword>  (<ModuleParRefList> | <AllModuleParWithExcept>)
+<ModuleParRefList> ::= <ModuleParIdentifier> {',' <ModuleParIdentifier>}
+<AllModuleParWithExcept> ::= <AllKeyword> [<ExceptKeyword> <ModuleParRefList>]
+
+
+<GroupDef> ::= <GroupKeyword> <GroupIdentifier>
+                  '{' [<ModuleDefinitionsPart>] '}'
+<GroupKeyword> ::= 'group'
+<GroupIdentifier> ::= <Identifier>
+
+<ExtFunctionDef> ::= <ExtKeyword> <FunctionKeyword> <ExtFunctionIdentifier>
+                        '('[<FunctionFormalParList>] ')' [<ReturnType>]
+<ExtKeyword> ::= 'external'
+<ExtFunctionIdentifier> ::= <Identifier>
+
+<ExtConstDef> ::= <ExtKeyword> <ConstKeyword> <Type> <ExtConstIdentifier>
+<ExtConstIdentifier> ::= <Identifier>
+
+<ModuleParDef> ::= <ModuleParKeyword> ( <ModulePar> | ('{' <MultitypedModuleParList> '}'))
+<ModuleParKeyword> ::= 'modulepar'
+<MultitypedModuleParList> ::= { <ModulePar> <SemiColon> }+
+<ModulePar> ::= <ModuleParType> <ModuleParList>
+<ModuleParType> ::= <Type>
+<ModuleParList> ::= <ModuleParIdentifier> [<AssignmentChar> <ConstantExpression>]
+                      {','<ModuleParIdentifier> [<AssignmentChar> <ConstantExpression>]}
+<ModuleParIdentifier> ::= <Identifier>
+
+<ModuleControlPart> ::= <ControlKeyword>
+                           '{' <ModuleControlBody> '}'
+                           [<WithStatement>] [<SemiColon>]
+<ControlKeyword> ::= 'control'
+<ModuleControlBody> ::= [<ControlStatementOrDefList>]
+<ControlStatementOrDefList> ::= {<ControlStatementOrDef> [<SemiColon>]}+
+<ControlStatementOrDef> ::= <FunctionLocalDef> |
+                               <FunctionLocalInst> |
+                               <ControlStatement>
+<ControlStatement> ::= <TimerStatements> |
+                          <BasicStatements> |
+                          <BehaviourStatements> |
+                          <SUTStatements> |
+                          <StopKeyword>
+
+<VarInstance> ::= <VarKeyword> ((<Type> <VarList>) | (<TemplateKeyword> <Type> <TempVarList>))
+<VarList> ::= <SingleVarInstance> {',' <SingleVarInstance>}
+<SingleVarInstance> ::= <VarIdentifier> [<ArrayDef>] [<AssignmentChar> <VarInitialValue>]
+<VarInitialValue> ::= <Expression>
+<VarKeyword> ::= 'var'
+<VarIdentifier> ::= <Identifier>
+<TempVarList> ::= <SingleTempVarInstance> {',' <SingleTempVarInstance>}
+<SingleTempVarInstance> ::= <VarIdentifier> [<ArrayDef>] [<AssignmentChar> <TempVarInitialValue>]
+<TempVarInitialValue> ::= <TemplateBody>
+<VariableRef> ::= (<VarIdentifier> | <ValueParIdentifier>) [<ExtendedFieldReference>]
+
+
+<TimerInstance> ::= <TimerKeyword> <TimerList>
+<TimerList> ::= <SingleTimerInstance>{',' <SingleTimerInstance>}
+<SingleTimerInstance> ::= <TimerIdentifier> [<ArrayDef>] [<AssignmentChar> <TimerValue>]
+<TimerKeyword> ::= 'timer'
+<TimerIdentifier> ::= <Identifier>
+<TimerValue> ::= <Expression>
+<type> <float>. <Expression> <shall> <only> <resolves> <to> <CompoundExpression> <in> <the> <initialization> <in> <default>
+<TimerRef> ::= (<TimerIdentifier> | <TimerParIdentifier>) {<ArrayOrBitRef>}
+
+<ConfigurationStatements> ::= <ConnectStatement> |
+                                 <MapStatement> |
+                                 <DisconnectStatement> |
+                                 <UnmapStatement> |
+                                 <DoneStatement> |
+                                 <KilledStatement> |
+                                 <StartTCStatement> |
+                                 <StopTCStatement> |
+                                 <KillTCStatement>
+<ConfigurationOps> ::= <CreateOp> | <SelfOp> | <SystemOp> | <MTCOp> | <RunningOp> | <AliveOp>
+<CreateOp> ::= <ComponentType> <Dot> <CreateKeyword> ['(' <SingleExpession> ')'] [<AliveKeyword>]
+<SystemOp> ::= <SystemKeyword>
+<SelfOp> ::= 'self'
+<MTCOp> ::= <MTCKeyword>
+<DoneStatement> ::= <ComponentId> <Dot> <DoneKeyword>
+<KilledStatement> ::= <ComponentId> <Dot> <KilledKeyword>
+<ComponentId> ::= <ComponentOrDefaultReference> | (<AnyKeyword> | <AllKeyword>) <ComponentKeyword>
+<DoneKeyword> ::= 'done'
+<KilledKeyword> ::= 'killed'
+<RunningOp> ::= <ComponentId> <Dot> <RunningKeyword>
+<RunningKeyword> ::= 'running'
+<AliveOp> ::= <ComponentId> <Dot> <AliveKeyword>
+<CreateKeyword> ::= 'create'
+<AliveKeyword> ::= 'alive'
+<ConnectStatement> ::= <ConnectKeyword> <SingleConnectionSpec>
+<ConnectKeyword> ::= 'connect'
+<SingleConnectionSpec> ::= '(' <PortRef> ',' <PortRef> ')'
+<PortRef> ::= <ComponentRef> <Colon> <Port>
+<ComponentRef> ::= <ComponentOrDefaultReference> | <SystemOp> | <SelfOp> | <MTCOp>
+<DisconnectStatement> ::= <DisconnectKeyword> [<SingleOrMultiConnectionSpec>]
+<SingleOrMultiConnectionSpec> ::= <SingleConnectionSpec> |
+                                     <AllConnectionsSpec> |
+                                     <AllPortsSpec> |
+                                     <AllCompsAllPortsSpec>]
+<AllConnectionsSpec> ::= '(' <PortRef> ')'
+<AllPortsSpec> ::= '(' <ComponentRef> ':' <AllKeyword> <PortKeyword> ')'
+<AllCompsAllPortsSpec> ::= '(' <AllKeyword> <ComponentKeyword> ':' <AllKeyword> <PortKeyword> ')'
+<DisconnectKeyword> ::= 'disconnect'
+<MapStatement> ::= <MapKeyword> <SingleConnectionSpec>
+<MapKeyword> ::= 'map'
+<UnmapStatement> ::= <UnmapKeyword> [<SingleOrMultiConnectionSpec>]
+<UnmapKeyword> ::= 'unmap'
+<StartTCStatement> ::= <ComponentOrDefaultReference> <Dot> <StartKeyword> '(' <FunctionInstance> ')'
+<StartKeyword> ::= 'start'
+<StopTCStatement> ::= <StopKeyword> | (<ComponentReferenceOrLiteral> <Dot> <StopKeyword>) |
+                         (<AllKeyword> <ComponentKeyword> <Dot> <StopKeyword>)
+<ComponentReferenceOrLiteral> ::= <ComponentOrDefaultReference> | <MTCOp> | <SelfOp>
+<KillTCStatement> ::= <KillKeyword> | (<ComponentIdentifierOrLiteral> <Dot> <KillKeyword>) |
+                         (<AllKeyword> <ComponentKeyword> <Dot> <KillKeyword>)
+<ComponentOrDefaultReference> ::= <VariableRef> | <FunctionInstance>
+<FunctionInstance> <must> <be> <of> <component> <type> <when> <used> <in> <configuration> <statements> <and> <shall> <be> <of>
+<KillKeyword> ::= 'kill'
+
+
+<Port> ::= (<PortIdentifier> | <PortParIdentifier>) {<ArrayOrBitRef>}
+<CommunicationStatements> ::= <SendStatement> |
+                                 <CallStatement> |
+                                 <ReplyStatement> |
+                                 <RaiseStatement> |
+                                 <ReceiveStatement> |
+                                 <TriggerStatement> |
+                                 <GetCallStatement> |
+                                 <GetReplyStatement> |
+                                 <CatchStatement> |
+                                 <CheckStatement> |
+                                 <ClearStatement> |
+                                 <StartStatement> |
+                                 <StopStatement>
+<SendStatement> ::= <Port> <Dot> <PortSendOp>
+<PortSendOp> ::= <SendOpKeyword> '(' <SendParameter> ')' [<ToClause>]
+<SendOpKeyword> ::= 'send'
+<SendParameter> ::= <TemplateInstance>
+<ToClause> ::= <ToKeyword> <AddressRef> |
+                  <AddressRefList> |
+                  <AllKeyword> <ComponentKeyword>
+<AddressRefList> ::= '(' <AddressRef> {',' <AddressRef>} ')'
+<ToKeyword> ::= 'to'
+<AddressRef> ::= <TemplateInstance>
+<CallStatement> ::= <Port> <Dot> <PortCallOp>  [<PortCallBody>]
+<PortCallOp> ::= <CallOpKeyword> '(' <CallParameters> ')' [<ToClause>]
+<CallOpKeyword> ::= 'call'
+<CallParameters> ::= <TemplateInstance> [',' <CallTimerValue>]
+<CallTimerValue> ::= <TimerValue> | <NowaitKeyword>
+<NowaitKeyword> ::= 'nowait'
+<PortCallBody> ::= '{' <CallBodyStatementList> '}'
+<CallBodyStatementList> ::= {<CallBodyStatement> [<SemiColon>]}+
+<CallBodyStatement> ::= <CallBodyGuard>  <StatementBlock>
+<CallBodyGuard> ::= <AltGuardChar> <CallBodyOps>
+<CallBodyOps> ::= <GetReplyStatement> | <CatchStatement>
+<ReplyStatement> ::= <Port> <Dot> <PortReplyOp>
+<PortReplyOp> ::= <ReplyKeyword> '(' <TemplateInstance> [<ReplyValue>]')' [<ToClause>]
+<ReplyKeyword> ::= 'reply'
+<ReplyValue> ::= <ValueKeyword> <Expression>
+<RaiseStatement> ::= <Port> <Dot> <PortRaiseOp>
+<PortRaiseOp> ::= <RaiseKeyword> '(' <Signature> ',' <TemplateInstance> ')' [<ToClause>]
+<RaiseKeyword> ::= 'raise'
+<ReceiveStatement> ::= <PortOrAny> <Dot> <PortReceiveOp>
+<PortOrAny> ::= <Port> | <AnyKeyword> <PortKeyword>
+<PortReceiveOp> ::= <ReceiveOpKeyword> ['(' <ReceiveParameter> ')'] [<FromClause>] [<PortRedirect>]
+<ReceiveOpKeyword> ::= 'receive'
+<ReceiveParameter> ::= <TemplateInstance>
+<FromClause> ::= <FromKeyword> <AddressRef>
+<FromKeyword> ::= 'from'
+<PortRedirect> ::= <PortRedirectSymbol> (<ValueSpec> [<SenderSpec>] | <SenderSpec>)
+<PortRedirectSymbol> ::= '->'
+<ValueSpec> ::= <ValueKeyword> <VariableRef>
+<ValueKeyword> ::= 'value'
+<SenderSpec> ::= <SenderKeyword> <VariableRef>
+<SenderKeyword> ::= 'sender'
+<TriggerStatement> ::= <PortOrAny> <Dot> <PortTriggerOp>
+<PortTriggerOp> ::= <TriggerOpKeyword> ['(' <ReceiveParameter> ')'] [<FromClause>] [<PortRedirect>]
+<TriggerOpKeyword> ::= 'trigger'
+<GetCallStatement> ::= <PortOrAny>  <Dot> <PortGetCallOp>
+<PortGetCallOp> ::= <GetCallOpKeyword> ['(' <ReceiveParameter> ')'] [<FromClause>]
+                       [<PortRedirectWithParam>]
+<GetCallOpKeyword> ::= 'getcall'
+<PortRedirectWithParam> ::= <PortRedirectSymbol> <RedirectWithParamSpec>
+<RedirectWithParamSpec> ::= <ParamSpec> [<SenderSpec>] |
+                              <SenderSpec>
+
+<ParamSpec> ::= <ParamKeyword> <ParamAssignmentList>
+<ParamKeyword> ::= 'param'
+<ParamAssignmentList> ::= '(' (<AssignmentList> | <VariableList>) ')'
+<AssignmentList> ::= <VariableAssignment> {',' <VariableAssignment>}
+<VariableAssignment> ::= <VariableRef> <AssignmentChar> <ParameterIdentifier>
+<ParameterIdentifier> ::= <ValueParIdentifier>
+<VariableList> ::= <VariableEntry>  {',' <VariableEntry>}
+<VariableEntry> ::= <VariableRef> | <NotUsedSymbol>
+<GetReplyStatement> ::= <PortOrAny> <Dot> <PortGetReplyOp>
+<PortGetReplyOp> ::= <GetReplyOpKeyword> ['(' <ReceiveParameter> [<ValueMatchSpec>] ')']
+                        [<FromClause>] [<PortRedirectWithValueAndParam>]
+<PortRedirectWithValueAndParam> ::= <PortRedirectSymbol> <RedirectWithValueAndParamSpec>
+<RedirectWithValueAndParamSpec> ::= <ValueSpec> [<ParamSpec>] [<SenderSpec>] |
+                                       <RedirectWithParamSpec>
+<GetReplyOpKeyword> ::= 'getreply'
+<ValueMatchSpec> ::= <ValueKeyword> <TemplateInstance>
+<CheckStatement> ::= <PortOrAny> <Dot> <PortCheckOp>
+<PortCheckOp> ::= <CheckOpKeyword> ['(' <CheckParameter> ')']
+<CheckOpKeyword> ::= 'check'
+<CheckParameter> ::= <CheckPortOpsPresent> | <FromClausePresent> | <RedirectPresent>
+<FromClausePresent> ::= <FromClause> [<PortRedirectSymbol> <SenderSpec>]
+<RedirectPresent> ::= <PortRedirectSymbol> <SenderSpec>
+<CheckPortOpsPresent> ::= <PortReceiveOp> | <PortGetCallOp> | <PortGetReplyOp> | <PortCatchOp>
+<CatchStatement> ::= <PortOrAny> <Dot> <PortCatchOp>
+<PortCatchOp> ::= <CatchOpKeyword> ['('<CatchOpParameter> ')'] [<FromClause>] [<PortRedirect>]
+<CatchOpKeyword> ::= 'catch'
+<CatchOpParameter> ::= <Signature> ',' <TemplateInstance> | <TimeoutKeyword>
+<ClearStatement> ::= <PortOrAll> <Dot> <PortClearOp>
+<PortOrAll> ::= <Port> | <AllKeyword> <PortKeyword>
+<PortClearOp> ::= <ClearOpKeyword>
+<ClearOpKeyword> ::= 'clear'
+<StartStatement> ::= <PortOrAll> <Dot> <PortStartOp>
+<PortStartOp> ::= <StartKeyword>
+<StopStatement> ::= <PortOrAll> <Dot> <PortStopOp>
+<PortStopOp> ::= <StopKeyword>
+<StopKeyword> ::= 'stop'
+<AnyKeyword> ::= 'any'
+
+<TimerStatements> ::= <StartTimerStatement> | <StopTimerStatement> | <TimeoutStatement>
+<TimerOps> ::= <ReadTimerOp> | <RunningTimerOp>
+<StartTimerStatement> ::= <TimerRef> <Dot> <StartKeyword> ['(' <TimerValue> ')']
+<StopTimerStatement> ::= <TimerRefOrAll> <Dot> <StopKeyword>
+<TimerRefOrAll> ::= <TimerRef> | <AllKeyword> <TimerKeyword>
+<ReadTimerOp> ::= <TimerRef> <Dot> <ReadKeyword>
+<ReadKeyword> ::= 'read'
+<RunningTimerOp> ::= <TimerRefOrAny>  <Dot> <RunningKeyword>
+<TimeoutStatement> ::= <TimerRefOrAny>  <Dot> <TimeoutKeyword>
+<TimerRefOrAny> ::= <TimerRef> | <AnyKeyword> <TimerKeyword>
+<TimeoutKeyword> ::= 'timeout'
+
+<Type> ::= <PredefinedType> | <ReferencedType>
+<PredefinedType> ::= <BitStringKeyword> |
+                        <BooleanKeyword> |
+                        <CharStringKeyword> |
+                        <UniversalCharString> |
+                        <IntegerKeyword> |
+                        <OctetStringKeyword> |
+                        <HexStringKeyword> |
+                        <VerdictTypeKeyword> |
+                        <FloatKeyword> |
+                        <AddressKeyword> |
+                        <DefaultKeyword> |
+                        <AnyTypeKeyword>
+<BitStringKeyword> ::= 'bitstring'
+<BooleanKeyword> ::= 'boolean'
+<IntegerKeyword> ::= 'integer'
+<OctetStringKeyword> ::= 'octetstring'
+
+<HexStringKeyword> ::= 'hexstring'
+<VerdictTypeKeyword> ::= 'verdicttype'
+<FloatKeyword> ::= 'float'
+<AddressKeyword> ::= 'address'
+<DefaultKeyword> ::= 'default'
+<AnyTypeKeyword> ::= 'anytype'
+<CharStringKeyword> ::= 'charstring'
+<UniversalCharString> ::= <UniversalKeyword> <CharStringKeyword>
+<UniversalKeyword> ::= 'universal'
+<ReferencedType> ::= [<GlobalModuleId> <Dot>] <TypeReference> [<ExtendedFieldReference>]
+<TypeReference> ::= <StructTypeIdentifier>[<TypeActualParList>] |
+                       <EnumTypeIdentifier> |
+                       <SubTypeIdentifier> |
+                       <ComponentTypeIdentifier>
+<TypeActualParList> ::= '(' <TypeActualPar> {',' <TypeActualPar>} ')'
+<TypeActualPar> ::= <ConstantExpression>
+<ArrayDef> ::= {'[' <ArrayBounds> ['..' <ArrayBounds>] ']'}+
+<ArrayBounds> ::= <SingleConstExpression>
+
+<Value> ::= <PredefinedValue> | <ReferencedValue>
+<PredefinedValue> ::= <BitStringValue> |
+                         <BooleanValue> |
+                         <CharStringValue> |
+                         <IntegerValue> |
+                         <OctetStringValue> |
+                         <HexStringValue> |
+                         <VerdictTypeValue> |
+                         <EnumeratedValue> |
+                         <FloatValue> |
+                         <AddressValue> |
+                         <OmitValue>
+<BitStringValue> ::= <Bstring>
+<BooleanValue> ::= 'true' | 'false'
+<IntegerValue> ::= <Number>
+<OctetStringValue> ::= <Ostring>
+<HexStringValue> ::= <Hstring>
+<VerdictTypeValue> ::= 'pass' | 'fail' | 'inconc' | 'none' | 'error'
+<EnumeratedValue> ::= <EnumerationIdentifier>
+<CharStringValue> ::= <Cstring> | <Quadruple>
+<Quadruple> ::= <CharKeyword> '(' <Group> ',' <Plane> ',' <Row> ',' <Cell> ')'
+<CharKeyword> ::= 'char'
+<Group> ::= <Number>
+<Plane> ::= <Number>
+<Row> ::= <Number>
+<Cell> ::= <Number>
+<FloatValue> ::= <FloatDotNotation> | <FloatENotation>
+<FloatDotNotation> ::= <Number> <Dot> <DecimalNumber>
+<FloatENotation> ::= <Number> [<Dot> <DecimalNumber>] <Exponential> [<Minus>] <Number>
+<Exponential> ::= 'E'
+<ReferencedValue> ::= <ValueReference> [<ExtendedFieldReference>]
+<ValueReference> ::= [<GlobalModuleId> <Dot>] (<ConstIdentifier> | <ExtConstIdentifier> |
+                        <ModuleParIdentifier> ) |
+                        <ValueParIdentifier> |
+                        <VarIdentifier>
+<Number> ::= (<NonZeroNum> {<Num>}) | '0'
+<NonZeroNum> ::= '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+<DecimalNumber> ::= {<Num>}+
+<Num> ::= '0' | <NonZeroNum>
+<Bstring> ::= $$' {<Bin>} $$' 'B'
+<Bin> ::= '0' | '1'
+<Hstring> ::= $$' {<Hex>} $$' 'H'
+<Hex> ::= <Num> | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'| 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+<Ostring> ::= $$' {<Oct>} $$' 'O'
+<Oct> ::= <Hex> <Hex>
+<Cstring> ::= $$' {<Char>} $$'
+<Char> ::= /* <REFERENCE> - <A> <character> <defined> <by> <the> <relevant> <CharacterString> <type>. <For>
+<charstring> <a> <character> <from> <the> <character> <set> <defined> <in> <ISO>/<IEC> <646>. <For> <universal> <charstring> <a>
+<Identifier> ::= <Alpha>{<AlphaNum> | <Underscore>}
+<Alpha> ::= <UpperAlpha> | <LowerAlpha>
+<AlphaNum> ::= <Alpha> | <Num>
+<UpperAlpha> ::= 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
+'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+
+<LowerAlpha> ::= 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' |
+'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
+<ExtendedAlphaNum> ::= /* <REFERENCE> - <A> <graphical> <character> <from> <the> <BASIC> <LATIN> <or> <from> <the>
+<LATIN>-<1> <SUPPLEMENT> <character> <sets> <defined> <in> <ISO>/<IEC> <10646>  (<characters> <from> <char> (<0>,<0>,<0>,<32>) <to> <char>
+(<0>,<0>,<0>,<126>), <from> <char> (<0>,<0>,<0>,<161>) <to> <char> (<0>,<0>,<0>,<172>) <and> <from> <char> (<0>,<0>,<0>,<174>) <to> <char> (<0>,<0>,<0>,<255>)
+<FreeText> ::= $$' {<ExtendedAlphaNum>} $$'
+<AddressValue> ::= 'null'
+<OmitValue> ::= <OmitKeyword>
+<OmitKeyword> ::= 'omit'
+
+<InParKeyword> ::= 'in'
+<OutParKeyword> ::= 'out'
+<InOutParKeyword> ::= 'inout'
+<FormalValuePar> ::= [(<InParKeyword> | <InOutParKeyword> | <OutParKeyword>)] <Type> <ValueParIdentifier>
+<ValueParIdentifier> ::= <Identifier>
+<FormalPortPar> ::= [<InOutParKeyword>] <PortTypeIdentifier> <PortParIdentifier>
+<PortParIdentifier> ::= <Identifier>
+<FormalTimerPar> ::= [<InOutParKeyword>] <TimerKeyword> <TimerParIdentifier>
+<TimerParIdentifier> ::= <Identifier>
+<FormalTemplatePar> ::= [(<InParKeyword> | <OutParKeyword> | <InOutParKeyword> )]
+                           <TemplateKeyword> <Type> <TemplateParIdentifier>
+<TemplateParIdentifier> ::= <Identifier>
+
+<WithStatement> ::= <WithKeyword> <WithAttribList>
+<WithKeyword> ::= 'with'
+<WithAttribList> ::= '{' <MultiWithAttrib> '}'
+<MultiWithAttrib> ::= {<SingleWithAttrib> [<SemiColon>]}
+<SingleWithAttrib> ::= <AttribKeyword>  [<OverrideKeyword>] [<AttribQualifier>] <AttribSpec>
+<AttribKeyword> ::= <EncodeKeyword> |
+                       <VariantKeyword> |
+                       <DisplayKeyword> |
+                       <ExtensionKeyword>
+<EncodeKeyword> ::= 'encode'
+<VariantKeyword> ::= 'variant'
+<DisplayKeyword> ::= 'display'
+<ExtensionKeyword> ::= 'extension'
+<OverrideKeyword> ::= 'override'
+<AttribQualifier> ::= '(' <DefOrFieldRefList> ')'
+<DefOrFieldRefList> ::= <DefOrFieldRef> {',' <DefOrFieldRef>}
+<DefOrFieldRef> ::= <DefinitionRef> | <FieldReference> | <AllRef>
+<DefinitionRef> ::= <StructTypeIdentifier> |
+                       <EnumTypeIdentifier> |
+                       <PortTypeIdentifier> |
+                       <ComponentTypeIdentifier> |
+                       <SubTypeIdentifier> |
+                       <ConstIdentifier> |
+                       <TemplateIdentifier> |
+                       <AltstepIdentifier> |
+                       <TestcaseIdentifier> |
+                       <FunctionIdentifier> |
+                       <SignatureIdentifier> |
+                       <VarIdentifier> |
+                       <TimerIdentifier> |
+                       <PortIdentifier> |
+                       <ModuleParIdentifier> |
+                       <FullGroupIdentifier>
+<AllRef> ::= ( <GroupKeyword> <AllKeyword> [<ExceptKeyword> '{' <GroupRefList> '}']) |
+                ( <TypeDefKeyword> <AllKeyword> [<ExceptKeyword> '{' <TypeRefList> '}']) |
+                ( <TemplateKeyword> <AllKeyword> [<ExceptKeyword> '{' <TemplateRefList> '}']) |
+                ( <ConstKeyword> <AllKeyword> [<ExceptKeyword> '{' <ConstRefList> '}']) |
+                ( <AltstepKeyword> <AllKeyword> [<ExceptKeyword> '{' <AltstepRefList> '}']) |
+                ( <TestcaseKeyword> <AllKeyword> [<ExceptKeyword> '{' <TestcaseRefList> '}']) |
+                ( <FunctionKeyword> <AllKeyword> [<ExceptKeyword> '{' <FunctionRefList> '}']) |
+                ( <SignatureKeyword> <AllKeyword> [<ExceptKeyword> '{' <SignatureRefList> '}']) |
+                ( <ModuleParKeyword> <AllKeyword> [<ExceptKeyword> '{' <ModuleParRefList> '}'])
+<AttribSpec> ::= <FreeText>
+
+
+<BehaviourStatements> ::= <TestcaseInstance> |
+                             <FunctionInstance> |
+                             <ReturnStatement> |
+                             <AltConstruct> |
+                             <InterleavedConstruct> |
+                             <LabelStatement> |
+                             <GotoStatement> |
+                             <RepeatStatement> |
+                             <DeactivateStatement> |
+                             <AltstepInstance> |
+                             <ActivateOp>
+<VerdictStatements> ::= <SetLocalVerdict>
+<VerdictOps> ::= <GetLocalVerdict>
+<SetLocalVerdict> ::= <SetVerdictKeyword> '(' <SingleExpression> ')'
+<SetVerdictKeyword> ::= 'setverdict'
+<GetLocalVerdict> ::= 'getverdict'
+<SUTStatements> ::= <ActionKeyword> '(' [<ActionText> ] {<StringOp> <ActionText>} ')'
+<ActionKeyword> ::= 'action'
+<ActionText> ::= <FreeText> | <Expression>
+<ReturnStatement> ::= <ReturnKeyword>  [<Expression>]
+<AltConstruct> ::= <AltKeyword> '{' <AltGuardList> '}'
+<AltKeyword> ::= 'alt'
+<AltGuardList> ::= {<GuardStatement> | <ElseStatement> [<SemiColon>]}
+<GuardStatement> ::= <AltGuardChar> (<AltstepInstance> [<StatementBlock>] | <GuardOp> <StatementBlock>)
+<ElseStatement> ::= '['<ElseKeyword> ']' <StatementBlock>
+<AltGuardChar> ::= '[' [<BooleanExpression>] ']'
+<GuardOp> ::= <TimeoutStatement> |
+                 <ReceiveStatement> |
+                 <TriggerStatement> |
+                 <GetCallStatement> |
+                 <CatchStatement> |
+                 <CheckStatement> |
+                 <GetReplyStatement> |
+                 <DoneStatement> |
+                 <KilledStatement>
+<InterleavedConstruct> ::= <InterleavedKeyword> '{' <InterleavedGuardList> '}'
+<InterleavedKeyword> ::= 'interleave'
+<InterleavedGuardList> ::= {<InterleavedGuardElement> [<SemiColon>]}+
+<InterleavedGuardElement> ::= <InterleavedGuard> <InterleavedAction>
+<InterleavedGuard> ::= '[' ']' <GuardOp>
+<InterleavedAction> ::= <StatementBlock>
+<LabelStatement> ::= <LabelKeyword> <LabelIdentifier>
+<LabelKeyword> ::= 'label'
+<LabelIdentifier> ::= <Identifier>
+<GotoStatement> ::= <GotoKeyword> <LabelIdentifier>
+<GotoKeyword> ::= 'goto'
+<RepeatStatement> ::= 'repeat'
+<ActivateOp> ::= <ActivateKeyword> '(' <AltstepInstance> ')'
+<ActivateKeyword> ::= 'activate'
+<DeactivateStatement> ::= <DeactivateKeyword> ['(' <ComponentOrDefaultReference> ')']
+<DeactivateKeyword> ::= 'deactivate'
+
+
+<BasicStatements> ::= <Assignment> | <LogStatement> | <LoopConstruct> | <ConditionalConstruct> |
+                         <SelectCaseConstruct>
+<Expression> ::= <SingleExpression> | <CompoundExpression>
+<CompoundExpression> ::= <FieldExpressionList> | <ArrayExpression>
+<FieldExpressionList> ::= '{' <FieldExpressionSpec> {',' <FieldExpressionSpec>} '}'
+<FieldExpressionSpec> ::= <FieldReference> <AssignmentChar> <NotUsedOrExpression>
+<ArrayExpression> ::= '{' [<ArrayElementExpressionList>] '}'
+<ArrayElementExpressionList> ::= <NotUsedOrExpression>  {',' <NotUsedOrExpression>}
+<NotUsedOrExpression> ::= <Expression> | <NotUsedSymbol>
+<ConstantExpression> ::= <SingleConstExpression> | <CompoundConstExpression>
+<SingleConstExpression> ::= <SingleExpression>
+<BooleanExpression> ::= <SingleExpression>
+<CompoundConstExpression> ::= <FieldConstExpressionList> | <ArrayConstExpression>
+<FieldConstExpressionList> ::= '{' <FieldConstExpressionSpec> {',' <FieldConstExpressionSpec>} '}'
+<FieldConstExpressionSpec> ::= <FieldReference> <AssignmentChar> <ConstantExpression>
+<ArrayConstExpression> ::= '{' [<ArrayElementConstExpressionList>] '}'
+<ArrayElementConstExpressionList> ::= <ConstantExpression> {',' <ConstantExpression>}
+<Assignment> ::= <VariableRef> <AssignmentChar> (<Expression> | <TemplateBody>)
+<explicit> <Value> <of> <a> <type> <compatible> <with> <the> <type> <of> <theleft> <hand> <side> <for> <value> <variables> <and> <shall>
+<evaluate> <to> <an> <explicit> <Value>, <template> (<literal> <or> <a> <template> <instance>) <or> <a> <matching> <mechanism>
+<SingleExpression> ::= <XorExpression> { 'or' <XorExpression> }
+<XorExpression> ::= <AndExpression> { 'xor' <AndExpression> }
+<AndExpression> ::= <NotExpression> { 'and' <NotExpression> }
+<NotExpression> ::= [ 'not' ] <EqualExpression>
+<EqualExpression> ::= <RelExpression> { <EqualOp> <RelExpression> }
+<RelExpression> ::= <ShiftExpression> [ <RelOp> <ShiftExpression> ]
+<ShiftExpression> ::= <BitOrExpression> { <ShiftOp> <BitOrExpression> }
+<the> <right>-<hand> <operand> <shall> <be> <of> <type> <integer> <or> <derivatives> <and> <if> <the> <shift> <op> <is> '<<' <or> '>>'
+<then> <the> <left>-<hand> <operand> <shall> <resolve> <to> <either> <bitstring>, <hexstring> <or> <octetstring> <type> <or>
+<derivatives> <of> <these> <types>. <If> <the> <shift> <op> <is> '<@' <or> '@>' <then> <the> <left>-<hand> <operand> <shall> <be> <of>
+<BitOrExpression> ::= <BitXorExpression> { 'or4b' <BitXorExpression> }
+<BitXorExpression> ::= <BitAndExpression> { 'xor4b' <BitAndExpression> }
+<BitAndExpression> ::= <BitNotExpression> { 'and4b' <BitNotExpression> }
+<BitNotExpression> ::= [ 'not4b' ] <AddExpression>
+<AddExpression> ::= <MulExpression> { <AddOp> <MulExpression> }
+<MulExpression> <exists> <and> <the> <AddOp> <resolves> <to> <StringOp> <then> <the> <MulExpressions> <shall> <resolve> <to>
+<same> <type> <which> <shall> <be> <of> <bitstring>, <hexstring>, <octetstring>, <charstring> <or> <universal> <charstring> <or>
+<derivatives> <of> <these> <types>. <If> <more> <than> <one> <MulExpression> <exists> <and> <the> <AddOp> <does> <not> <resolve> <to>
+<StringOp> <then> <the> <MulExpression> <shall> <both> <resolve> <to> <type> <integer> <or> <float> <or> <derivatives> <of> <these>
+<MulExpression> ::= <UnaryExpression> { <MultiplyOp> <UnaryExpression> }
+
+<UnaryExpression> <exists> <then> <the> <UnaryExpressions> <shall> <resolve> <to> <type> <integer> <or> <float> <or>
+<UnaryExpression> ::= [ <UnaryOp> ] <Primary>
+<Primary> ::= <OpCall> | <Value> | '(' <SingleExpression> ')'
+<ExtendedFieldReference> ::= {(<Dot> ( <StructFieldIdentifier> | <TypeDefIdentifier>))
+                                | <ArrayOrBitRef> }+
+<OpCall> ::= <ConfigurationOps> |
+                <VerdictOps> |
+                <TimerOps> |
+                <TestcaseInstance> |
+                <FunctionInstance> |
+                <TemplateOps> |
+                <ActivateOp>
+<AddOp> ::= '+' | '-' | <StringOp>
+<MultiplyOp> ::= '*' | '/' | 'mod' | 'rem'
+<UnaryOp> ::= '+' | '-'
+<RelOp> ::= '<' | '>' | '>=' | '<='
+<EqualOp> ::= '==' | '!='
+<StringOp> ::= '&'
+<ShiftOp> ::= '<<' | '>>' | '<@' | '@>'
+<LogStatement> ::= <LogKeyword> '(' <LogItem> { ',' <LogItem> } ')'
+<LogKeyword> ::= 'log'
+<LogItem> ::= <FreeText> | <TemplateInstance>
+<LoopConstruct> ::= <ForStatement> |
+                       <WhileStatement> |
+                       <DoWhileStatement>
+<ForStatement> ::= <ForKeyword> '(' <Initial> <SemiColon> <Final> <SemiColon> <Step> ')'
+                      <StatementBlock>
+<ForKeyword> ::= 'for'
+<Initial> ::= <VarInstance> | <Assignment>
+<Final> ::= <BooleanExpression>
+<Step> ::= <Assignment>
+<WhileStatement> ::= <WhileKeyword> '(' <BooleanExpression> ')'
+                        <StatementBlock>
+<WhileKeyword> ::= 'while'
+<DoWhileStatement> ::= <DoKeyword> <StatementBlock>
+                          <WhileKeyword> '(' <BooleanExpression> ')'
+<DoKeyword> ::= 'do'
+<ConditionalConstruct> ::= <IfKeyword> '(' <BooleanExpression> ')'
+                              <StatementBlock>
+                              {<ElseIfClause>}[<ElseClause>]
+<IfKeyword> ::= 'if'
+<ElseIfClause> ::= <ElseKeyword>  <IfKeyword> '(' <BooleanExpression> ')'  <StatementBlock>
+<ElseKeyword> ::= 'else'
+<ElseClause> ::= <ElseKeyword>  <StatementBlock>
+<SelectCaseConstruct> ::= <SelectKeyword> '(' <SingleExpression> ')' <SelectCaseBody>
+<SelectKeyword> ::= 'select'
+<SelectCaseBody> ::= '{' { <SelectCase> }+ '}'
+<SelectCase> ::= <CaseKeyword> ( '(' <TemplateInstance> {',' <TemplateInstance> } ')' | <ElseKeyword> )
+                    <StatementBlock>
+<CaseKeyword> ::= 'case'
+
+<Dot> ::= '.'
+<Dash> ::= '-'
+<Minus> ::= <Dash>
+<SemiColon> ::= ';'
+<Colon> ::= ':'
+<Underscore> ::= '_'
+<AssignmentChar> ::= ':='
+

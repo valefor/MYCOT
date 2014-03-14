@@ -1,0 +1,1144 @@
+%s/^\d*\.\s*(\w*)
+%s/^\d*\.\s*\(\w*\)
+%s/^\d*\.\s*\(\w*\)/<\1>
+%s/^\d*\.\s*\(\w*\)/\1
+%s/\<\(\w*\)\>
+%s/"\w*\"
+%s/"\(\w*\)\"/_\1_/g
+%s/"\(\w*\)\"/&\1&/g
+%s/"\(\w*\)\"/123456\1/g
+%s/"\(\w*\)\"/**\1**/g
+%s/"\(.*\)\"/$\1$/g
+%s/"\(\w*\)\"/$\1$/g
+%s/"/'/g
+%s/'\(\w*\)'\/$\1$/g
+%s/\'\(\w*\)\'\/$\1$/g
+%s/\'\(\w*\)\'/$\1$/g
+%s/\<\(\w*\)\>/$\1$/g
+%s/\<\(\w*\)\>/<\1>/g
+%s/$<\(\w*\)>$/'\1'/g
+%s/\$<\(\w*\)>\$/'\1'/g
+%g/>\.</d
+%g/^\/\*/d
+%g/\*\/$/d
+%g/\*\/\s*$/d
+
+1. TTCN3Module ::= TTCN3ModuleKeyword TTCN3ModuleId 
+                   "{" 
+                   [ModuleDefinitionsPart] 
+                   [ModuleControlPart] 
+                   "}" 
+                   [WithStatement] [SemiColon] 
+2. TTCN3ModuleKeyword ::= "module" 
+3. TTCN3ModuleId ::= ModuleId 
+4. ModuleId ::= GlobalModuleId [LanguageSpec] 
+/* STATIC SEMANTICS - LanguageSpec may only be omitted if the referenced module contains TTCN-3 
+notation */ 
+
+
+5. GlobalModuleId ::= ModuleIdentifier  
+6. ModuleIdentifier ::= Identifier 
+7. LanguageSpec ::= LanguageKeyword FreeText 
+8. LanguageKeyword ::= "language" 
+ 
+A.1.6.1 Module  definitions  part 
+A.1.6.1.0 General 
+9. ModuleDefinitionsPart ::= ModuleDefinitionsList 
+10. ModuleDefinitionsList ::= {ModuleDefinition [SemiColon]}+ 
+11. ModuleDefinition ::= (TypeDef | 
+                          ConstDef | 
+                          TemplateDef | 
+                          ModuleParDef | 
+                          FunctionDef | 
+                          SignatureDef | 
+                          TestcaseDef | 
+                          AltstepDef | 
+                          ImportDef | 
+                          GroupDef | 
+                          ExtFunctionDef | 
+                          ExtConstDef) [WithStatement] 
+ 
+A.1.6.1.1 Typedef  definitions 
+12. TypeDef ::= TypeDefKeyword TypeDefBody 
+13. TypeDefBody ::= StructuredTypeDef | SubTypeDef 
+14. TypeDefKeyword ::= "type" 
+15. StructuredTypeDef ::= RecordDef | 
+                          UnionDef | 
+                          SetDef | 
+                          RecordOfDef | 
+                          SetOfDef | 
+                          EnumDef | 
+                          PortDef | 
+                          ComponentDef 
+16. RecordDef ::= RecordKeyword StructDefBody 
+17. RecordKeyword ::= "record" 
+18. StructDefBody ::= (StructTypeIdentifier [StructDefFormalParList] | AddressKeyword) 
+                      "{" [StructFieldDef {"," StructFieldDef}] "}" 
+19. StructTypeIdentifier ::= Identifier 
+20. StructDefFormalParList ::= "(" StructDefFormalPar {"," StructDefFormalPar} ")" 
+21. StructDefFormalPar ::=  FormalValuePar 
+/* STATIC SEMANTICS - FormalValuePar shall resolve to an in parameter */ 
+22. StructFieldDef ::= (Type | NestedTypeDef) StructFieldIdentifier [ArrayDef] [SubTypeSpec] 
+                       [OptionalKeyword] 
+23. NestedTypeDef ::= NestedRecordDef | 
+                      NestedUnionDef | 
+                      NestedSetDef | 
+                      NestedRecordOfDef | 
+                      NestedSetOfDef | 
+                      NestedEnumDef 
+24. NestedRecordDef ::= RecordKeyword "{" [StructFieldDef {"," StructFieldDef}] "}" 
+25. NestedUnionDef ::= UnionKeyword "{" UnionFieldDef {"," UnionFieldDef} "}" 
+26. NestedSetDef ::= SetKeyword "{" [StructFieldDef {"," StructFieldDef}] "}" 
+27. NestedRecordOfDef ::= RecordKeyword [StringLength] OfKeyword (Type | NestedTypeDef) 
+28. NestedSetOfDef ::= SetKeyword [StringLength] OfKeyword (Type | NestedTypeDef) 
+29. NestedEnumDef ::= EnumKeyword "{" EnumerationList "}" 
+30. StructFieldIdentifier ::= Identifier 
+31. OptionalKeyword ::= "optional" 
+32. UnionDef ::= UnionKeyword UnionDefBody 
+33. UnionKeyword ::= "union" 
+34. UnionDefBody ::= (StructTypeIdentifier [StructDefFormalParList] | AddressKeyword) 
+                     "{" UnionFieldDef {"," UnionFieldDef} "}" 
+35. UnionFieldDef ::= (Type | NestedTypeDef) StructFieldIdentifier [ArrayDef] [SubTypeSpec] 
+36. SetDef ::= SetKeyword StructDefBody 
+37. SetKeyword ::= "set" 
+38. RecordOfDef ::= RecordKeyword [StringLength] OfKeyword StructOfDefBody 
+39. OfKeyword ::= "of" 
+40. StructOfDefBody ::= (Type | NestedTypeDef) (StructTypeIdentifier | AddressKeyword) [SubTypeSpec] 
+41. SetOfDef ::= SetKeyword [StringLength] OfKeyword StructOfDefBody 
+42. EnumDef ::= EnumKeyword (EnumTypeIdentifier | AddressKeyword) 
+                "{" EnumerationList "}" 
+43. EnumKeyword ::= "enumerated" 
+
+    158 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+44. EnumTypeIdentifier ::= Identifier 
+45. EnumerationList ::= Enumeration {"," Enumeration} 
+46. Enumeration ::= EnumerationIdentifier ["("[Minus] Number ")"] 
+47. EnumerationIdentifier ::= Identifier 
+48. SubTypeDef ::= Type (SubTypeIdentifier | AddressKeyword)  [ArrayDef] [SubTypeSpec] 
+49. SubTypeIdentifier ::= Identifier 
+50. SubTypeSpec ::= AllowedValues [StringLength] | StringLength 
+/* STATIC SEMANTICS - AllowedValues shall be of the same type as the field being subtyped */ 
+51. AllowedValues ::= "(" (ValueOrRange {"," ValueOrRange}) | CharStringMatch ")" 
+52. ValueOrRange ::= RangeDef | ConstantExpression 
+/* STATIC SEMANTICS - RangeDef production shall only be used with integer, charstring, universal 
+charstring or float based types */ 
+/* STATIC SEMANTICS - When subtyping charstring or universal charstring range and values shall not 
+be mixed in the same SubTypeSpec */ 
+53. RangeDef ::= LowerBound ".." UpperBound 
+54. StringLength ::= LengthKeyword "(" SingleConstExpression [".." UpperBound] ")" 
+/* STATIC SEMANTICS - StringLength shall only be used with String types or to limit set of and 
+record of. SingleConstExpression and UpperBound shall evaluate to non-negative integer values (in 
+case of UpperBound including infinity) */ 
+55. LengthKeyword ::= "length" 
+56. PortType ::= [GlobalModuleId Dot] PortTypeIdentifier 
+57. PortDef ::= PortKeyword PortDefBody 
+58. PortDefBody ::= PortTypeIdentifier PortDefAttribs 
+59. PortKeyword ::= "port" 
+60. PortTypeIdentifier ::= Identifier 
+61. PortDefAttribs ::= MessageAttribs | ProcedureAttribs | MixedAttribs 
+62. MessageAttribs ::= MessageKeyword 
+                       "{" {MessageList [SemiColon]}+ "}" 
+63. MessageList ::= Direction AllOrTypeList 
+64. Direction ::= InParKeyword | OutParKeyword | InOutParKeyword 
+65. MessageKeyword ::= "message" 
+66. AllOrTypeList ::= AllKeyword | TypeList 
+/* NOTE: The use of AllKeyword in port definitions is deprecated */ 
+67. AllKeyword ::= "all" 
+68. TypeList ::= Type {"," Type} 
+69. ProcedureAttribs ::= ProcedureKeyword 
+                         "{" {ProcedureList  [SemiColon]}+ "}" 
+70. ProcedureKeyword ::= "procedure" 
+71. ProcedureList ::= Direction AllOrSignatureList 
+72. AllOrSignatureList ::= AllKeyword | SignatureList 
+73. SignatureList ::= Signature {"," Signature} 
+74. MixedAttribs ::= MixedKeyword 
+                     "{" {MixedList [SemiColon]}+ "}" 
+75. MixedKeyword ::= "mixed" 
+76. MixedList ::= Direction ProcOrTypeList 
+77. ProcOrTypeList ::= AllKeyword | (ProcOrType {"," ProcOrType}) 
+78. ProcOrType ::= Signature | Type 
+79. ComponentDef ::= ComponentKeyword ComponentTypeIdentifier 
+                     [ExtendsKeyword ComponentType {"," ComponentType}] 
+                     "{" [ComponentDefList] "}" 
+80. ComponentKeyword ::= "component" 
+81. ExtendsKeyword ::= "extends" 
+82. ComponentType ::= [GlobalModuleId Dot] ComponentTypeIdentifier 
+83. ComponentTypeIdentifier ::= Identifier 
+84. ComponentDefList ::= {ComponentElementDef [SemiColon]} 
+85. ComponentElementDef ::= PortInstance | VarInstance | TimerInstance | ConstDef 
+86. PortInstance ::= PortKeyword PortType PortElement {"," PortElement} 
+87. PortElement ::= PortIdentifier [ArrayDef] 
+88. PortIdentifier ::= Identifier 
+ 
+A.1.6.1.2 Constant  definitions 
+89. ConstDef ::= ConstKeyword Type ConstList 
+/* STATIC SEMANTICS - Type shall follow the rules given in clause 9 of ES 201 873-1.*/ 
+90. ConstList ::= SingleConstDef  {"," SingleConstDef} 
+91. SingleConstDef ::= ConstIdentifier [ArrayDef] AssignmentChar ConstantExpression 
+/* STATIC SEMANTICS - The Value of the ConstantExpression shall be of the same type as the stated 
+type for the constants */ 
+92. ConstKeyword ::= "const" 
+93. ConstIdentifier ::= Identifier 
+ 
+
+
+A.1.6.1.3 Template  definitions 
+94. TemplateDef ::= TemplateKeyword BaseTemplate  [DerivedDef] AssignmentChar TemplateBody 
+95. BaseTemplate ::= (Type | Signature) TemplateIdentifier  ["(" TemplateFormalParList ")"] 
+96. TemplateKeyword ::= "template" 
+97. TemplateIdentifier ::= Identifier 
+98. DerivedDef ::= ModifiesKeyword TemplateRef 
+99. ModifiesKeyword ::= "modifies" 
+100. TemplateFormalParList ::= TemplateFormalPar {"," TemplateFormalPar} 
+101. TemplateFormalPar ::= FormalValuePar | FormalTemplatePar 
+/* STATIC SEMANTICS - FormalValuePar shall resolve to an in parameter */ 
+102. TemplateBody ::= (SimpleSpec | FieldSpecList | ArrayValueOrAttrib) | [ExtraMatchingAttributes] 
+/* STATIC SEMANTICS - Within TeplateBody the ArrayValueOrAttrib can be used for array, record, 
+record of and set of types. */ 
+103. SimpleSpec ::= SingleValueOrAttrib 
+104. FieldSpecList ::= "{"[FieldSpec {"," FieldSpec}] "}" 
+105. FieldSpec ::= FieldReference AssignmentChar TemplateBody 
+106. FieldReference ::= StructFieldRef | ArrayOrBitRef | ParRef 
+/* STATIC SEMANTICS - Within FieldReference ArrayOrBitRef can be used for record of and set of 
+templates/template fields in modified templates only*/ 
+107. StructFieldRef ::= StructFieldIdentifier| PredefinedType | TypeReference 
+/* STATIC SEMANTICS - PredefinedType and TypeReference shall be used for anytype value notation 
+only. PredefinedType shall not be AnyTypeKeyword.*/ 
+ 
+108. ParRef ::= SignatureParIdentifier 
+/* STATIC SEMANTICS - SignatureParIdentifier shall be a formal parameter Identifier from the 
+associated signature definition */ 
+109. SignatureParIdentifier ::= ValueParIdentifier 
+110. ArrayOrBitRef ::= "[" FieldOrBitNumber "]" 
+/* STATIC SEMANTICS - ArrayRef shall be optionally used for array types and ASN.1 SET OF and 
+SEQUENCE OF and TTCN-3 record of and set of. The same notation can be used for a Bit reference 
+inside an ASN.1 or TTCN-3 bitstring type */ 
+111. FieldOrBitNumber ::= SingleExpression 
+/* STATIC SEMANTICS - SingleExpression will resolve to a value of integer type */ 
+112. SingleValueOrAttrib ::= MatchingSymbol | 
+                             SingleExpression | 
+                             TemplateRefWithParList 
+/* STATIC SEMANTIC - VariableIdentifier (accessed via singleExpression) may only be used in in-line 
+template definitions to reference variables in the current scope */ 
+113. ArrayValueOrAttrib ::= "{" ArrayElementSpecList "}" 
+114. ArrayElementSpecList ::= ArrayElementSpec {"," ArrayElementSpec} 
+115. ArrayElementSpec ::= NotUsedSymbol | PermutationMatch | TemplateBody 
+116. NotUsedSymbol ::= Dash 
+117. MatchingSymbol ::= Complement |  
+                        AnyValue |  
+                        AnyOrOmit |  
+                        ValueOrAttribList | 
+                        Range |  
+                        BitStringMatch |  
+                        HexStringMatch | 
+                        OctetStringMatch |  
+                        CharStringMatch |  
+                        SubsetMatch | 
+                        SupersetMatch 
+118. ExtraMatchingAttributes ::= LengthMatch | IfPresentMatch | LengthMatch  IfPresentMatch 
+119. BitStringMatch ::= "'" {BinOrMatch} "'" "B" 
+120. BinOrMatch ::= Bin | AnyValue | AnyOrOmit 
+121. HexStringMatch ::= "'" {HexOrMatch} "'" "H" 
+122. HexOrMatch ::= Hex | AnyValue | AnyOrOmit 
+123. OctetStringMatch ::= "'" {OctOrMatch} "'" "O" 
+124. OctOrMatch ::= Oct | AnyValue | AnyOrOmit 
+125. CharStringMatch ::= PatternKeyword Cstring 
+126. PatternKeyword ::= "pattern" 
+127. Complement ::= ComplementKeyword ValueList  
+128. ComplementKeyword ::= "complement" 
+129. ValueList ::= "(" ConstantExpression {"," ConstantExpression} ")" 
+130. SubsetMatch ::= SubsetKeyword ValueList 
+/* STATIC SEMANTIC - Subset matching shall only be used with the set of type */ 
+131. SubsetKeyword ::= "subset" 
+132. SupersetMatch ::= SupersetKeyword ValueList 
+/* STATIC SEMANTIC - Superset matching shall only be used with the set of type */ 
+133. SupersetKeyword ::= "superset" 
+134. PermutationMatch ::= PermutationKeyword PermutationList 
+135. PermutationKeyword ::= "permutation" 
+136. PermutationList ::= "(" TemplateBody { "," TemplateBody } ")" 
+/* STATIC SEMANTICS: Restrictions on the content of TemplateBody are given in clause B.1.3.3 */ 
+137. AnyValue ::= "?" 
+138. AnyOrOmit ::= "*" 
+
+    160 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+139. ValueOrAttribList ::= "(" TemplateBody {"," TemplateBody}+ ")" 
+140. LengthMatch ::= StringLength 
+141. IfPresentMatch ::= IfPresentKeyword 
+142. IfPresentKeyword ::= "ifpresent" 
+143. Range ::= "(" LowerBound ".." UpperBound ")" 
+144. LowerBound ::= SingleConstExpression | Minus InfinityKeyword 
+145. UpperBound ::= SingleConstExpression | InfinityKeyword 
+/* STATIC SEMANTICS - LowerBound and UpperBound shall evaluate to types integer, charstring, 
+universal charstring or float. In case LowerBound or UpperBound evaluates to types charstring or 
+universal charstring, only SingleConstExpression may be present and the string length shall be 1*/ 
+146. InfinityKeyword ::= "infinity" 
+147. TemplateInstance ::= InLineTemplate 
+148. TemplateRefWithParList ::= [GlobalModuleId Dot] TemplateIdentifier [TemplateActualParList] | 
+                                TemplateParIdentifier 
+149. TemplateRef ::= [GlobalModuleId Dot] TemplateIdentifier | TemplateParIdentifier 
+150. InLineTemplate ::= [(Type | Signature) Colon] [DerivedRefWithParList AssignmentChar] 
+                        TemplateBody 
+/* STATIC SEMANTICS - The type field may only be omitted when the type is implicitly unambiguous */ 
+151. DerivedRefWithParList ::= ModifiesKeyword TemplateRefWithParList 
+152. TemplateActualParList ::= "(" TemplateActualPar {"," TemplateActualPar} ")" 
+153. TemplateActualPar ::= TemplateInstance 
+/* STATIC SEMANTICS - When the corresponding formal parameter is not of template type the 
+TemplateInstance production shall resolve to one or more SingleExpressions */ 
+154. TemplateOps ::= MatchOp | ValueofOp 
+155. MatchOp ::= MatchKeyword "(" Expression "," TemplateInstance")" 
+/* STATIC SEMANTICS - The type of the value returned by the expression must be the same as the 
+template type and each field of the template shall resolve to a single value */ 
+156. MatchKeyword ::= "match" 
+157. ValueofOp ::= ValueofKeyword "(" TemplateInstance")" 
+158. ValueofKeyword ::= "valueof" 
+ 
+A.1.6.1.4 Function  definitions 
+159. FunctionDef ::= FunctionKeyword FunctionIdentifier 
+                     "("[FunctionFormalParList] ")" [RunsOnSpec] [ReturnType] 
+                     StatementBlock 
+160. FunctionKeyword ::= "function" 
+161. FunctionIdentifier ::= Identifier 
+162. FunctionFormalParList ::= FunctionFormalPar {"," FunctionFormalPar} 
+163. FunctionFormalPar ::= FormalValuePar | 
+                           FormalTimerPar | 
+                           FormalTemplatePar | 
+                           FormalPortPar 
+164. ReturnType ::= ReturnKeyword [TemplateKeyword] Type 
+/* STATIC SEMANTICS - The use of the template keyword shall conform to restrictions in clause 16.1.0 
+of ES 201 873-1*/ 
+165. ReturnKeyword ::= "return" 
+166. RunsOnSpec ::= RunsKeyword OnKeyword ComponentType 
+167. RunsKeyword ::= "runs" 
+168. OnKeyword ::= "on" 
+169. MTCKeyword ::= "mtc" 
+170. StatementBlock ::= "{" [FunctionStatementOrDefList] "}" 
+171. FunctionStatementOrDefList ::= {FunctionStatementOrDef [SemiColon]}+ 
+172. FunctionStatementOrDef ::= FunctionLocalDef | 
+                                FunctionLocalInst | 
+                                FunctionStatement 
+173. FunctionLocalInst ::= VarInstance | TimerInstance 
+174. FunctionLocalDef ::= ConstDef | TemplateDef 
+175. FunctionStatement ::= ConfigurationStatements | 
+                           TimerStatements | 
+                           CommunicationStatements | 
+                           BasicStatements | 
+                           BehaviourStatements | 
+                           VerdictStatements | 
+                           SUTStatements 
+176. FunctionInstance ::= FunctionRef "(" [FunctionActualParList] ")" 
+177. FunctionRef ::= [GlobalModuleId Dot] (FunctionIdentifier | ExtFunctionIdentifier ) | 
+                     PreDefFunctionIdentifier 
+178. PreDefFunctionIdentifier ::= Identifier 
+/* STATIC SEMANTICS - The Identifier will be one of the pre-defined TTCN-3 Function Identifiers from 
+Annex C of ES 201 873-1*/ 
+179. FunctionActualParList ::= FunctionActualPar {"," FunctionActualPar} 
+180. FunctionActualPar ::= TimerRef | 
+                           TemplateInstance | 
+                           Port | 
+                           ComponentRef 
+
+/* STATIC SEMANTICS - When the corresponding formal parameter is not of template type the 
+TemplateInstance production shall resolve to one or more SingleExpressions i.e. equivalent to the 
+Expression production */ 
+ 
+A.1.6.1.5 Signature  definitions 
+181. SignatureDef ::= SignatureKeyword SignatureIdentifier 
+                      "("[SignatureFormalParList] ")" [ReturnType | NoBlockKeyword] 
+                      [ExceptionSpec] 
+182. SignatureKeyword ::= "signature" 
+183. SignatureIdentifier ::= Identifier 
+184. SignatureFormalParList ::= SignatureFormalPar {"," SignatureFormalPar} 
+185. SignatureFormalPar ::=   FormalValuePar 
+186. ExceptionSpec ::= ExceptionKeyword "(" ExceptionTypeList ")" 
+187. ExceptionKeyword ::= "exception" 
+188. ExceptionTypeList ::= Type {"," Type} 
+189. NoBlockKeyword ::= "noblock" 
+190. Signature ::= [GlobalModuleId Dot] SignatureIdentifier 
+ 
+A.1.6.1.6 Testcase  definitions 
+191. TestcaseDef ::= TestcaseKeyword TestcaseIdentifier 
+                     "("[TestcaseFormalParList] ")" ConfigSpec 
+                     StatementBlock 
+192. TestcaseKeyword ::= "testcase" 
+193. TestcaseIdentifier ::= Identifier 
+194. TestcaseFormalParList ::= TestcaseFormalPar {"," TestcaseFormalPar} 
+195. TestcaseFormalPar ::= FormalValuePar | 
+                           FormalTemplatePar 
+196. ConfigSpec ::= RunsOnSpec [SystemSpec] 
+197. SystemSpec ::= SystemKeyword ComponentType 
+198. SystemKeyword ::= "system" 
+199. TestcaseInstance ::= ExecuteKeyword "(" TestcaseRef "(" [TestcaseActualParList] ")" 
+                          ["," TimerValue] ")" 
+200. ExecuteKeyword ::= "execute" 
+201. TestcaseRef ::= [GlobalModuleId Dot] TestcaseIdentifier 
+202. TestcaseActualParList ::= TestcaseActualPar {"," TestcaseActualPar} 
+203. TestcaseActualPar ::= TemplateInstance 
+/* STATIC SEMANTICS - When the corresponding formal parameter is not of template type the 
+TemplateInstance production shall resolve to one or more SingleExpressions i.e. equivalent to the 
+Expression production */ 
+ 
+A.1.6.1.7 Altstep  definitions 
+204. AltstepDef ::= AltstepKeyword AltstepIdentifier 
+                    "("[AltstepFormalParList] ")" [RunsOnSpec] 
+                    "{" AltstepLocalDefList AltGuardList "}" 
+205. AltstepKeyword ::= "altstep" 
+206. AltstepIdentifier ::= Identifier 
+207. AltstepFormalParList ::= FunctionFormalParList 
+/* STATIC SEMANTICS - altsteps that are activated as defaults shall only have in parameters, port 
+parameters, or timer parameters */ 
+/* STATIC SEMANTICS -altsteps that are only  invoked as an alternative in an alt statement or as 
+stand-alone statement in a TTCN-3 behaviour description may have in, out and inout parameters. */ 
+208. AltstepLocalDefList ::= {AltstepLocalDef [SemiColon]} 
+209. AltstepLocalDef ::= VarInstance | TimerInstance | ConstDef | TemplateDef 
+/*STATIC SEMANTICS - AltstepLocalDef shall conform to restrictions in clause 16.2.2.1 of 
+ES 201 873-1*/ 
+210. AltstepInstance ::= AltstepRef "(" [FunctionActualParList] ")" 
+/* STATIC SEMANTICS - all timer instances in FunctionActualParList shall be declared as component 
+local timers (see also production ComponentElementDef) */ 
+211. AltstepRef ::= [GlobalModuleId Dot] AltstepIdentifier 
+ 
+
+    162 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+A.1.6.1.8 Import  definitions 
+212. ImportDef ::= ImportKeyword ImportFromSpec (AllWithExcepts | ("{" ImportSpec "}")) 
+213. ImportKeyword ::= "import" 
+214. AllWithExcepts ::= AllKeyword [ExceptsDef] 
+215. ExceptsDef ::= ExceptKeyword "{" ExceptSpec "}" 
+216. ExceptKeyword ::= "except" 
+217. ExceptSpec ::= {ExceptElement [SemiColon]} 
+/* STATIC SEMANTICS: Any of the production components (ExceptGroupSpec, ExceptTypeDefSpec etc.) may 
+be present only once in the ExceptSpec production */ 
+218. ExceptElement ::= ExceptGroupSpec | 
+                       ExceptTypeDefSpec | 
+                       ExceptTemplateSpec | 
+                       ExceptConstSpec | 
+                       ExceptTestcaseSpec | 
+                       ExceptAltstepSpec | 
+                       ExceptFunctionSpec | 
+                       ExceptSignatureSpec | 
+                       ExceptModuleParSpec 
+219. ExceptGroupSpec ::= GroupKeyword (ExceptGroupRefList | AllKeyword) 
+220. ExceptTypeDefSpec ::= TypeDefKeyword (TypeRefList | AllKeyword) 
+221. ExceptTemplateSpec ::= TemplateKeyword (TemplateRefList | AllKeyword) 
+222. ExceptConstSpec ::= ConstKeyword (ConstRefList | AllKeyword) 
+223. ExceptTestcaseSpec ::= TestcaseKeyword (TestcaseRefList | AllKeyword) 
+224. ExceptAltstepSpec ::= AltstepKeyword (AltstepRefList | AllKeyword) 
+225. ExceptFunctionSpec ::= FunctionKeyword (FunctionRefList | AllKeyword) 
+226. ExceptSignatureSpec ::= SignatureKeyword  (SignatureRefList | AllKeyword) 
+227. ExceptModuleParSpec ::= ModuleParKeyword  (ModuleParRefList | AllKeyword) 
+228. ImportSpec ::= {ImportElement [SemiColon]} 
+229. ImportElement ::= ImportGroupSpec | 
+                       ImportTypeDefSpec | 
+                       ImportTemplateSpec | 
+                       ImportConstSpec | 
+                       ImportTestcaseSpec | 
+                       ImportAltstepSpec | 
+                       ImportFunctionSpec | 
+                       ImportSignatureSpec | 
+                       ImportModuleParSpec 
+230. ImportFromSpec ::= FromKeyword ModuleId [RecursiveKeyword] 
+/* NOTE: The use of RecursiveKeyword is deprecated*/ 
+231. RecursiveKeyword ::= "recursive" 
+232. ImportGroupSpec ::= GroupKeyword (GroupRefListWithExcept | AllGroupsWithExcept) 
+233. GroupRefList ::= FullGroupIdentifier {"," FullGroupIdentifier} 
+234. GroupRefListWithExcept ::= FullGroupIdentifierWithExcept {"," FullGroupIdentifierWithExcept} 
+235. AllGroupsWithExcept ::= AllKeyword [ExceptKeyword GroupRefList] 
+236. FullGroupIdentifier ::= GroupIdentifier {Dot GroupIdentifier}  
+237. FullGroupIdentifierWithExcept ::= FullGroupIdentifier [ExceptsDef] 
+238. ExceptGroupRefList ::= ExceptFullGroupIdentifier {"," ExceptFullGroupIdentifier} 
+239. ExceptFullGroupIdentifier ::= FullGroupIdentifier 
+240. ImportTypeDefSpec ::= TypeDefKeyword (TypeRefList | AllTypesWithExcept) 
+241. TypeRefList ::= TypeDefIdentifier {"," TypeDefIdentifier} 
+242. AllTypesWithExcept ::= AllKeyword [ExceptKeyword TypeRefList] 
+243. TypeDefIdentifier ::= StructTypeIdentifier | 
+                           EnumTypeIdentifier | 
+                           PortTypeIdentifier | 
+                           ComponentTypeIdentifier | 
+                           SubTypeIdentifier 
+244. ImportTemplateSpec ::= TemplateKeyword (TemplateRefList | AllTemplsWithExcept) 
+245. TemplateRefList ::= TemplateIdentifier {"," TemplateIdentifier} 
+246. AllTemplsWithExcept ::= AllKeyword [ExceptKeyword TemplateRefList] 
+247. ImportConstSpec ::= ConstKeyword (ConstRefList | AllConstsWithExcept) 
+248. ConstRefList ::= ConstIdentifier {"," ConstIdentifier} 
+249. AllConstsWithExcept ::= AllKeyword [ExceptKeyword ConstRefList] 
+250. ImportAltstepSpec ::= AltstepKeyword (AltstepRefList | AllAltstepsWithExcept) 
+251. AltstepRefList ::= AltstepIdentifier {"," AltstepIdentifier} 
+252. AllAltstepsWithExcept ::= AllKeyword [ExceptKeyword AltstepRefList] 
+253. ImportTestcaseSpec ::= TestcaseKeyword (TestcaseRefList | AllTestcasesWithExcept) 
+254. TestcaseRefList ::= TestcaseIdentifier {"," TestcaseIdentifier} 
+255. AllTestcasesWithExcept ::= AllKeyword [ExceptKeyword TestcaseRefList] 
+256. ImportFunctionSpec ::= FunctionKeyword (FunctionRefList | AllFunctionsWithExcept) 
+257. FunctionRefList ::= FunctionIdentifier {"," FunctionIdentifier} 
+258. AllFunctionsWithExcept ::= AllKeyword [ExceptKeyword FunctionRefList] 
+259. ImportSignatureSpec ::= SignatureKeyword  (SignatureRefList | AllSignaturesWithExcept) 
+260. SignatureRefList ::= SignatureIdentifier {"," SignatureIdentifier} 
+261. AllSignaturesWithExcept ::= AllKeyword [ExceptKeyword SignatureRefList] 
+262. ImportModuleParSpec ::= ModuleParKeyword  (ModuleParRefList | AllModuleParWithExcept) 
+263. ModuleParRefList ::= ModuleParIdentifier {"," ModuleParIdentifier} 
+264. AllModuleParWithExcept ::= AllKeyword [ExceptKeyword ModuleParRefList] 
+
+    163 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+ 
+A.1.6.1.9 Group  definitions 
+265. GroupDef ::= GroupKeyword GroupIdentifier 
+                  "{" [ModuleDefinitionsPart] "}" 
+266. GroupKeyword ::= "group" 
+267. GroupIdentifier ::= Identifier 
+ 
+A.1.6.1.10  External function definitions 
+268. ExtFunctionDef ::= ExtKeyword FunctionKeyword ExtFunctionIdentifier 
+                        "("[FunctionFormalParList] ")" [ReturnType] 
+269. ExtKeyword ::= "external" 
+270. ExtFunctionIdentifier ::= Identifier 
+ 
+A.1.6.1.11 External  constant  definitions 
+271. ExtConstDef ::= ExtKeyword ConstKeyword Type ExtConstIdentifier 
+/* STATIC SEMANTICS - Type shall follow the rules given in clause 9 of ES 201 873-1.*/ 
+272. ExtConstIdentifier ::= Identifier 
+ 
+A.1.6.1.12 Module  parameter  definitions 
+273. ModuleParDef ::= ModuleParKeyword ( ModulePar | ("{" MultitypedModuleParList "}")) 
+274. ModuleParKeyword ::= "modulepar" 
+275. MultitypedModuleParList ::= { ModulePar SemiColon }+ 
+276. ModulePar ::= ModuleParType ModuleParList 
+/* STATIC SEMANTICS - The Value of the ConstantExpression shall be of the same type as the stated 
+type for the Parameter */ 
+277. ModuleParType ::= Type 
+/* STATIC SEMANTICS - Type shall not be of component, default or anytype. Type shall only resolve to 
+address type if a definition for the address type is defined within the module */ 
+278. ModuleParList ::= ModuleParIdentifier [AssignmentChar ConstantExpression] 
+                      {","ModuleParIdentifier [AssignmentChar ConstantExpression]} 
+279. ModuleParIdentifier ::= Identifier 
+ 
+A.1.6.2 Control  part 
+A.1.6.2.0 General 
+280. ModuleControlPart ::= ControlKeyword 
+                           "{" ModuleControlBody "}" 
+                           [WithStatement] [SemiColon] 
+281. ControlKeyword ::= "control" 
+282. ModuleControlBody ::= [ControlStatementOrDefList] 
+283. ControlStatementOrDefList ::= {ControlStatementOrDef [SemiColon]}+ 
+284. ControlStatementOrDef ::= FunctionLocalDef | 
+                               FunctionLocalInst | 
+                               ControlStatement 
+285. ControlStatement ::= TimerStatements | 
+                          BasicStatements | 
+                          BehaviourStatements | 
+                          SUTStatements | 
+                          StopKeyword 
+/* STATIC SEMANTICS - Restrictions on use of statements in the control part are given in table 11 */ 
+ 
+A.1.6.2.1 Variable  instantiation 
+286. VarInstance ::= VarKeyword ((Type VarList) | (TemplateKeyword Type TempVarList)) 
+287. VarList ::= SingleVarInstance {"," SingleVarInstance} 
+288. SingleVarInstance ::= VarIdentifier [ArrayDef] [AssignmentChar VarInitialValue] 
+289. VarInitialValue ::= Expression 
+290. VarKeyword ::= "var" 
+291. VarIdentifier ::= Identifier 
+292. TempVarList ::= SingleTempVarInstance {"," SingleTempVarInstance} 
+293. SingleTempVarInstance ::= VarIdentifier [ArrayDef] [AssignmentChar TempVarInitialValue] 
+294. TempVarInitialValue ::= TemplateBody 
+295. VariableRef ::= (VarIdentifier | ValueParIdentifier) [ExtendedFieldReference] 
+ 
+
+    164 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+A.1.6.2.2 Timer  instantiation 
+296. TimerInstance ::= TimerKeyword TimerList 
+297. TimerList ::= SingleTimerInstance{"," SingleTimerInstance} 
+298. SingleTimerInstance ::= TimerIdentifier [ArrayDef] [AssignmentChar TimerValue] 
+299. TimerKeyword ::= "timer" 
+300. TimerIdentifier ::= Identifier 
+301. TimerValue ::= Expression 
+/* STATIC SEMANTICS - When Expression resolves to SingleExpression it must resolve to a value of 
+type float. Expression shall only resolves to CompoundExpression in the initialization in default 
+timer value assignment for timer arrays */ 
+302. TimerRef ::= (TimerIdentifier | TimerParIdentifier) {ArrayOrBitRef} 
+ 
+A.1.6.2.3 Component  operations 
+303. ConfigurationStatements ::= ConnectStatement | 
+                                 MapStatement | 
+                                 DisconnectStatement | 
+                                 UnmapStatement | 
+                                 DoneStatement | 
+                                 KilledStatement | 
+                                 StartTCStatement | 
+                                 StopTCStatement | 
+                                 KillTCStatement 
+304. ConfigurationOps ::= CreateOp | SelfOp | SystemOp | MTCOp | RunningOp | AliveOp 
+305. CreateOp ::= ComponentType Dot CreateKeyword ["(" SingleExpession ")"] [AliveKeyword] 
+/* STATIC SEMANTICS - Restrictions on SingleExpession see in clause 22.1 */ 
+306. SystemOp ::= SystemKeyword 
+307. SelfOp ::= "self" 
+308. MTCOp ::= MTCKeyword 
+309. DoneStatement ::= ComponentId Dot DoneKeyword 
+310. KilledStatement ::= ComponentId Dot KilledKeyword 
+311. ComponentId ::= ComponentOrDefaultReference | (AnyKeyword | AllKeyword) ComponentKeyword 
+312. DoneKeyword ::= "done" 
+313. KilledKeyword ::= "killed" 
+314. RunningOp ::= ComponentId Dot RunningKeyword 
+315. RunningKeyword ::= "running" 
+316. AliveOp ::= ComponentId Dot AliveKeyword 
+317. CreateKeyword ::= "create" 
+318. AliveKeyword ::= "alive" 
+319. ConnectStatement ::= ConnectKeyword SingleConnectionSpec 
+320. ConnectKeyword ::= "connect" 
+321. SingleConnectionSpec ::= "(" PortRef "," PortRef ")" 
+322. PortRef ::= ComponentRef Colon Port 
+323. ComponentRef ::= ComponentOrDefaultReference | SystemOp | SelfOp | MTCOp 
+324. DisconnectStatement ::= DisconnectKeyword [SingleOrMultiConnectionSpec] 
+325. SingleOrMultiConnectionSpec ::= SingleConnectionSpec | 
+                                     AllConnectionsSpec | 
+                                     AllPortsSpec | 
+                                     AllCompsAllPortsSpec] 
+326. AllConnectionsSpec ::= "(" PortRef ")" 
+327. AllPortsSpec ::= "(" ComponentRef ":" AllKeyword PortKeyword ")" 
+328. AllCompsAllPortsSpec ::= "(" AllKeyword ComponentKeyword ":" AllKeyword PortKeyword ")" 
+329. DisconnectKeyword ::= "disconnect" 
+330. MapStatement ::= MapKeyword SingleConnectionSpec 
+331. MapKeyword ::= "map" 
+332. UnmapStatement ::= UnmapKeyword [SingleOrMultiConnectionSpec] 
+333. UnmapKeyword ::= "unmap" 
+334. StartTCStatement ::= ComponentOrDefaultReference Dot StartKeyword "(" FunctionInstance ")" 
+/* STATIC SEMANTICS the Function instance may only have in parameters */ 
+/* STATIC SEMANTICS the Function instance shall not have timer parameters */ 
+335. StartKeyword ::= "start" 
+336. StopTCStatement ::= StopKeyword | (ComponentReferenceOrLiteral Dot StopKeyword) | 
+                         (AllKeyword ComponentKeyword Dot StopKeyword) 
+337. ComponentReferenceOrLiteral ::= ComponentOrDefaultReference | MTCOp | SelfOp 
+338. KillTCStatement ::= KillKeyword | (ComponentIdentifierOrLiteral Dot KillKeyword) | 
+                         (AllKeyword ComponentKeyword Dot KillKeyword) 
+339. ComponentOrDefaultReference ::= VariableRef | FunctionInstance 
+/* STATIC SEMANTICS - The variable associated with VariableRef or the return type associated with 
+FunctionInstance must be of component type when used in configuration statements and shall be of 
+default type when used in the deactivate statement. */ 
+340. KillKeyword ::= "kill" 
+ 
+
+    165 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+A.1.6.2.4 Port  operations 
+341. Port ::= (PortIdentifier | PortParIdentifier) {ArrayOrBitRef} 
+342. CommunicationStatements ::= SendStatement | 
+                                 CallStatement | 
+                                 ReplyStatement | 
+                                 RaiseStatement | 
+                                 ReceiveStatement | 
+                                 TriggerStatement | 
+                                 GetCallStatement | 
+                                 GetReplyStatement | 
+                                 CatchStatement | 
+                                 CheckStatement | 
+                                 ClearStatement | 
+                                 StartStatement | 
+                                 StopStatement 
+343. SendStatement ::= Port Dot PortSendOp 
+344. PortSendOp ::= SendOpKeyword "(" SendParameter ")" [ToClause] 
+345. SendOpKeyword ::= "send" 
+346. SendParameter ::= TemplateInstance 
+347. ToClause ::= ToKeyword AddressRef | 
+                  AddressRefList | 
+                  AllKeyword ComponentKeyword 
+/* STATIC SEMANTICS - AddressRef should not contain matching mechanisms */ 
+348. AddressRefList ::= "(" AddressRef {"," AddressRef} ")" 
+349. ToKeyword ::= "to" 
+350. AddressRef ::= TemplateInstance 
+/* STATIC SEMANTICS - TemplateInstance must be of address or component type */ 
+351. CallStatement ::= Port Dot PortCallOp  [PortCallBody] 
+352. PortCallOp ::= CallOpKeyword "(" CallParameters ")" [ToClause] 
+353. CallOpKeyword ::= "call" 
+354. CallParameters ::= TemplateInstance ["," CallTimerValue] 
+/* STATIC SEMANTICS only out parameters may be omitted or specified with a matching attribute */ 
+355. CallTimerValue ::= TimerValue | NowaitKeyword 
+/* STATIC SEMANTICS Value must be of type float */ 
+356. NowaitKeyword ::= "nowait" 
+357. PortCallBody ::= "{" CallBodyStatementList "}" 
+358. CallBodyStatementList ::= {CallBodyStatement [SemiColon]}+ 
+359. CallBodyStatement ::= CallBodyGuard  StatementBlock 
+360. CallBodyGuard ::= AltGuardChar CallBodyOps 
+361. CallBodyOps ::= GetReplyStatement | CatchStatement 
+362. ReplyStatement ::= Port Dot PortReplyOp 
+363. PortReplyOp ::= ReplyKeyword "(" TemplateInstance [ReplyValue]")" [ToClause] 
+364. ReplyKeyword ::= "reply" 
+365. ReplyValue ::= ValueKeyword Expression 
+366. RaiseStatement ::= Port Dot PortRaiseOp 
+367. PortRaiseOp ::= RaiseKeyword "(" Signature "," TemplateInstance ")" [ToClause] 
+368. RaiseKeyword ::= "raise" 
+369. ReceiveStatement ::= PortOrAny Dot PortReceiveOp 
+370. PortOrAny ::= Port | AnyKeyword PortKeyword 
+371. PortReceiveOp ::= ReceiveOpKeyword ["(" ReceiveParameter ")"] [FromClause] [PortRedirect] 
+/* STATIC SEMANTICS: the PortRedirect option may only be present if the ReceiveParameter option is 
+also present */ 
+372. ReceiveOpKeyword ::= "receive" 
+373. ReceiveParameter ::= TemplateInstance 
+374. FromClause ::= FromKeyword AddressRef 
+375. FromKeyword ::= "from" 
+376. PortRedirect ::= PortRedirectSymbol (ValueSpec [SenderSpec] | SenderSpec) 
+377. PortRedirectSymbol ::= "->" 
+378. ValueSpec ::= ValueKeyword VariableRef 
+379. ValueKeyword ::= "value" 
+380. SenderSpec ::= SenderKeyword VariableRef 
+/* STATIC SEMANTIC Variable ref must be of address or component type */ 
+381. SenderKeyword ::= "sender" 
+382. TriggerStatement ::= PortOrAny Dot PortTriggerOp 
+383. PortTriggerOp ::= TriggerOpKeyword ["(" ReceiveParameter ")"] [FromClause] [PortRedirect] 
+/* STATIC SEMANTICS: the PortRedirect option may only be present if the ReceiveParameter option is 
+also present */ 
+384. TriggerOpKeyword ::= "trigger" 
+385. GetCallStatement ::= PortOrAny  Dot PortGetCallOp 
+386. PortGetCallOp ::= GetCallOpKeyword ["(" ReceiveParameter ")"] [FromClause] 
+                       [PortRedirectWithParam] 
+/* STATIC SEMANTICS: the PortRedirectWithParam option may only be present if the ReceiveParameter 
+option is also present */ 
+387. GetCallOpKeyword ::= "getcall" 
+388. PortRedirectWithParam ::= PortRedirectSymbol RedirectWithParamSpec 
+389. RedirectWithParamSpec ::= ParamSpec [SenderSpec] | 
+                              SenderSpec 
+
+    166 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+390. ParamSpec ::= ParamKeyword ParamAssignmentList 
+391. ParamKeyword ::= "param" 
+392. ParamAssignmentList ::= "(" (AssignmentList | VariableList) ")" 
+393. AssignmentList ::= VariableAssignment {"," VariableAssignment} 
+394. VariableAssignment ::= VariableRef AssignmentChar ParameterIdentifier 
+/* STATIC SEMANTICS: the parameterIdentifiers must be from the corresponding signature definition */ 
+395. ParameterIdentifier ::= ValueParIdentifier 
+396. VariableList ::= VariableEntry  {"," VariableEntry} 
+397. VariableEntry ::= VariableRef | NotUsedSymbol 
+398. GetReplyStatement ::= PortOrAny Dot PortGetReplyOp 
+399. PortGetReplyOp ::= GetReplyOpKeyword ["(" ReceiveParameter [ValueMatchSpec] ")"] 
+                        [FromClause] [PortRedirectWithValueAndParam] 
+/* STATIC SEMANTICS: the PortRedirectWithParam option may only be present if the ReceiveParameter 
+option is also present */ 
+400. PortRedirectWithValueAndParam ::= PortRedirectSymbol RedirectWithValueAndParamSpec 
+401. RedirectWithValueAndParamSpec ::= ValueSpec [ParamSpec] [SenderSpec] | 
+                                       RedirectWithParamSpec 
+402. GetReplyOpKeyword ::= "getreply" 
+403. ValueMatchSpec ::= ValueKeyword TemplateInstance 
+404. CheckStatement ::= PortOrAny Dot PortCheckOp 
+405. PortCheckOp ::= CheckOpKeyword ["(" CheckParameter ")"] 
+406. CheckOpKeyword ::= "check" 
+407. CheckParameter ::= CheckPortOpsPresent | FromClausePresent | RedirectPresent 
+408. FromClausePresent ::= FromClause [PortRedirectSymbol SenderSpec] 
+409. RedirectPresent ::= PortRedirectSymbol SenderSpec 
+410. CheckPortOpsPresent ::= PortReceiveOp | PortGetCallOp | PortGetReplyOp | PortCatchOp 
+411. CatchStatement ::= PortOrAny Dot PortCatchOp 
+412. PortCatchOp ::= CatchOpKeyword ["("CatchOpParameter ")"] [FromClause] [PortRedirect] 
+/* STATIC SEMANTICS: the PortRedirect option may only be present if the CatchOpParameter option is 
+also present */ 
+413. CatchOpKeyword ::= "catch" 
+414. CatchOpParameter ::= Signature "," TemplateInstance | TimeoutKeyword 
+415. ClearStatement ::= PortOrAll Dot PortClearOp 
+416. PortOrAll ::= Port | AllKeyword PortKeyword 
+417. PortClearOp ::= ClearOpKeyword 
+418. ClearOpKeyword ::= "clear" 
+419. StartStatement ::= PortOrAll Dot PortStartOp 
+420. PortStartOp ::= StartKeyword 
+421. StopStatement ::= PortOrAll Dot PortStopOp 
+422. PortStopOp ::= StopKeyword 
+423. StopKeyword ::= "stop" 
+424. AnyKeyword ::= "any" 
+ 
+A.1.6.2.5 Timer  operations 
+425. TimerStatements ::= StartTimerStatement | StopTimerStatement | TimeoutStatement 
+426. TimerOps ::= ReadTimerOp | RunningTimerOp 
+427. StartTimerStatement ::= TimerRef Dot StartKeyword ["(" TimerValue ")"] 
+428. StopTimerStatement ::= TimerRefOrAll Dot StopKeyword 
+429. TimerRefOrAll ::= TimerRef | AllKeyword TimerKeyword 
+430. ReadTimerOp ::= TimerRef Dot ReadKeyword 
+431. ReadKeyword ::= "read" 
+432. RunningTimerOp ::= TimerRefOrAny  Dot RunningKeyword 
+433. TimeoutStatement ::= TimerRefOrAny  Dot TimeoutKeyword 
+434. TimerRefOrAny ::= TimerRef | AnyKeyword TimerKeyword 
+435. TimeoutKeyword ::= "timeout" 
+ 
+A.1.6.3 Type 
+436. Type ::= PredefinedType | ReferencedType 
+437. PredefinedType ::= BitStringKeyword | 
+                        BooleanKeyword | 
+                        CharStringKeyword | 
+                        UniversalCharString | 
+                        IntegerKeyword | 
+                        OctetStringKeyword | 
+                        HexStringKeyword | 
+                        VerdictTypeKeyword | 
+                        FloatKeyword | 
+                        AddressKeyword | 
+                        DefaultKeyword | 
+                        AnyTypeKeyword 
+438. BitStringKeyword ::= "bitstring" 
+439. BooleanKeyword ::= "boolean" 
+440. IntegerKeyword ::= "integer" 
+441. OctetStringKeyword ::= "octetstring" 
+
+    167 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+442. HexStringKeyword ::= "hexstring" 
+443. VerdictTypeKeyword ::= "verdicttype" 
+444. FloatKeyword ::= "float" 
+445. AddressKeyword ::= "address" 
+446. DefaultKeyword ::= "default" 
+447. AnyTypeKeyword ::= "anytype" 
+448. CharStringKeyword ::= "charstring" 
+449. UniversalCharString ::= UniversalKeyword CharStringKeyword 
+450. UniversalKeyword ::= "universal" 
+451. ReferencedType ::= [GlobalModuleId Dot] TypeReference [ExtendedFieldReference] 
+452. TypeReference ::= StructTypeIdentifier[TypeActualParList] | 
+                       EnumTypeIdentifier | 
+                       SubTypeIdentifier | 
+                       ComponentTypeIdentifier 
+453. TypeActualParList ::= "(" TypeActualPar {"," TypeActualPar} ")" 
+454. TypeActualPar ::= ConstantExpression 
+455. ArrayDef ::= {"[" ArrayBounds [".." ArrayBounds] "]"}+ 
+456. ArrayBounds ::= SingleConstExpression 
+/* STATIC SEMANTICS - ArrayBounds will resolve to a non negative value of integer type */ 
+ 
+A.1.6.4 Value 
+457. Value ::= PredefinedValue | ReferencedValue 
+458. PredefinedValue ::= BitStringValue | 
+                         BooleanValue | 
+                         CharStringValue | 
+                         IntegerValue | 
+                         OctetStringValue | 
+                         HexStringValue | 
+                         VerdictTypeValue | 
+                         EnumeratedValue | 
+                         FloatValue | 
+                         AddressValue | 
+                         OmitValue 
+459. BitStringValue ::= Bstring 
+460. BooleanValue ::= "true" | "false" 
+461. IntegerValue ::= Number 
+462. OctetStringValue ::= Ostring 
+463. HexStringValue ::= Hstring 
+464. VerdictTypeValue ::= "pass" | "fail" | "inconc" | "none" | "error" 
+465. EnumeratedValue ::= EnumerationIdentifier 
+466. CharStringValue ::= Cstring | Quadruple 
+467. Quadruple ::= CharKeyword "(" Group "," Plane "," Row "," Cell ")" 
+468. CharKeyword ::= "char" 
+469. Group ::= Number 
+470. Plane ::= Number 
+471. Row ::= Number 
+472. Cell ::= Number 
+473. FloatValue ::= FloatDotNotation | FloatENotation 
+474. FloatDotNotation ::= Number Dot DecimalNumber 
+475. FloatENotation ::= Number [Dot DecimalNumber] Exponential [Minus] Number 
+476. Exponential ::= "E" 
+477. ReferencedValue ::= ValueReference [ExtendedFieldReference] 
+478. ValueReference ::= [GlobalModuleId Dot] (ConstIdentifier | ExtConstIdentifier | 
+                        ModuleParIdentifier ) | 
+                        ValueParIdentifier | 
+                        VarIdentifier 
+479. Number ::= (NonZeroNum {Num}) | "0" 
+480. NonZeroNum ::= "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+481. DecimalNumber ::= {Num}+ 
+482. Num ::= "0" | NonZeroNum 
+483. Bstring ::= "'" {Bin} "'" "B" 
+484. Bin ::= "0" | "1" 
+485. Hstring ::= "'" {Hex} "'" "H" 
+486. Hex ::= Num | "A" | "B" | "C" | "D" | "E" | "F"| "a" | "b" | "c" | "d" | "e" | "f" 
+487. Ostring ::= "'" {Oct} "'" "O" 
+488. Oct ::= Hex Hex 
+489. Cstring ::= """ {Char} """ 
+490. Char ::= /* REFERENCE - A character defined by the relevant CharacterString type. For 
+charstring a character from the character set defined in ISO/IEC 646. For universal charstring a 
+character from any character set defined in ISO/IEC 10646 */ 
+491. Identifier ::= Alpha{AlphaNum | Underscore} 
+492. Alpha ::= UpperAlpha | LowerAlpha 
+493. AlphaNum ::= Alpha | Num 
+494. UpperAlpha ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | 
+"N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" 
+
+    168 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+495. LowerAlpha ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | 
+"n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" 
+496. ExtendedAlphaNum ::= /* REFERENCE - A graphical character from the BASIC LATIN or from the 
+LATIN-1 SUPPLEMENT character sets defined in ISO/IEC 10646  (characters from char (0,0,0,32) to char 
+(0,0,0,126), from char (0,0,0,161) to char (0,0,0,172) and from char (0,0,0,174) to char (0,0,0,255) 
+*/ 
+497. FreeText ::= """ {ExtendedAlphaNum} """ 
+498. AddressValue ::= "null" 
+499. OmitValue ::= OmitKeyword 
+500. OmitKeyword ::= "omit" 
+ 
+A.1.6.5 Parameterization 
+501. InParKeyword ::= "in" 
+502. OutParKeyword ::= "out" 
+503. InOutParKeyword ::= "inout" 
+504. FormalValuePar ::= [(InParKeyword | InOutParKeyword | OutParKeyword)] Type ValueParIdentifier 
+505. ValueParIdentifier ::= Identifier 
+506. FormalPortPar ::= [InOutParKeyword] PortTypeIdentifier PortParIdentifier 
+507. PortParIdentifier ::= Identifier 
+508. FormalTimerPar ::= [InOutParKeyword] TimerKeyword TimerParIdentifier 
+509. TimerParIdentifier ::= Identifier 
+510. FormalTemplatePar ::= [(InParKeyword | OutParKeyword | InOutParKeyword )] 
+                           TemplateKeyword Type TemplateParIdentifier 
+511. TemplateParIdentifier ::= Identifier 
+ 
+A.1.6.6 With  statement 
+512. WithStatement ::= WithKeyword WithAttribList 
+513. WithKeyword ::= "with" 
+514. WithAttribList ::= "{" MultiWithAttrib "}" 
+515. MultiWithAttrib ::= {SingleWithAttrib [SemiColon]} 
+516. SingleWithAttrib ::= AttribKeyword  [OverrideKeyword] [AttribQualifier] AttribSpec 
+517. AttribKeyword ::= EncodeKeyword | 
+                       VariantKeyword | 
+                       DisplayKeyword | 
+                       ExtensionKeyword 
+518. EncodeKeyword ::= "encode" 
+519. VariantKeyword ::= "variant" 
+520. DisplayKeyword ::= "display" 
+521. ExtensionKeyword ::= "extension" 
+522. OverrideKeyword ::= "override" 
+523. AttribQualifier ::= "(" DefOrFieldRefList ")" 
+524. DefOrFieldRefList ::= DefOrFieldRef {"," DefOrFieldRef} 
+525. DefOrFieldRef ::= DefinitionRef | FieldReference | AllRef 
+/* STATIC SEMANTICS: the DefOrFieldRef must refer to a definition or field which is within the 
+module, group or definition to which the with statement is associated */ 
+526. DefinitionRef ::= StructTypeIdentifier | 
+                       EnumTypeIdentifier | 
+                       PortTypeIdentifier | 
+                       ComponentTypeIdentifier | 
+                       SubTypeIdentifier | 
+                       ConstIdentifier | 
+                       TemplateIdentifier | 
+                       AltstepIdentifier | 
+                       TestcaseIdentifier | 
+                       FunctionIdentifier | 
+                       SignatureIdentifier | 
+                       VarIdentifier | 
+                       TimerIdentifier | 
+                       PortIdentifier | 
+                       ModuleParIdentifier | 
+                       FullGroupIdentifier 
+527. AllRef ::= ( GroupKeyword AllKeyword [ExceptKeyword "{" GroupRefList "}"]) | 
+                ( TypeDefKeyword AllKeyword [ExceptKeyword "{" TypeRefList "}"]) | 
+                ( TemplateKeyword AllKeyword [ExceptKeyword "{" TemplateRefList "}"]) | 
+                ( ConstKeyword AllKeyword [ExceptKeyword "{" ConstRefList "}"]) | 
+                ( AltstepKeyword AllKeyword [ExceptKeyword "{" AltstepRefList "}"]) | 
+                ( TestcaseKeyword AllKeyword [ExceptKeyword "{" TestcaseRefList "}"]) | 
+                ( FunctionKeyword AllKeyword [ExceptKeyword "{" FunctionRefList "}"]) | 
+                ( SignatureKeyword AllKeyword [ExceptKeyword "{" SignatureRefList "}"]) | 
+                ( ModuleParKeyword AllKeyword [ExceptKeyword "{" ModuleParRefList "}"])  
+528. AttribSpec ::= FreeText 
+ 
+
+    169 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+A.1.6.7 Behaviour  statements 
+529. BehaviourStatements ::= TestcaseInstance | 
+                             FunctionInstance | 
+                             ReturnStatement | 
+                             AltConstruct | 
+                             InterleavedConstruct | 
+                             LabelStatement | 
+                             GotoStatement | 
+                             RepeatStatement | 
+                             DeactivateStatement | 
+                             AltstepInstance | 
+                             ActivateOp 
+/* STATIC SEMANTICS: TestcaseInstance shall not be called from within an existing executing testcase 
+or function chain called from a testcase i.e. testcases can only be instantiated from the control 
+part or from functions directly called from the control part */ 
+/* STATIC SEMANTICS - ActivateOp shall not be called from within the module control part */ 
+530. VerdictStatements ::= SetLocalVerdict 
+531. VerdictOps ::= GetLocalVerdict 
+532. SetLocalVerdict ::= SetVerdictKeyword "(" SingleExpression ")" 
+/* STATIC SEMANTICS -SingleExpression must resolve to a value of type verdict */ 
+/* STATIC SEMANTICS - the SetLocalVerdict shall not be used to assign the Value error */ 
+533. SetVerdictKeyword ::= "setverdict" 
+534. GetLocalVerdict ::= "getverdict" 
+535. SUTStatements ::= ActionKeyword "(" [ActionText ] {StringOp ActionText} ")" 
+536. ActionKeyword ::= "action" 
+537. ActionText ::= FreeText | Expression 
+/*STATIC SEMANTICS - Expression shall have the base type charstring or universal charstring */ 
+538. ReturnStatement ::= ReturnKeyword  [Expression] 
+539. AltConstruct ::= AltKeyword "{" AltGuardList "}" 
+540. AltKeyword ::= "alt" 
+541. AltGuardList ::= {GuardStatement | ElseStatement [SemiColon]} 
+542. GuardStatement ::= AltGuardChar (AltstepInstance [StatementBlock] | GuardOp StatementBlock) 
+543. ElseStatement ::= "["ElseKeyword "]" StatementBlock 
+544. AltGuardChar ::= "[" [BooleanExpression] "]" 
+/*STATIC SEMANTICS - BooleanExpression shall conform to restrictions in clause 20.1.2 of 
+ES 201 873-1*/ 
+545. GuardOp ::= TimeoutStatement | 
+                 ReceiveStatement | 
+                 TriggerStatement | 
+                 GetCallStatement | 
+                 CatchStatement | 
+                 CheckStatement | 
+                 GetReplyStatement | 
+                 DoneStatement | 
+                 KilledStatement 
+/* STATIC SEMANTICS - GuardOp used within the module control part shall only contain the 
+timeoutStatement */ 
+546. InterleavedConstruct ::= InterleavedKeyword "{" InterleavedGuardList "}" 
+547. InterleavedKeyword ::= "interleave" 
+548. InterleavedGuardList ::= {InterleavedGuardElement [SemiColon]}+ 
+549. InterleavedGuardElement ::= InterleavedGuard InterleavedAction 
+550. InterleavedGuard ::= "[" "]" GuardOp 
+551. InterleavedAction ::= StatementBlock 
+/* STATIC SEMANTICS - the StatementBlock may not contain loop statements, goto, activate, 
+deactivate, stop, return or calls to functions */ 
+552. LabelStatement ::= LabelKeyword LabelIdentifier 
+553. LabelKeyword ::= "label" 
+554. LabelIdentifier ::= Identifier 
+555. GotoStatement ::= GotoKeyword LabelIdentifier 
+556. GotoKeyword ::= "goto" 
+557. RepeatStatement ::= "repeat" 
+558. ActivateOp ::= ActivateKeyword "(" AltstepInstance ")" 
+559. ActivateKeyword ::= "activate" 
+560. DeactivateStatement ::= DeactivateKeyword ["(" ComponentOrDefaultReference ")"] 
+561. DeactivateKeyword ::= "deactivate" 
+ 
+
+    170 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+A.1.6.8 Basic  statements 
+562. BasicStatements ::= Assignment | LogStatement | LoopConstruct | ConditionalConstruct | 
+                         SelectCaseConstruct 
+563. Expression ::= SingleExpression | CompoundExpression 
+/* STATIC SEMANTICS - Expression shall not contain Configuration, activate operation or verdict 
+operations within the module control part */ 
+564. CompoundExpression ::= FieldExpressionList | ArrayExpression 
+/* STATIC SEMANTICS - Within CompoundExpression the ArrayExpression can be used for Arrays, record, 
+record of and set of types. */ 
+565. FieldExpressionList ::= "{" FieldExpressionSpec {"," FieldExpressionSpec} "}" 
+566. FieldExpressionSpec ::= FieldReference AssignmentChar NotUsedOrExpression 
+567. ArrayExpression ::= "{" [ArrayElementExpressionList] "}" 
+568. ArrayElementExpressionList ::= NotUsedOrExpression  {"," NotUsedOrExpression} 
+569. NotUsedOrExpression ::= Expression | NotUsedSymbol 
+570. ConstantExpression ::= SingleConstExpression | CompoundConstExpression 
+571. SingleConstExpression ::= SingleExpression 
+/* STATIC SEMANTICS - SingleConstExpression shall not contain Variables or Module parameters and 
+shall resolve to a constant Value at compile time */ 
+572. BooleanExpression ::= SingleExpression 
+/* STATIC SEMANTICS - BooleanExpression shall resolve to a Value of type Boolean */ 
+573. CompoundConstExpression ::= FieldConstExpressionList | ArrayConstExpression 
+/* STATIC SEMANTICS - Within CompoundConstExpression the ArrayConstExpression can be used for 
+Arrays, record, record of and set of types. */ 
+574. FieldConstExpressionList ::= "{" FieldConstExpressionSpec {"," FieldConstExpressionSpec} "}" 
+575. FieldConstExpressionSpec ::= FieldReference AssignmentChar ConstantExpression 
+576. ArrayConstExpression ::= "{" [ArrayElementConstExpressionList] "}" 
+577. ArrayElementConstExpressionList ::= ConstantExpression {"," ConstantExpression} 
+578. Assignment ::= VariableRef AssignmentChar (Expression | TemplateBody) 
+/* STATIC SEMANTICS - The Expression on the right hand side of Assignment shall evaluate to an 
+explicit Value of a type compatible with the type of theleft hand side for value variables and shall 
+evaluate to an explicit Value, template (literal or a template instance) or a matching mechanism 
+compatible with the type of the left hand side for template variables. */ 
+579. SingleExpression ::= XorExpression { "or" XorExpression } 
+/* STATIC SEMANTICS - If more than one XorExpression exists, then the XorExpressions shall evaluate 
+to specific values of compatible types */ 
+580. XorExpression ::= AndExpression { "xor" AndExpression } 
+/* STATIC SEMANTICS - If more than one AndExpression exists, then the AndExpressions shall evaluate 
+to specific values of compatible types */ 
+581. AndExpression ::= NotExpression { "and" NotExpression } 
+/* STATIC SEMANTICS - If more than one NotExpression exists, then the NotExpressions shall evaluate 
+to specific values of compatible types */ 
+582. NotExpression ::= [ "not" ] EqualExpression 
+/* STATIC SEMANTICS - Operands of the not operator shall be of type boolean (TTCN or ASN.1) or 
+derivatives of type Boolean. */ 
+583. EqualExpression ::= RelExpression { EqualOp RelExpression } 
+/* STATIC SEMANTICS - If more than one RelExpression exists, then the RelExpressions shall evaluate 
+to specific values of compatible types */ 
+584. RelExpression ::= ShiftExpression [ RelOp ShiftExpression ] 
+/* STATIC SEMANTICS - If both ShiftExpressions exist, then each ShiftExpression shall evaluate to a 
+specific integer, Enumerated or float Value (these values can either be TTCN or ASN.1 values) or 
+derivatives of these types */ 
+585. ShiftExpression ::= BitOrExpression { ShiftOp BitOrExpression } 
+/* STATIC SEMANTICS - Each Result shall resolve to a specific Value. If more than one Result exists 
+the right-hand operand shall be of type integer or derivatives and if the shift op is '<<' or '>>' 
+then the left-hand operand shall resolve to either bitstring, hexstring or octetstring type or 
+derivatives of these types. If the shift op is '<@' or '@>' then the left-hand operand shall be of 
+type bitstring, hexstring, charstring or universal charstring or derivatives of these types */ 
+586. BitOrExpression ::= BitXorExpression { "or4b" BitXorExpression } 
+/* STATIC SEMANTICS - If more than one BitXorExpression exists, then the BitXorExpressions shall 
+evaluate to specific values of compatible types */ 
+587. BitXorExpression ::= BitAndExpression { "xor4b" BitAndExpression } 
+/* STATIC SEMANTICS - If more than one BitAndExpression exists, then the BitAndExpressions shall 
+evaluate to specific values of compatible types */ 
+588. BitAndExpression ::= BitNotExpression { "and4b" BitNotExpression } 
+/* STATIC SEMANTICS - If more than one BitNotExpression exists, then the BitNotExpressions shall 
+evaluate to specific values of compatible types */ 
+589. BitNotExpression ::= [ "not4b" ] AddExpression 
+/* STATIC SEMANTICS - If the not4b operator exists, the operand shall be of type bitstring, 
+octetstring or hexstring or derivatives of these types. */ 
+590. AddExpression ::= MulExpression { AddOp MulExpression } 
+/* STATIC SEMANTICS - Each MulExpression shall resolve to a specific Value. If more than one 
+MulExpression exists and the AddOp resolves to StringOp then the MulExpressions shall resolve to 
+same type which shall be of bitstring, hexstring, octetstring, charstring or universal charstring or 
+derivatives of these types. If more than one MulExpression exists and the AddOp does not resolve to 
+StringOp then the MulExpression shall both resolve to type integer or float or derivatives of these 
+types.*/ 
+591. MulExpression ::= UnaryExpression { MultiplyOp UnaryExpression } 
+
+    171 ETSI ES 201 873-1 V3.1.1 (2005-06) 
+/* STATIC SEMANTICS - Each UnaryExpression shall resolve to a specific Value. If more than one 
+UnaryExpression exists then the UnaryExpressions shall resolve to type integer or float or 
+derivatives of these types. */ 
+592. UnaryExpression ::= [ UnaryOp ] Primary 
+/* STATIC SEMANTICS - Primary shall resolve to a specific Value of type integer or float or 
+derivatives of these types.*/ 
+593. Primary ::= OpCall | Value | "(" SingleExpression ")" 
+594. ExtendedFieldReference ::= {(Dot ( StructFieldIdentifier | TypeDefIdentifier)) 
+                                | ArrayOrBitRef }+ 
+/* STATIC SEMANTIC - The TypeDefIdentifier shall be used only if the type of the VarInstance or 
+ReferencedValue in wich the ExtendedFieldReference is used is anytype.*/ 
+595. OpCall ::= ConfigurationOps | 
+                VerdictOps | 
+                TimerOps | 
+                TestcaseInstance | 
+                FunctionInstance | 
+                TemplateOps | 
+                ActivateOp 
+596. AddOp ::= "+" | "-" | StringOp 
+/* STATIC SEMANTICS - Operands of the "+" or "-" operators shall be of type integer or float or 
+derivations of integer or float (i.e. subrange) */ 
+597. MultiplyOp ::= "*" | "/" | "mod" | "rem" 
+/* STATIC SEMANTICS - Operands of the "*", "/", rem or mod operators shall be of type integer or 
+float or derivations of integer or float (i.e. subrange). */ 
+598. UnaryOp ::= "+" | "-" 
+/* STATIC SEMANTICS - Operands of the "+" or "-" operators shall be of type integer or float or 
+derivations of integer or float (i.e. subrange). */ 
+599. RelOp ::= "<" | ">" | ">=" | "<=" 
+/* STATIC SEMANTICS - the precedence of the operators is defined in Table 7 */ 
+600. EqualOp ::= "==" | "!="   
+601. StringOp ::= "&" 
+/* STATIC SEMANTICS - Operands of the string operator shall be bitstring, hexstring, octetstring or 
+character string */ 
+602. ShiftOp ::= "<<" | ">>" | "<@" | "@>" 
+603. LogStatement ::= LogKeyword "(" LogItem { "," LogItem } ")" 
+604. LogKeyword ::= "log" 
+605. LogItem ::= FreeText | TemplateInstance 
+606. LoopConstruct ::= ForStatement | 
+                       WhileStatement | 
+                       DoWhileStatement 
+607. ForStatement ::= ForKeyword "(" Initial SemiColon Final SemiColon Step ")" 
+                      StatementBlock 
+608. ForKeyword ::= "for" 
+609. Initial ::= VarInstance | Assignment 
+610. Final ::= BooleanExpression 
+611. Step ::= Assignment 
+612. WhileStatement ::= WhileKeyword "(" BooleanExpression ")" 
+                        StatementBlock 
+613. WhileKeyword ::= "while" 
+614. DoWhileStatement ::= DoKeyword StatementBlock 
+                          WhileKeyword "(" BooleanExpression ")" 
+615. DoKeyword ::= "do" 
+616. ConditionalConstruct ::= IfKeyword "(" BooleanExpression ")" 
+                              StatementBlock 
+                              {ElseIfClause}[ElseClause] 
+617. IfKeyword ::= "if" 
+618. ElseIfClause ::= ElseKeyword  IfKeyword "(" BooleanExpression ")"  StatementBlock 
+619. ElseKeyword ::= "else" 
+620. ElseClause ::= ElseKeyword  StatementBlock 
+621. SelectCaseConstruct ::= SelectKeyword "(" SingleExpression ")" SelectCaseBody 
+622. SelectKeyword ::= "select" 
+623. SelectCaseBody ::= "{" { SelectCase }+ "}" 
+624. SelectCase ::= CaseKeyword ( '(' TemplateInstance {"," TemplateInstance } ')' | ElseKeyword ) 
+                    StatementBlock 
+625. CaseKeyword ::= "case" 
+ 
+A.1.6.9 Miscellaneous  productions 
+626. Dot ::= "." 
+627. Dash ::= "-" 
+628. Minus ::= Dash 
+629. SemiColon ::= ";" 
+630. Colon ::= ":" 
+631. Underscore ::= "_" 
+632. AssignmentChar ::= ":=" 
