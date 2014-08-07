@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/ehuufei/gitProj/PL/c++/c++11'
+let g:netrw_dirhist_2='/home/ehuufei/gitProj/PL/c++'
+let g:netrw_dirhist_3='/home/ehuufei/gitProj/PL/c++/dataStructure'
+let g:netrw_dirhist_4='/home/ehuufei/gitProj/PL/c++/algorithm'
+let g:netrw_dirhist_5='/home/ehuufei/gitProj/PL/c++/src'
+let g:netrw_dirhist_6='/home/ehuufei'
+let g:netrw_dirhist_7='/usr/include'
+let g:netrw_dirhist_8='/home/ehuufei/gitProj/J2EE/sae'
