@@ -76,15 +76,14 @@ autocmd! bufwritepost .vimrc source ~/_vimrc
 "==================================
 "Key&Shortcut Mapping
 "==================================
-map <F2> : w!<CR>
-imap <F2> <ESC>:w!<CR>li
+map <F2> : w<CR>
+imap <F2> <ESC>:w<CR>li
 
 map <F3> : TlistToggle<CR>5<C-w>h
 imap <F3> <ESC>:TlistToggle<CR>l5<C-w>hi
 
 "Deprecated
-map <F4> : set invnumber<CR>5<C-w>h
-imap <F4> <ESC>:set invnumber<CR>l5<C-w>hi
+"nmap <F4>: set invnumber<CR>
 
 "map <F5> : set e!<CR>
 "imap <F5> <ESC>:e!<CR>li
@@ -116,14 +115,16 @@ nmap gUu :.s/\([_\s]*\)\([0-9a-zA-Z]*\)/\=submatch(1).substitute(tolower(submatc
 
 nmap fu :set fileformat=unix<CR><F2> 
 nmap fd :set fileformat=dos<CR><F2>
-"nmap cp :!cp -f % c:\cygwin\home\ehuufei\ttcn\quick_test<CR><ESC>
+nmap cp :!cp -f % c:\cygwin\home\ehuufei\ttcn\quick_test<CR><ESC>
 " In unix erv
 " nmap cp :!cp % /scratch/j20/ft/ehuufei/testsuite/quick_test/<CR><ESC>
 "nmap <C-[> :ts<CR>
 
-"Fast Comments
-nmap ZC :.s/^\(.*\)$/\/\*\1\*\/<CR>:set nohlsearch<CR><ESC>j
-nmap Zc :.s/\/\*\(.*\)\*\//\1<CR>:set nohlsearch<CR><ESC>j
+"------------------------------------------------------------------------
+" Alucard's fast edit
+"------------------------------------------------------------------------
+nmap zy viwy
+nmap zp viwp
 
 "==================================
 "Custom Function
@@ -210,20 +211,16 @@ function LoadLookup(view)
             let g:LookupFile_TagExpr = '"M:\\ehuufei_ggsn_lsv_int\\ggsn_test\\filenametags"'
         endif
     elseif a:view == 'ruby'
-        if filereadable("F:\\CygwinForRuby\\home\\Administrator\\script\\ruby\\filenametags")
-            let g:LookupFile_TagExpr = '"F:\\CygwinForRuby\\home\\Administrator\\script\\ruby\\filenametags"'
+        if filereadable("C:\\cygwin\\home\\ehuufei\\script\\ruby\\filenametags")
+            let g:LookupFile_TagExpr = '"C:\\cygwin\\home\\ehuufei\\script\\ruby\\filenametags"'
         endif
     elseif a:view == 'java'
         if filereadable("C:\\cygwin\\home\\ehuufei\\java\\filenametags")
-            let g:LookupFile_TagExpr = '"F:\\cygwin\\home\\ehuufei\\java\\filenametags"'
+            let g:LookupFile_TagExpr = '"C:\\cygwin\\home\\ehuufei\\java\\filenametags"'
         endif
     elseif a:view == 'c'
-        if filereadable("F:\\Cygwin\\home\\user\\linuxDIY\\linux-0.11\\filenametags")
-            let g:LookupFile_TagExpr = '"F:\\Cygwin\\home\\user\\linuxDIY\\linux-0.11\\filenametags"'
-        endif
-    elseif a:view == 'compiler'
-        if filereadable("F:\\Cygwin\\home\\user\\gitProj\\mycot")
-            let g:LookupFile_TagExpr = '"F:\\Cygwin\\home\\user\\gitProj\\mycot\\filenametags"'
+        if filereadable("C:\\cygwin\\home\\ehuufei\\linuxDIY\\linux-0.11\\filenametags")
+            let g:LookupFile_TagExpr = '"C:\\cygwin\\home\\ehuufei\\linuxDIY\\linux-0.11\\filenametags"'
         endif
     endif
 endfunction
@@ -299,13 +296,26 @@ call LoadLookup('c')
 "nmap <silent> <leader>ll <Plug>LUBufs<cr>
 "nmap <silent> <leader>lw <Plug>LUWalk<cr>
 "
+
+" cscope
+"==================================
+"Configuration for Syntastic
+"==================================
+execute pathogen#infect()
+syntax on
+filetype plugin indent on
+
 "==================================
 "Configuration for TTCN3
 "==================================
-au BufNewFile,BufRead *.ttcn			setf ttcn
-au BufNewFile,BufRead *.ttcn3			setf ttcn
 "Foldmethod
 autocmd FileType ttcn setl fdm=syntax
+au BufNewFile,BufRead *.ttcn			setf ttcn
 "==================================
 "Configuration for RUBY
 "==================================
+"==================================
+"Configuration for Golang
+"==================================
+let g:syntastic_cpp_compiler_options = ' -std=c++11'
+
