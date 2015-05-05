@@ -43,7 +43,12 @@ fi
 #   INFOPATH="${HOME}/info:${INFOPATH}"
 # fi
 
-# git autocompletion
+# Git autocompletion
 if [ -f ~/.git-completion.bash ]; then
   . ~/.git-completion.bash
+fi
+
+# Git prompt
+if [ -f ~/.git-prompt.sh ]; then
+  . ~/.git-prompt.sh
 fi

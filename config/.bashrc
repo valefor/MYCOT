@@ -165,3 +165,42 @@ PATH=$GOROOT/bin:$PATH
 
 # For dmalloc
 function dmalloc { eval `command dmalloc -b $*`; }
+
+# For quick cd
+# Quick CD(c) to :
+#   q - app
+#   z - platform
+export ANW_GITREPO_ROOT=/cygdrive/c/git/
+export ANW_APP_Q=$ANW_GITREPO_ROOT/app/app
+export ANW_APP_Z=$ANW_GITREPO_ROOT/app/platform
+export ANW_APP_U=$ANW_GITREPO_ROOT/ui
+export ANW_APP_C=$ANW_GITREPO_ROOT/occ
+export DESKTOP=/cygdrive/c/Users/I311384.GLOBAL/Desktop
+
+alias ca="cd $DESKTOP"
+alias cc="cd $ANW_APP_C"
+alias cq="cd $ANW_APP_Q"
+alias cz="cd $ANW_APP_Z"
+alias cu="cd $ANW_APP_U"
+
+# Common dir
+alias cqgb="cd $ANW_APP_Q/app-ns/src/main/resources/globalization"
+alias cqns="cd $ANW_APP_Q/app-ns/src/main/java/com/sap/sbo/app/ns"
+alias cqmt="cd $ANW_APP_Q/metadata-repository/src/main/resources/META-INF/"
+alias czgb="cd $ANW_APP_Z/service-layer/src/main/resources/globalization"
+alias cujs="cd $ANW_APP_U/sfa-anw/src/main/webapp/js"
+alias ccjs="cd $ANW_APP_C/server/sfa-anw/src/main/webapp/js"
+alias dsrc='cd /cygdrive/c/B1_Dev/Design/BUSMB_B1/SBO/9.01_DEV/Source'
+alias nsrc='cd /cygdrive/c/B1_Dev/Design/BUSMB_B1/SBO_TEMP_PRJ/INNOVATION_WORK/NewHireTrainingForB1/Source/Client'
+
+# Nodejs
+source /cygdrive/c/git/nvm/nvm.sh
+export NVM_NODEJS_ORG_MIRROR=http://dist.u.qiniudn.com
+
+# Git (sources is oncely loaded in bash_profile)
+export GIT_PS1_SHOWCOLORHINTS=true
+#export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$'
+#export PS1='\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n$(__git_ps1 " (%s)")\$ '
+export PROMPT_COMMAND='__git_ps1 "\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n" "\\\$"'
+
+
